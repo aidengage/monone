@@ -9,11 +9,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npm install
    ```
-
-2. Start the app
+2. Build the app
+   ```bash
+   npx expo run:ios
+   npx expo run:android
+   ```
+3. Start the app
 
    ```bash
    npx expo start
+   npm run ios
+   npm run android
    ```
 
 In the output, you'll find options to open the app in a
