@@ -5,7 +5,13 @@ import { StyleSheet, View } from 'react-native';
 export default function App() {
     return (
         <View style={styles.container}>
-            <MapView style={styles.map} /*provider={PROVIDER_GOOGLE}*/ />
+            <MapView style={styles.map} /*provider={PROVIDER_GOOGLE}*/
+            initialRegion={{
+                latitude: 38.2037,
+                longitude: -85.7724,
+                latitudeDelta: 0.09,
+                longitudeDelta: 0.03,
+            }}/>
         </View>
     );
 }
