@@ -13,7 +13,10 @@
         "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY"
       },
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.mononedev"
+      "bundleIdentifier": "com.anonymous.mononedev",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "config": {
@@ -53,6 +56,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ffbb54f2-ebd7-4c67-8463-d61ba99d0759"
+      }
     }
   }
 }
