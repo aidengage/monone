@@ -15,7 +15,7 @@ export default function App() {
             >
                 <Marker
                     coordinate={{latitude: 38.2037, longitude: -85.7724}}
-                    title={"churchill downs"}
+                    title={"Churchill Downs"}
                 />
             </MapView>
         </View>
@@ -25,10 +25,15 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        overflow: 'hidden',
+        flexDirection: 'column',
+        padding: 20,
     },
     map: {
         width: '100%',
         height: '100%',
+        borderRadius: 90,
+        borderWidth: 1,
     },
 });
 
