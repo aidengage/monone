@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "git-test",
-    "slug": "git-test",
+    "slug": "monone-dev",
+    "name": "monone-dev",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "gittest",
+    "scheme": "mononedev",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -13,7 +13,7 @@
         "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY"
       },
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.gittest"
+      "bundleIdentifier": "com.anonymous.mononedev"
     },
     "android": {
       "config": {
@@ -29,7 +29,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.gittest"
+      "package": "com.anonymous.mononedev"
     },
     "web": {
       "output": "static",
