@@ -7,22 +7,36 @@ export default function App() {
         <View style={styles.mask}>
             <View style={styles.container}>
                 <MapView renderToHardwareTextureAndroid={true} style={styles.map} /*provider={PROVIDER_GOOGLE}*/
-                         initialRegion={{
-                             latitude: 38.2037, //N
-                             longitude: -85.7724, //W
-                             latitudeDelta: 0.09,
-                             longitudeDelta: 0.03,
-                         }}
+                     initialRegion={{
+                         latitude: 38.2037, //N
+                         longitude: -85.7724, //W
+                         latitudeDelta: 0.09,
+                         longitudeDelta: 0.03,
+                     }}
                 >
-                    <Marker
-                        coordinate={{latitude: 38.2037, longitude: -85.7724}}
-                        title={"Churchill Downs"}
-                    />
+                    {markers.map((marker) => (
+                        <Marker
+                            key={marker.id}
+                            title={marker.title}
+                            description={marker.description}
+                            coordinate={marker.coordinates}
+                            // onPress={() => {}}
+                        />
+                    ))}
                 </MapView>
             </View>
         </View>
     );
 }
+
+const markers = [
+    {
+        id: 1,
+        title: 'Churchill Downs',
+        description: 'Horse racing capital of the nation',
+        coordinates: {latitude: 38.2037, longitude: -85.7724},
+    }
+]
 
 const styles = StyleSheet.create({
     mask: {
