@@ -32,9 +32,9 @@ export default function App() {
     //
     //     setMapState({w: '100%', h: '50%'});
     // }
-
     return (
         <View style={styles.mask}>
+            
             <View style={styles.container}>
                 <MapView
                     ref={mapRef}
@@ -48,6 +48,7 @@ export default function App() {
                         latitudeDelta: 0.09,
                         longitudeDelta: 0.03,
                     }}
+                    onPress={() => setMapState({w: '100%', h: '100%'}) }
                 >
                     {markers.map((marker) => (
                         <Marker
