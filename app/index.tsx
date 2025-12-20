@@ -1,18 +1,51 @@
-import React from 'react';
-import MapView, {Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, View } from 'react-native';
+import React, { useRef } from 'react';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import {Animated, LayoutAnimation, StyleSheet, UIManager, View} from 'react-native';
 
 export default function App() {
+    const mapRef = useRef(null);
+
+    UIManager.setLayoutAnimationEnabledExperimental &&
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+
+
+    const [mapState, setMapState] = React.useState({
+        w: '100%',
+        h: '100%',
+    })
+
+    // const centerMapOnMarker = (coordinate) => {
+    //     if (mapRef.current) {
+    //         const region = {
+    //             latitude: coordinate.latitude,
+    //             longitude: coordinate.longitude,
+    //
+    //         };
+    //         mapRef.current.animateToRegion
+    //     }
+    // }
+
+    const onPress = () => {
+        LayoutAnimation.spring();
+
+        setMapState({w: '100%', h: '50%'});
+    }
+
     return (
         <View style={styles.mask}>
             <View style={styles.container}>
-                <MapView renderToHardwareTextureAndroid={true} style={styles.map} /*provider={PROVIDER_GOOGLE}*/
-                     initialRegion={{
-                         latitude: 38.2037, //N
-                         longitude: -85.7724, //W
-                         latitudeDelta: 0.09,
-                         longitudeDelta: 0.03,
-                     }}
+                <MapView
+                    ref={mapRef}
+                    renderToHardwareTextureAndroid={true}
+                    style={[styles.map, {width: mapState.w, height: mapState.h}]}
+
+                    // provider={PROVIDER_GOOGLE}
+                    initialRegion={{
+                        latitude: 38.2037, //N
+                        longitude: -85.7724, //W
+                        latitudeDelta: 0.09,
+                        longitudeDelta: 0.03,
+                    }}
                 >
                     {markers.map((marker) => (
                         <Marker
@@ -20,7 +53,7 @@ export default function App() {
                             title={marker.title}
                             description={marker.description}
                             coordinate={marker.coordinates}
-                            // onPress={() => {}}
+                            onPress={onPress}
                         />
                     ))}
                 </MapView>
