@@ -1,18 +1,21 @@
 import React from 'react';
-import MapView, {Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 export default function App() {
     return (
         <View style={styles.mask}>
             <View style={styles.container}>
-                <MapView renderToHardwareTextureAndroid={true} style={styles.map} /*provider={PROVIDER_GOOGLE}*/
-                     initialRegion={{
-                         latitude: 38.2037, //N
-                         longitude: -85.7724, //W
-                         latitudeDelta: 0.09,
-                         longitudeDelta: 0.03,
-                     }}
+                <MapView 
+                    provider={PROVIDER_GOOGLE}
+                    renderToHardwareTextureAndroid={true} 
+                    style={styles.map}
+                    initialRegion={{
+                        latitude: 38.2037, //N
+                        longitude: -85.7724, //W
+                        latitudeDelta: 0.09,
+                        longitudeDelta: 0.03,
+                    }}
                 >
                     {markers.map((marker) => (
                         <Marker
@@ -40,22 +43,18 @@ const markers = [
 
 const styles = StyleSheet.create({
     mask: {
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
+        flex: 1,
         padding: 20,
     },
     container: {
+        flex: 1,
         overflow: 'hidden',
-
         borderRadius: 45,
-        borderColor: '#ed7070',
+        borderWidth: 2,
+        borderColor: '#000000',
     },
     map: {
-        width: '100%',
-        height: '100%',
-
+        flex: 1,
         borderRadius: 45,
-        borderColor: '#4169ff',
     },
 });
