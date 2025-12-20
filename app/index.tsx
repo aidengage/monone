@@ -14,22 +14,24 @@ export default function App() {
         h: '100%',
     })
 
-    // const centerMapOnMarker = (coordinate) => {
-    //     if (mapRef.current) {
-    //         const region = {
-    //             latitude: coordinate.latitude,
-    //             longitude: coordinate.longitude,
-    //
-    //         };
-    //         mapRef.current.animateToRegion
-    //     }
-    // }
-
-    const onPress = () => {
+    const centerMapOnMarker = (coordinate: { latitude?: any; longitude?: any; }) => {
         LayoutAnimation.spring();
+        setMapState({w: '100%', h: '50%'})
 
-        setMapState({w: '100%', h: '50%'});
+        if (mapRef.current) {
+            const region = {
+                latitude: coordinate.latitude,
+                longitude: coordinate.longitude,
+            };
+            // mapRef.current.animateCamera
+        }
     }
+
+    // const onPress = () => {
+    //     LayoutAnimation.spring();
+    //
+    //     setMapState({w: '100%', h: '50%'});
+    // }
 
     return (
         <View style={styles.mask}>
@@ -53,7 +55,7 @@ export default function App() {
                             title={marker.title}
                             description={marker.description}
                             coordinate={marker.coordinates}
-                            onPress={onPress}
+                            onPress={() => centerMapOnMarker(marker.coordinates)}
                         />
                     ))}
                 </MapView>
