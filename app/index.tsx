@@ -20,10 +20,10 @@ export default function App() {
 
         if (mapRef.current) {
             const region = {
-                latitude: coordinate.latitude,
+                latitude: coordinate.latitude + 0.02,
                 longitude: coordinate.longitude,
             };
-            // mapRef.current.animateCamera
+            mapRef.current.animateToRegion(region, 500);
         }
     }
 
