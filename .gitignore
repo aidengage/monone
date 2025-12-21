@@ -1,6 +1,7 @@
 ## User settings
 xcuserdata/
-.xcuserstate
+*.xcuserstate
+#.xcodeproj
 
 ## Swift specific
 *.hmap
