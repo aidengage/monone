@@ -32,4 +32,34 @@ class FirebaseManager {
             }
         }
     }
+    
+    func getPostByName(postName: String) {
+        fs.collection("post").document(postName).getDocument { (document, error) in
+            if let document = document, document.exists {
+                print("Document data: \(document.data() ?? [:])")
+            } else {
+                print("Document does not exist")
+            }
+        }
+    }
+    
+    func getPostById(postID: String) {
+        fs.collection("post").document(postID).getDocument { (document, error) in
+            if let document = document, document.exists {
+                print("document does exist")
+            } else {
+                print("Document does not exist")
+            }
+        }
+    }
+    
+    func addSnapListener() {
+        fs.collection("post").addSnapshotListener { (snapshot, error) in
+            if let error = error {
+                print("Error connecting: ", error)
+            } else {
+                print("connected to firestore")
+            }
+        }
+    }
 }
