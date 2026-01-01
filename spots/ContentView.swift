@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import FirebaseFirestore
 
 struct ContentView: View {
     var body: some View {
@@ -16,6 +17,34 @@ struct ContentView: View {
             Marker("Cherokee Park", coordinate:CLLocationCoordinate2D(latitude: 38.24120, longitude: -85.69690)).tint(.gray)
             Marker("Falls of the Ohio", coordinate:CLLocationCoordinate2D(latitude:38.2731227, longitude: -85.7591351)).tint(.green)
         }.cornerRadius(60).padding(15)
+        Button(action: getPostById) {
+            Text("more actions")
+                .font(Font.title)
+//                .cornerRadius(90)
+        }
+        .buttonStyle(.borderedProminent)
+        .shadow(color: .blue, radius: 10, y: 5)
+        .contextMenu {
+            Button {
+            } label: {
+                Label("do something here", systemImage: "heart")
+            }
+            Button {
+            } label: {
+                Label("add post", systemImage: "mappin")
+            }
+        }
+    }
+}
+
+func getPostById() {
+    let fs = Firestore.firestore()
+    fs.collection("post").document("u9mohOI4BugTXOh0tYgQ").getDocument { (document, error) in
+        if let document = document, document.exists {
+            print("document u9mohOI4BugTXOh0tYgQ does exist")
+        } else {
+            print("Document u9mohOI4BugTXOh0tYgQ does not exist")
+        }
     }
 }
 
