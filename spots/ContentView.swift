@@ -13,7 +13,7 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Map {
-                Marker("Churchill Downs", coordinate: CLLocationCoordinate2D(latitude: 38.20306, longitude: -85.77000)).tint(.orange)
+                Marker("Churchill Downs", coordinate: CLLocationCoordinate2D(latitude: 38.20306, longitude: -85.77000)).tint(.orange).annotationSubtitles(.visible)
                 Marker("Muhammad Ali Airport", coordinate: CLLocationCoordinate2D(latitude: 38.17410, longitude: -85.73650)).tint(.blue)
                 Marker("Cherokee Park", coordinate:CLLocationCoordinate2D(latitude: 38.24120, longitude: -85.69690)).tint(.gray)
                 Marker("Falls of the Ohio", coordinate:CLLocationCoordinate2D(latitude:38.2731227, longitude: -85.7591351)).tint(.green)
@@ -46,7 +46,8 @@ struct ContentView: View {
 let fm = FirebaseManager()
 
 func getPostById() {
-    fm.getPostBy_u9mohOI4BugTXOh0tYgQ()
+//    fm.getPostBy_u9mohOI4BugTXOh0tYgQ()
+    fm.getDocs()
 }
 
 #Preview {

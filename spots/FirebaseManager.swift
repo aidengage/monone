@@ -72,4 +72,27 @@ class FirebaseManager {
             }
         }
     }
+    
+    func getDocs() {
+        fs.collection("post").getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error getting documents: \(error)")
+            } else {
+                for document in querySnapshot!.documents {
+                    print("\(document.documentID) => \(document.data())")
+                }
+            }
+        }
+    }
 }
+    
+struct post: Identifiable {
+    @DocumentID var id: String?
+    var image: String?
+    var name: String?
+    var description: String?
+    var rating: Double?
+    var location: (Double?, Double?)
+    var address: String?
+}
+
