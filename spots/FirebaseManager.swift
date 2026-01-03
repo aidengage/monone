@@ -26,7 +26,7 @@ class FirebaseManager {
     func getDocs() {
         fs.collection("post").getDocuments { (querySnapshot, error) in
             if let error = error {
-                print("Error getting documents: \(error)")
+                print("get fucked idiot: \(error)")
             } else {
                 for document in querySnapshot!.documents {
                     print("\(document.documentID) => \(document.data())")
