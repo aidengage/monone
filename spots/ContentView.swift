@@ -23,22 +23,36 @@ struct ContentView: View {
             .ignoresSafeArea(.all)
             
             Button(action: getPostById) {
-                Text("more actions")
-                    .font(Font.title)
-    //                .cornerRadius(90)
+//                Text("more actions")
+//                    .font(Font.title)
+
+                Menu {
+                    Button {
+                    } label: {
+                        Label("do something here", systemImage: "heart")
+                    }
+                    Button {
+                    } label: {
+                        Label("add post", systemImage: "mappin")
+                    }
+                } label: {
+                    Text("more actions")
+                        .font(Font.title)
+                        .padding(-8)
+                }
             }
             .buttonStyle(.borderedProminent)
             .shadow(color: .blue, radius: 10, y: 5)
-            .contextMenu {
-                Button {
-                } label: {
-                    Label("do something here", systemImage: "heart")
-                }
-                Button {
-                } label: {
-                    Label("add post", systemImage: "mappin")
-                }
-            }
+//            .contextMenu {
+//                Button {
+//                } label: {
+//                    Label("do something here", systemImage: "heart")
+//                }
+//                Button {
+//                } label: {
+//                    Label("add post", systemImage: "mappin")
+//                }
+//            }
         }
     }
 }
