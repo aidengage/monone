@@ -14,11 +14,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         FirebaseApp.configure()
         let fm = FirebaseManager.init()
         
-        print("printing printing printing")
+//        print("printing printing printing")
 //        print(fm.getPostLocation(postCoords: (38.20306, -85.77000)))
 //        print(fm.getPostByName(postName: "Churchill Downs"))
-        fm.addSnapListener()
-        fm.getPostById(postID: "u9mohOI4BugTXOh0tYgQ")
+//        fm.addSnapListener()
+//        fm.getPostById(postID: "u9mohOI4BugTXOh0tYgQ")
         
         return true
     }

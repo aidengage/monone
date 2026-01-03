@@ -43,15 +43,10 @@ struct ContentView: View {
     }
 }
 
+let fm = FirebaseManager()
+
 func getPostById() {
-    let fs = Firestore.firestore()
-    fs.collection("post").document("u9mohOI4BugTXOh0tYgQ").getDocument { (document, error) in
-        if let document = document, document.exists {
-            print("document u9mohOI4BugTXOh0tYgQ does exist")
-        } else {
-            print("Document u9mohOI4BugTXOh0tYgQ does not exist")
-        }
-    }
+    fm.getPostBy_u9mohOI4BugTXOh0tYgQ()
 }
 
 #Preview {
