@@ -45,6 +45,9 @@ class FirebaseManager { // add observableobject?
             } else {
                 print("getting docs...")
                 for document in querySnapshot!.documents {
+//                    if self.docDict[document.documentID] == document.data() {
+//                        
+//                    }
                     self.docDict[document.documentID] = document.data()
                     print(self.docDict)
                 }
