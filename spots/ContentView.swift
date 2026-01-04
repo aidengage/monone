@@ -21,36 +21,22 @@ struct ContentView: View {
             .cornerRadius(55)
             .padding(10)
             .ignoresSafeArea(.all)
-            
-            Button(action: {}) {
 
-                Menu {
-                    Button(action: getDocs) {
-                        Label("Print Docs", systemImage: "document")
-                    }
-                    Button(action: {}) {
-                        Label("add post", systemImage: "mappin")
-                    }
-                } label: {
-                    Text("more actions")
-                        .font(Font.title)
-//                        .padding(-8)
+            Menu {
+                Button(action: getDocs) {
+                    Label("Print Docs", systemImage: "document")
                 }
+                Button(action: {}) {
+                    Label("add post", systemImage: "mappin")
+                }
+            } label: {
+                Text("more actions")
+                    .font(Font.title)
+
             }
-            .buttonStyle(.glass)
+            .buttonStyle(.glass(.clear))
 //            .tint(Color(.clear))
             .glassEffect()
-//            .shadow(color: .clear, radius: 10, y: 5)
-//            .contextMenu {
-//                Button {
-//                } label: {
-//                    Label("do something here", systemImage: "heart")
-//                }
-//                Button {
-//                } label: {
-//                    Label("add post", systemImage: "mappin")
-//                }
-//            }
         }
     }
 }
