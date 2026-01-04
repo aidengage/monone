@@ -11,25 +11,42 @@ import FirebaseFirestore
 import FirebaseStorage
 import FirebaseDatabase
 
-class FirebaseManager {
+class FirebaseManager { // add observableobject?
     
     let fs: Firestore
     let db: Database
     let storage: Storage
+    var docDict: [String:Any]
     
     init () {
         self.fs = Firestore.firestore()
         self.db = Database.database()
         self.storage = Storage.storage()
+        self.docDict = [:]
     }
     
-    func getDocs() {
+    func printDocs() {
         fs.collection("post").getDocuments { (querySnapshot, error) in
             if let error = error {
                 print("get fucked idiot: \(error)")
             } else {
                 for document in querySnapshot!.documents {
                     print("\(document.documentID) => \(document.data())")
+                }
+            }
+        }
+    }
+    
+    func getDocs() {
+//        let docArray: [QuerySnapshot]
+        fs.collection("post").getDocuments() { (querySnapshot, error) in
+            if let error = error {
+                print("no docs: \(error)")
+            } else {
+                print("getting docs...")
+                for document in querySnapshot!.documents {
+                    self.docDict[document.documentID] = document.data()
+                    print(self.docDict)
                 }
             }
         }

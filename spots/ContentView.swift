@@ -44,7 +44,7 @@ struct ContentView: View {
 let fm = FirebaseManager()
 
 func getDocs() {
-//    fm.getPostBy_u9mohOI4BugTXOh0tYgQ()
+//    fm.printDocs()
     fm.getDocs()
 }
 
