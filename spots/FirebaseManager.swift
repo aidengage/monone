@@ -28,7 +28,7 @@ class FirebaseManager { // add observableobject?
     func printDocs() {
         fs.collection("post").getDocuments { (querySnapshot, error) in
             if let error = error {
-                print("get fucked idiot: \(error)")
+                print("hello: \(error)")
             } else {
                 for document in querySnapshot!.documents {
                     print("\(document.documentID) => \(document.data())")
