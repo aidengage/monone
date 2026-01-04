@@ -26,7 +26,7 @@ struct ContentView: View {
                 Button(action: getDocs) {
                     Label("Print Docs", systemImage: "document")
                 }
-                Button(action: {}) {
+                Button(action: addPost) {
                     Label("add post", systemImage: "mappin")
                 }
             } label: {
@@ -46,6 +46,17 @@ let fm = FirebaseManager()
 func getDocs() {
 //    fm.printDocs()
     fm.getDocs()
+}
+
+func addPost() {
+    // info will be hardcoded for first test
+    fm.addPost(
+        image: "https://firebasestorage.googleapis.com/v0/b/monone-swift.firebasestorage.app/o/muhammed%20ali%20airport.jpg?alt=media&token=0fcdb4f6-7b95-4e37-8eb4-1f1c8b1bd149",
+        name: "Muhammed Ali Airport",
+        address: "600 Terminal Drive, Louisville, KY 40209",
+        rating: 4.3,
+        description: "this is muhammed ali international airport !",
+        coords: (xLoc: 38.174167, yLoc: -85.736389))
 }
 
 #Preview {

@@ -49,20 +49,37 @@ class FirebaseManager { // add observableobject?
 //                        
 //                    }
                     self.docDict[document.documentID] = document.data()
-                    print(self.docDict)
+                }
+                print(self.docDict)
+            }
+        }
+    }
+    
+    func addPost(image: String, name: String, address: String, rating: Double, description: String, coords: (xLoc: Double, yLoc: Double)) {
+        let newPost = Post(image: image, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc)
+        do {
+            try fs.collection("post").addDocument(from: newPost) { error in
+                if let error = error {
+                    print("shit broke adding files")
+                } else {
+                    print("doc added")
                 }
             }
+        } catch {
+            print("error creating doc: \(error.localizedDescription)")
         }
     }
 }
     
-struct post: Identifiable {
-    @DocumentID var id: String?
+struct Post: Codable {
+//    @DocumentID var id: String?
     var image: String?
     var name: String?
-    var description: String?
-    var rating: Double?
-    var location: (Double?, Double?)
     var address: String?
+    var rating: Double?
+    var description: String?
+//    var location: (Double?, Double?)
+    var xLoc: Double?
+    var yLoc: Double?
 }
 
