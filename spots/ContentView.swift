@@ -10,6 +10,9 @@ import SwiftUI
 import MapKit
 
 struct ContentView: View {
+//    @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
+    @State var centerLat: Double
+    @State var centerLong: Double
     @State private var posts: [PostMan] = []
     //tracks which post is selected
     @State private var selectedPost: PostMan? = nil
@@ -39,7 +42,12 @@ struct ContentView: View {
                     }
                 }
                 .onMapCameraChange { mapCameraUpdateContext in
-                    print("\(mapCameraUpdateContext.camera.centerCoordinate)")
+//                    print("\(mapCameraUpdateContext.camera.centerCoordinate)")
+//                    self.center = mapCameraUpdateContext.camera.centerCoordinate
+                    centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+                    centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                    print("\(centerLat): \(centerLong)")
+//                    print("\(self.center)")
                 }
                 .ignoresSafeArea(.all)
                 .onAppear {
@@ -47,9 +55,8 @@ struct ContentView: View {
                 }
                 
                     NavigationLink {
-                        AddPostView()
+                        AddPostView(centerLat: centerLat, centerLong: centerLong)
                     } label: {
-//                        Label("", systemImage: "plus")
                         Image(systemName: "plus")
                             .font(.largeTitle)
                             .padding(10)
@@ -101,6 +108,6 @@ func addPost() {
         coords: (xLoc: 38.216518189838695, yLoc: -85.69859315920505))
 }
 #Preview {
-    ContentView()
+    ContentView(centerLat: 0.0, centerLong: 0.0)
 }
 

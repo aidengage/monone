@@ -20,13 +20,23 @@ struct PhotosSelector: View {
     }
 }
 struct AddPostView: View {
+//    var center: CLLocationCoordinate2D
+    @State var centerLat: Double
+    @State var centerLong: Double
     @State var title: String = ""
     @State var description: String = ""
     @State var address: String = ""
     @State var imageURL: String = ""
-    @State var latitude: Double = 0.0
+    @State var latitude: Double = 1.2
     @State var longitude: Double = 0.0
+//    @State var latitude: Double = center.latitude
+//    @State var longitude: Double = center.longitude
     @State var rating: Double = 0.0
+    
+    init(centerLat: Double, centerLong: Double) {
+        _centerLat = State(initialValue: centerLat)
+        _centerLong = State(initialValue: centerLong)
+    }
     
     var body: some View {
         VStack {
@@ -47,9 +57,9 @@ struct AddPostView: View {
                 Section(header: Text("Coordinates")) {
                     HStack {
                         
-                        TextField("Latitude", value: $latitude, format: .number)
+                        TextField("Latitude", value: $centerLat, format: .number)
                             .keyboardType(.decimalPad)
-                        TextField("Longitude", value: $longitude, format: .number)
+                        TextField("Longitude", value: $centerLong, format: .number)
                             .keyboardType(.decimalPad)
                     }
                 }
@@ -82,5 +92,6 @@ struct AddPostView: View {
 }
 
 #Preview {
-    AddPostView()
+//    AddPostView(center: CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0))
+    AddPostView(centerLat: 0.0, centerLong: 0.0)
 }

@@ -12,7 +12,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
         FirebaseApp.configure()
-        let fm = FirebaseManager.init()
+//        let fm = FirebaseManager.init()
         
 //        print("printing printing printing")
 //        print(fm.getPostLocation(postCoords: (38.20306, -85.77000)))
@@ -29,7 +29,7 @@ struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(centerLat: 0.0, centerLong: 0.0)
         }
     }
 }
