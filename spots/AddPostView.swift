@@ -73,8 +73,9 @@ struct AddPostView: View {
             }) {
                 Label("Post!", systemImage: "plus")
             }
+//            .buttonStyle(.glass(.clear))
             .buttonStyle(.glassProminent)
-            .glassEffect()
+//            .glassEffect()
         }
         .navigationTitle("Add Post")
     }

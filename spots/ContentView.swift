@@ -46,10 +46,14 @@ struct ContentView: View {
                     NavigationLink {
                         AddPostView()
                     } label: {
-                        Label("Add Post", systemImage: "mappin")
+//                        Label("", systemImage: "plus")
+                        Image(systemName: "plus")
+                            .font(.title)
+                            .padding(10)
                     }
                 .buttonStyle(.glass(.clear))
-                .glassEffect()
+                .buttonBorderShape(.circle)
+//                .glassEffect()
             }
             //once state of selectedPost changes, PostDetailView is launched. 
             .sheet(item: $selectedPost) { post in
