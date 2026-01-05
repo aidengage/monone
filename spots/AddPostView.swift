@@ -75,8 +75,9 @@ struct AddPostView: View {
                     centerLat = 0.0
                     centerLong = 0.0
                     rating = 0.0
+                    
+                    dismiss()
                 }
-                dismiss()
             }) {
                 Label("Post!", systemImage: "plus")
             }
