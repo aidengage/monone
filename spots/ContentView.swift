@@ -10,6 +10,8 @@ import MapKit
 
 struct ContentView: View {
     @State private var posts: [PostMan] = []
+    //tracks which post is selected
+    @State private var selectedPost: PostMan? = nil
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
@@ -22,8 +24,17 @@ struct ContentView: View {
             ZStack(alignment: .bottom) {
                 Map(position: $cameraPosition) {
                     ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
-                        let _ = print("🗺️ Map: Processing post '\(post.title)' for marker creation")
-                        post.createMarkerForPost()
+                        Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
+                            Image(systemName: "mappin.circle.fill")
+                                .foregroundColor(.red)
+                                .font(.title2)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .onTapGesture {
+//                                    once user taps, state of selectedPost changes
+                                    selectedPost = post
+                                }
+                        }
                     }
                 }
     //            .cornerRadius(55)
@@ -45,6 +56,12 @@ struct ContentView: View {
                 }
                 .buttonStyle(.glass(.clear))
                 .glassEffect()
+            }
+            //once state of selectedPost changes, PostDetailView is launched. 
+            .sheet(item: $selectedPost) { post in
+                NavigationView {
+                    PostDetailView(post: post)
+                }
             }
         }
     }

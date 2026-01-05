@@ -1,0 +1,100 @@
+//
+//  PostDetailView.swift
+//  spots
+//
+//  Created on 1/4/26.
+//
+
+import SwiftUI
+
+struct PostDetailView: View {
+    let post: PostMan
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+               
+                VStack(spacing: 20) {
+                    // Title Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(post.title)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    
+                    if !post.address.isEmpty {
+                        InfoCard(
+                            icon: "mappin.circle.fill",
+                            title: "Address",
+                            content: post.address,
+                            iconColor: .red
+                        )
+                    }
+                    
+                    // Description Card
+                    if !post.description.isEmpty {
+                        InfoCard(
+                            icon: "text.alignleft",
+                            title: "Description",
+                            content: post.description,
+                            iconColor: .blue
+                        )
+                    }
+                    
+                    // Coordinates Card
+                    InfoCard(
+                        icon: "location.circle.fill",
+                        title: "Location",
+                        content: String(format: "Lat: %.6f\nLon: %.6f", post.coords.0, post.coords.1),
+                        iconColor: .green
+                    )
+                }
+                .padding(.bottom, 30)
+            }
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct InfoCard: View {
+    let icon: String
+    let title: String
+    let content: String
+    let iconColor: Color
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            // Icon
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(iconColor)
+                .frame(width: 30)
+            
+            // Content
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                
+                Text(content)
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            Spacer()
+        }
+        .padding(20)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 20)
+    }
+}
+
+
+
+

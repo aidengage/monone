@@ -25,8 +25,7 @@ class PostMan: Identifiable {
         self.address = address
     }
     
-    func createMarkerForPost() -> some MapContent {
-        print("📍 Creating marker for: \(title) at coordinates (\(coords.0), \(coords.1))")
+    func createMarkerForPost() -> some MapContent {    
         return Marker(title, coordinate: CLLocationCoordinate2D(latitude: coords.0, longitude: coords.1))
             .tint(.red)
     }
