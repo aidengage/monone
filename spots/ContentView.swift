@@ -25,38 +25,48 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack(alignment: .bottomLeading) {
-                Map(position: $cameraPosition) {
-                    ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
-                        Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
-                            Image(systemName: "mappin.circle.fill")
-                                .foregroundColor(.red)
-                                .font(.title2)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                                .onTapGesture {
-//                                    once user taps, state of selectedPost changes
-                                    selectedPost = post
-                                }
+                ZStack {
+                    Map(position: $cameraPosition) {
+                        ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
+                            Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .foregroundColor(.red)
+                                    .font(.title2)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                                    .onTapGesture {
+    //                                    once user taps, state of selectedPost changes
+                                        selectedPost = post
+                                    }
+                            }
                         }
                     }
-                }
-                .onMapCameraChange { mapCameraUpdateContext in
-                    centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
-                    centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
-                    print("\(centerLat): \(centerLong)")
-                }
-                .ignoresSafeArea(.all)
-                .onAppear {
-                    loadPosts()
+                    .onMapCameraChange { mapCameraUpdateContext in
+                        centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+                        centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                        print("\(centerLat): \(centerLong)")
+                    }
+                    .ignoresSafeArea(.all)
+                    .onAppear {
+                        loadPosts()
+                    }
+                    
+                    Image(systemName: "mappin")
+                        .offset(y: -15)
+                        .font(.system(size: 30))
+                        .foregroundStyle(Color.red)
+//                    Image(systemName: "plus")
+//                        .font(.system(size: 50, weight: .ultraLight))
                 }
                 
-                    NavigationLink {
-                        AddPostView(centerLat: centerLat, centerLong: centerLong)
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.largeTitle)
-                            .padding(10)
-                    }
+                
+                NavigationLink {
+                    AddPostView(centerLat: centerLat, centerLong: centerLong)
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.largeTitle)
+                        .padding(10)
+                }
                 .buttonStyle(.glass(.clear))
                 .buttonBorderShape(.circle)
                 .padding(.leading, 30)
