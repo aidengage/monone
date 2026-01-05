@@ -38,23 +38,16 @@ struct ContentView: View {
                         }
                     }
                 }
-    //            .cornerRadius(55)
-    //            .padding(10)
                 .ignoresSafeArea(.all)
                 .onAppear {
                     loadPosts()
                 }
-
-                VStack {
-                    Button(action: getDocs) {
-                        Label("Print Docs", systemImage: "document")
-                    }
+                
                     NavigationLink {
                         AddPostView()
                     } label: {
                         Label("Add Post", systemImage: "mappin")
                     }
-                }
                 .buttonStyle(.glass(.clear))
                 .glassEffect()
             }
