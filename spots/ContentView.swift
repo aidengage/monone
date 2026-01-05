@@ -2,8 +2,9 @@
 //  ContentView.swift
 //  spots
 //
-//  Created by Aiden Gage on 12/21/25.
-//
+//  Created by Aiden Gage on 12/21/25
+//  Contributions by Minahil starting 01/04/26
+
 
 import SwiftUI
 import MapKit
@@ -37,23 +38,16 @@ struct ContentView: View {
                         }
                     }
                 }
-    //            .cornerRadius(55)
-    //            .padding(10)
                 .ignoresSafeArea(.all)
                 .onAppear {
                     loadPosts()
                 }
-
-                VStack {
-                    Button(action: getDocs) {
-                        Label("Print Docs", systemImage: "document")
-                    }
+                
                     NavigationLink {
                         AddPostView()
                     } label: {
                         Label("Add Post", systemImage: "mappin")
                     }
-                }
                 .buttonStyle(.glass(.clear))
                 .glassEffect()
             }
