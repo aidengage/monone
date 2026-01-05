@@ -2,8 +2,9 @@
 //  ContentView.swift
 //  spots
 //
-//  Created by Aiden Gage on 12/21/25.
-//
+//  Created by Aiden Gage on 12/21/25
+//  Contributions by Minahil starting 01/04/26
+
 
 import SwiftUI
 import MapKit
