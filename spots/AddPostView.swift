@@ -31,7 +31,7 @@ struct AddPostView: View {
                 }
                 Section(header: Text("Image URL")) {
                     PhotosSelector()
-                    TextField("image upload wip", text: .constant(""))
+//                    TextField("image upload wip", text: .constant(""))
                 }
                 Section(header: Text("Coordinates")) {
                     HStack {
