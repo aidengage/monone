@@ -18,26 +18,21 @@ struct ContentView: View {
     )
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Map(position: $cameraPosition) {
-                ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
-                    let _ = print("🗺️ Map: Processing post '\(post.title)' for marker creation")
-                    post.createMarkerForPost()
+        NavigationView {
+            ZStack(alignment: .bottom) {
+                Map(position: $cameraPosition) {
+                    ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
+                        let _ = print("🗺️ Map: Processing post '\(post.title)' for marker creation")
+                        post.createMarkerForPost()
+                    }
                 }
-            }
-            .cornerRadius(55)
-            .padding(10)
-            .ignoresSafeArea(.all)
-            .onAppear {
-                loadPosts()
-            }
-
-            Menu {
-                Button(action: getDocs) {
-                    Label("Print Docs", systemImage: "document")
-                }
+    //            .cornerRadius(55)
+    //            .padding(10)
                 .ignoresSafeArea(.all)
-                
+                .onAppear {
+                    loadPosts()
+                }
+
                 VStack {
                     Button(action: getDocs) {
                         Label("Print Docs", systemImage: "document")
