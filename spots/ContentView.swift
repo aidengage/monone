@@ -22,7 +22,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            ZStack(alignment: .bottom) {
+            ZStack(alignment: .bottomLeading) {
                 Map(position: $cameraPosition) {
                     ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
                         Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
@@ -48,11 +48,12 @@ struct ContentView: View {
                     } label: {
 //                        Label("", systemImage: "plus")
                         Image(systemName: "plus")
-                            .font(.title)
+                            .font(.largeTitle)
                             .padding(10)
                     }
                 .buttonStyle(.glass(.clear))
                 .buttonBorderShape(.circle)
+                .padding(.leading, 30)
 //                .glassEffect()
             }
             //once state of selectedPost changes, PostDetailView is launched. 
