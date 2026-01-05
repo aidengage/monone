@@ -42,10 +42,19 @@ struct AddPostView: View {
             }
             let fm = FirebaseManager()
             Button(action: {
-                if imageURL.isEmpty || title.isEmpty || address.isEmpty || description.isEmpty || String(rating).isEmpty || String(latitude).isEmpty || String(longitude).isEmpty {
+                if imageURL.isEmpty || title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || latitude == 0.0 || longitude == 0.0 {
                     print("add every value to post")
                 } else {
                     fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (latitude, longitude))
+                    
+                    // should reset values but doesnt i guess
+                    title = ""
+                    description = ""
+                    address = ""
+                    imageURL = ""
+                    latitude = 0.0
+                    longitude = 0.0
+                    rating = 0.0
                 }
             }) {
                 Label("Post!", systemImage: "plus")
