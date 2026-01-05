@@ -10,6 +10,7 @@ import SwiftUI
 struct AddPostView: View {
     var body: some View {
         VStack {
+
             Form {
                 Section(header: Text("Add a new post")) {
                     TextField("Title", text: .constant(""))
@@ -27,6 +28,7 @@ struct AddPostView: View {
                 }
             }
         }
+        .navigationTitle("Add Post")
     }
 }
 
