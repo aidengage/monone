@@ -38,6 +38,9 @@ struct ContentView: View {
                         }
                     }
                 }
+                .onMapCameraChange { mapCameraUpdateContext in
+                    print("\(mapCameraUpdateContext.camera.centerCoordinate)")
+                }
                 .ignoresSafeArea(.all)
                 .onAppear {
                     loadPosts()
