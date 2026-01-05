@@ -6,7 +6,19 @@
 //
 
 import SwiftUI
+import PhotosUI
 
+struct PhotosSelector: View {
+    @State var selectedItems: [PhotosPickerItem] = []
+
+
+    var body: some View {
+        PhotosPicker(selection: $selectedItems,
+                     matching: .images) {
+            Text("Select Multiple Photos")
+        }
+    }
+}
 struct AddPostView: View {
     @State var title: String = ""
     @State var description: String = ""
@@ -29,6 +41,8 @@ struct AddPostView: View {
                 }
                 Section(header: Text("Image URL")) {
                     TextField("image upload wip", text: $imageURL)
+                    PhotosSelector()
+                    TextField("image upload wip", text: .constant(""))
                 }
                 Section(header: Text("Coordinates")) {
                     HStack {
