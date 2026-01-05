@@ -18,11 +18,8 @@ struct ContentView: View {
                     Marker("Cherokee Park", coordinate:CLLocationCoordinate2D(latitude: 38.24120, longitude: -85.69690)).tint(.gray)
                     Marker("Falls of the Ohio", coordinate:CLLocationCoordinate2D(latitude:38.2731227, longitude: -85.7591351)).tint(.green)
                 }
-//                .cornerRadius(55)
-//                .padding(10)
                 .ignoresSafeArea(.all)
                 
-//                Menu {
                 VStack {
                     Button(action: getDocs) {
                         Label("Print Docs", systemImage: "document")
@@ -33,12 +30,6 @@ struct ContentView: View {
                         Label("Add Post", systemImage: "mappin")
                     }
                 }
-                    
-//                } label: {
-//                    Text("more actions")
-//                        .font(Font.title)
-//                    
-//                }
                 .buttonStyle(.glass(.clear))
                 .glassEffect()
             }
