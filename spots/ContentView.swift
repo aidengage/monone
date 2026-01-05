@@ -10,7 +10,6 @@ import SwiftUI
 import MapKit
 
 struct ContentView: View {
-//    @State var center: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
     @State var centerLat: Double
     @State var centerLong: Double
     @State private var posts: [PostMan] = []
@@ -42,12 +41,9 @@ struct ContentView: View {
                     }
                 }
                 .onMapCameraChange { mapCameraUpdateContext in
-//                    print("\(mapCameraUpdateContext.camera.centerCoordinate)")
-//                    self.center = mapCameraUpdateContext.camera.centerCoordinate
                     centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
                     centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
                     print("\(centerLat): \(centerLong)")
-//                    print("\(self.center)")
                 }
                 .ignoresSafeArea(.all)
                 .onAppear {

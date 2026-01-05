@@ -20,17 +20,13 @@ struct PhotosSelector: View {
     }
 }
 struct AddPostView: View {
-//    var center: CLLocationCoordinate2D
+    @Environment(\.dismiss) private var dismiss
     @State var centerLat: Double
     @State var centerLong: Double
     @State var title: String = ""
     @State var description: String = ""
     @State var address: String = ""
     @State var imageURL: String = ""
-    @State var latitude: Double = 1.2
-    @State var longitude: Double = 0.0
-//    @State var latitude: Double = center.latitude
-//    @State var longitude: Double = center.longitude
     @State var rating: Double = 0.0
     
     init(centerLat: Double, centerLong: Double) {
@@ -66,20 +62,21 @@ struct AddPostView: View {
             }
             let fm = FirebaseManager()
             Button(action: {
-                if imageURL.isEmpty || title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || latitude == 0.0 || longitude == 0.0 {
+                if imageURL.isEmpty || title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || centerLat == 0.0 || centerLong == 0.0 {
                     print("add every value to post")
                 } else {
-                    fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (latitude, longitude))
+                    fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
                     
                     // should reset values but doesnt i guess
                     title = ""
                     description = ""
                     address = ""
                     imageURL = ""
-                    latitude = 0.0
-                    longitude = 0.0
+                    centerLat = 0.0
+                    centerLong = 0.0
                     rating = 0.0
                 }
+                dismiss()
             }) {
                 Label("Post!", systemImage: "plus")
             }
@@ -92,6 +89,5 @@ struct AddPostView: View {
 }
 
 #Preview {
-//    AddPostView(center: CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0))
     AddPostView(centerLat: 0.0, centerLong: 0.0)
 }
