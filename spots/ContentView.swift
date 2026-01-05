@@ -10,17 +10,28 @@ import MapKit
 import FirebaseFirestore
 
 struct ContentView: View {
+    @State private var posts: [PostMan] = []
+    @State private var cameraPosition: MapCameraPosition = .region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
+            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+        )
+    )
+    
     var body: some View {
         ZStack(alignment: .bottom) {
-            Map {
-                Marker("Churchill Downs", coordinate: CLLocationCoordinate2D(latitude: 38.20306, longitude: -85.77000)).tint(.orange)
-                Marker("Muhammad Ali Airport", coordinate: CLLocationCoordinate2D(latitude: 38.17410, longitude: -85.73650)).tint(.blue)
-                Marker("Cherokee Park", coordinate:CLLocationCoordinate2D(latitude: 38.24120, longitude: -85.69690)).tint(.gray)
-                Marker("Falls of the Ohio", coordinate:CLLocationCoordinate2D(latitude:38.2731227, longitude: -85.7591351)).tint(.green)
+            Map(position: $cameraPosition) {
+                ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
+                    let _ = print("🗺️ Map: Processing post '\(post.title)' for marker creation")
+                    post.createMarkerForPost()
+                }
             }
             .cornerRadius(55)
             .padding(10)
             .ignoresSafeArea(.all)
+            .onAppear {
+                loadPosts()
+            }
 
             Menu {
                 Button(action: getDocs) {
@@ -39,6 +50,20 @@ struct ContentView: View {
             .glassEffect()
         }
     }
+    
+    func loadPosts() {
+        fm.getPosts(completion: handleLoadedPosts)
+    }
+    
+    //this completion handler is triggered once the posts are loaded, and it updates the posts state variable because there is a state change in the posts variable (going from empty to having data)
+    func handleLoadedPosts(loadedPosts: [PostMan]) {
+        print("\(loadedPosts.count) posts from Firebase")
+        for (index, post) in loadedPosts.enumerated() {
+            print("   Post \(index + 1): \(post.title) - Coords: (\(post.coords.0), \(post.coords.1))")
+        }
+        posts = loadedPosts
+        print("Updated posts state variable. Map will now render markers.")
+    }
 }
 
 let fm = FirebaseManager()
@@ -52,13 +77,13 @@ func addPost() {
     // info will be hardcoded for first test
     fm.addPost(
         image: "https://firebasestorage.googleapis.com/v0/b/monone-swift.firebasestorage.app/o/muhammed%20ali%20airport.jpg?alt=media&token=0fcdb4f6-7b95-4e37-8eb4-1f1c8b1bd149",
-        name: "Muhammed Ali Airport",
-        address: "600 Terminal Drive, Louisville, KY 40209",
-        rating: 4.3,
-        description: "this is muhammed ali international airport !",
-        coords: (xLoc: 38.174167, yLoc: -85.736389))
+        name: "boo house",
+        address: "2385 Valley Vista Rd",
+        rating: 5.0,
+        description: "wow man",
+        coords: (xLoc: 38.216518189838695, yLoc: -85.69859315920505))
 }
-
 #Preview {
     ContentView()
 }
+

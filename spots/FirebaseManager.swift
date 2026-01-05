@@ -45,12 +45,51 @@ class FirebaseManager { // add observableobject?
             } else {
                 print("getting docs...")
                 for document in querySnapshot!.documents {
-//                    if self.docDict[document.documentID] == document.data() {
-//                        
-//                    }
                     self.docDict[document.documentID] = document.data()
                 }
                 print(self.docDict)
+            }
+        }
+    }
+    
+    func getPosts(completion: @escaping ([PostMan]) -> Void) {
+        var postArray: [PostMan] = []
+        fs.collection("post").getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("error getting posts: \(error)")
+                completion([])
+            } else {
+                for document in querySnapshot!.documents {
+                    let data = document.data()
+                    
+                    let title = data["name"] as? String ?? ""
+                    let description = data["description"] as? String ?? ""
+                    let image = data["imageURL"] as? String ?? ""  
+                    let address = data["address"] as? String ?? ""
+                    
+                    var xLoc: Double = 0.0
+                    var yLoc: Double = 0.0
+                    
+                    if let x = data["xLoc"] as? Double, let y = data["yLoc"] as? Double {
+                        xLoc = x
+                        yLoc = y
+                    } else {
+                        print("No coordinates found for post '\(data["name"] as? String ?? "unknown")'")
+                    }
+                    
+                    
+                    let post = PostMan(
+                        docId: document.documentID,
+                        title: title,
+                        description: description,
+                        image: image,
+                        coords: (xLoc, yLoc),
+                        address: address
+                    )
+                    postArray.append(post)
+                }
+                //this completion handler triggers handleLoadedPosts method in ContentView.swift and its only triggered once the posts are loaded                
+                completion(postArray)
             }
         }
     }
@@ -60,7 +99,7 @@ class FirebaseManager { // add observableobject?
         do {
             try fs.collection("post").addDocument(from: newPost) { error in
                 if let error = error {
-                    print("shit broke adding files")
+                    print(error)
                 } else {
                     print("doc added")
                 }
