@@ -10,13 +10,19 @@ import MapKit
 import FirebaseAuth
 
 struct ContentView: View {
+    @State var path = NavigationPath()
+    
     @State var centerLat: Double
     @State var centerLong: Double
     @State private var posts: [PostMan] = []
     //tracks which post is selected
     @State private var selectedPost: PostMan? = nil
+    
     @State private var showAddPost = false
     @State private var showLogin = false
+    
+    @State private var loggedIn = false
+    
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
@@ -25,7 +31,7 @@ struct ContentView: View {
     )
     
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $path) {
             ZStack(alignment: .bottomLeading) {
                 ZStack {
                     Map(position: $cameraPosition) {
@@ -57,10 +63,8 @@ struct ContentView: View {
                         .offset(y: -15)
                         .font(.system(size: 30))
                         .foregroundStyle(Color.red)
-//                    Image(systemName: "plus")
-//                        .font(.system(size: 50, weight: .ultraLight))
                 }
-                
+
                 Button(action: {
                     let currentUser = Auth.auth().currentUser
                     print("Current user: \(currentUser?.email ?? "nil")")
@@ -68,8 +72,14 @@ struct ContentView: View {
                     
                     if currentUser != nil {
                         showAddPost = true
+                        showLogin = false
+//                        loggedIn = true
+                        path.append(showAddPost)
                     } else {
                         showLogin = true
+                        showAddPost = false
+//                        loggedIn = false
+                        path.append(showLogin)
                     }
                 }) {
                     // Label("Add Post", systemImage: "mappin")
@@ -80,17 +90,14 @@ struct ContentView: View {
                 .buttonStyle(.glass(.clear))
                 .buttonBorderShape(.circle)
                 .padding(.leading, 30)
-                // .glassEffect()
-                .sheet(isPresented: $showAddPost) {
-                    NavigationView {
-                        AddPostView(centerLat: centerLat, centerLong: centerLong)
-                    }
+                .navigationDestination(isPresented: $showAddPost) { 
+//                    Text("selected: \(selection)")
+                    AddPostView(centerLat: centerLat, centerLong: centerLong)
                 }
-                .sheet(isPresented: $showLogin) {
-                    NavigationView {
-                        LoginView()
-                    }
+                .navigationDestination(isPresented: $showLogin) {
+                    LoginView()
                 }
+                
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
