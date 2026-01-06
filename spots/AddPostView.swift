@@ -16,21 +16,9 @@ struct PhotosSelector: View {
 
 
     var body: some View {
-        PhotosPicker(selection: $selectedItems,
-                     matching: .images) {
+        PhotosPicker(selection: $selectedItems, matching: .images) {
             Text("Select Multiple Photos")
-//            Button(action: {
-//                howManyPhotos()
-//            }) {
-//                Text("print")
-//            }
-//            Button(action: {
-//                storePhotos(selectedImages: selectedItems)
-//            }) {
-//                Text("Select Multiple Photos")
-//            }
         }
-           
     }
     
     func howManyPhotos() {
@@ -61,10 +49,18 @@ struct AddPostView: View {
                     TextField("Title", text: $title)
                     TextField("Description", text: $description)
                     TextField("Address", text: $address)
-                    TextField("Rating", value: $rating, format: .number)
-                        .keyboardType(.decimalPad)
+                    
                 }
-                Section(header: Text("Image URL")) {
+                Section(header: Text("Rating")) {
+                    HStack {
+                        TextField("Rating", value: $rating, format: .number)
+                            .frame(width: 35)
+                            .keyboardType(.decimalPad)
+                        Slider(value: $rating, in: 0...5, step: 0.05)
+                    }
+                    
+                }
+                Section(header: Text("Image Upload")) {
 //                    TextField("image upload wip", text: $imageURL)
                     PhotosSelector()
 //                    TextField("image upload wip", text: .constant(""))
@@ -81,20 +77,11 @@ struct AddPostView: View {
             }
             let fm = FirebaseManager()
             Button(action: {
-                if title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || centerLat == 0.0 || centerLong == 0.0 {
+                if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 {
                     print("add every value to post")
                 } else {
+                    // add post
                     fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
-                    
-                    // should reset values but doesnt i guess
-                    title = ""
-                    description = ""
-                    address = ""
-                    imageURL = ""
-                    centerLat = 0.0
-                    centerLong = 0.0
-                    rating = 0.0
-                    
                     
                     dismiss()
                 }
@@ -106,6 +93,8 @@ struct AddPostView: View {
 //            .glassEffect()
         }
         .navigationTitle("Add Post")
+        
+        // task to use coords and receive its address if there is one
         .task {
             do {
                 address = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.address ?? "nil"
@@ -115,12 +104,9 @@ struct AddPostView: View {
             }
         }
     }
-    func updateAddress() {
-        
-    }
-    
 }
 
+// all for reverse geocoding to get the nearest address to the coordinates
 struct Place {
     let lat: Double
     let long: Double
