@@ -16,9 +16,25 @@ struct PhotosSelector: View {
         PhotosPicker(selection: $selectedItems,
                      matching: .images) {
             Text("Select Multiple Photos")
+//            Button(action: {
+//                howManyPhotos()
+//            }) {
+//                Text("print")
+//            }
+//            Button(action: {
+//                storePhotos(selectedImages: selectedItems)
+//            }) {
+//                Text("Select Multiple Photos")
+//            }
         }
+           
+    }
+    
+    func howManyPhotos() {
+        print("Selected \(selectedItems.count) items.")
     }
 }
+
 struct AddPostView: View {
     @Environment(\.dismiss) private var dismiss
     @State var centerLat: Double
@@ -46,7 +62,7 @@ struct AddPostView: View {
                         .keyboardType(.decimalPad)
                 }
                 Section(header: Text("Image URL")) {
-                    TextField("image upload wip", text: $imageURL)
+//                    TextField("image upload wip", text: $imageURL)
                     PhotosSelector()
 //                    TextField("image upload wip", text: .constant(""))
                 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 import FirebaseCore
 import FirebaseFirestore
 import FirebaseStorage
@@ -17,12 +18,22 @@ class FirebaseManager { // add observableobject?
     let db: Database
     let storage: Storage
     var docDict: [String:Any]
+    var selectedItems: [PhotosPickerItem]
     
     init () {
         self.fs = Firestore.firestore()
         self.db = Database.database()
         self.storage = Storage.storage()
         self.docDict = [:]
+        self.selectedItems = []
+    }
+    
+    func storeImages() {
+        let fileName: String
+        let storageRef = storage.reference()
+        let imageRef = storageRef.child("spots-image-uplaod-")
+        
+        
     }
     
     func printDocs() {
