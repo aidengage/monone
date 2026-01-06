@@ -79,6 +79,7 @@ struct ContentView: View {
                 }
                 .buttonStyle(.glass(.clear))
                 .buttonBorderShape(.circle)
+                .padding(.leading, 30)
                 // .glassEffect()
                 .sheet(isPresented: $showAddPost) {
                     NavigationView {

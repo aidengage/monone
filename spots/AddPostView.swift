@@ -16,9 +16,25 @@ struct PhotosSelector: View {
         PhotosPicker(selection: $selectedItems,
                      matching: .images) {
             Text("Select Multiple Photos")
+//            Button(action: {
+//                howManyPhotos()
+//            }) {
+//                Text("print")
+//            }
+//            Button(action: {
+//                storePhotos(selectedImages: selectedItems)
+//            }) {
+//                Text("Select Multiple Photos")
+//            }
         }
+           
+    }
+    
+    func howManyPhotos() {
+        print("Selected \(selectedItems.count) items.")
     }
 }
+
 struct AddPostView: View {
     @Environment(\.dismiss) private var dismiss
     @State var centerLat: Double
@@ -46,7 +62,7 @@ struct AddPostView: View {
                         .keyboardType(.decimalPad)
                 }
                 Section(header: Text("Image URL")) {
-                    TextField("image upload wip", text: $imageURL)
+//                    TextField("image upload wip", text: $imageURL)
                     PhotosSelector()
 //                    TextField("image upload wip", text: .constant(""))
                 }
@@ -62,7 +78,7 @@ struct AddPostView: View {
             }
             let fm = FirebaseManager()
             Button(action: {
-                if imageURL.isEmpty || title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || centerLat == 0.0 || centerLong == 0.0 {
+                if title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || centerLat == 0.0 || centerLong == 0.0 {
                     print("add every value to post")
                 } else {
                     fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
