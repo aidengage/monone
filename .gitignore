@@ -13,3 +13,4 @@ xcuserdata/
 .DS_Store
 spots/GoogleService-Info.plist
 spots/GoogleService-Info.plist
+*.plist
