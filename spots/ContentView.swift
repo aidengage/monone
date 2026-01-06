@@ -94,12 +94,18 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    if Auth.auth().currentUser != nil {
+                    let currentUser = Auth.auth().currentUser
+                    if currentUser != nil {
                         Button(action: {
                             logout()
                         }) {
                             Label("Logout", systemImage: "arrow.right.square")
                         }
+                    } else {
+                        //change button visibility to false
+                        
+                        Text("Not logged in")
+                            
                     }
                 }
             }
@@ -127,12 +133,10 @@ struct ContentView: View {
     }
     
     func logout() {
-        print("🚪 Logout button tapped")
         do {
             try Auth.auth().signOut()
-            print("Successfully signed out")
         } catch {
-            print("Error signing out")
+            print("Error signing out: \(error.localizedDescription)")
         }
     }
 }
