@@ -5,14 +5,16 @@
 //  Created by Aiden Gage on 12/21/25
 //  Contributions by Minahil starting 01/04/26
 
-
 import SwiftUI
 import MapKit
+import FirebaseAuth
 
 struct ContentView: View {
     @State private var posts: [PostMan] = []
     //tracks which post is selected
     @State private var selectedPost: PostMan? = nil
+    @State private var showAddPost = false
+    @State private var showLogin = false
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
@@ -43,13 +45,43 @@ struct ContentView: View {
                     loadPosts()
                 }
                 
-                    NavigationLink {
-                        AddPostView()
-                    } label: {
-                        Label("Add Post", systemImage: "mappin")
+                Button(action: {
+                    let currentUser = Auth.auth().currentUser
+                    print("Current user: \(currentUser?.email ?? "nil")")
+                    print("User ID: \(currentUser?.uid ?? "nil")")
+                    
+                    if currentUser != nil {
+                        showAddPost = true
+                    } else {
+                        showLogin = true
                     }
+                }) {
+                    Label("Add Post", systemImage: "mappin")
+                }
                 .buttonStyle(.glass(.clear))
                 .glassEffect()
+                .sheet(isPresented: $showAddPost) {
+                    NavigationView {
+                        AddPostView()
+                    }
+                }
+                .sheet(isPresented: $showLogin) {
+                    NavigationView {
+                        LoginView()
+                    }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if Auth.auth().currentUser != nil {
+                        Button(action: {
+                            logout()
+                        }) {
+                            Label("Logout", systemImage: "arrow.right.square")
+                        }
+                    }
+                }
             }
             //once state of selectedPost changes, PostDetailView is launched. 
             .sheet(item: $selectedPost) { post in
@@ -73,6 +105,16 @@ struct ContentView: View {
         posts = loadedPosts
         print("Updated posts state variable. Map will now render markers.")
     }
+    
+    func logout() {
+        print("🚪 Logout button tapped")
+        do {
+            try Auth.auth().signOut()
+            print("Successfully signed out")
+        } catch {
+            print("Error signing out")
+        }
+    }
 }
 
 let fm = FirebaseManager()
@@ -82,16 +124,7 @@ func getDocs() {
     fm.getDocs()
 }
 
-func addPost() {
-    // info will be hardcoded for first test
-    fm.addPost(
-        image: "https://firebasestorage.googleapis.com/v0/b/monone-swift.firebasestorage.app/o/muhammed%20ali%20airport.jpg?alt=media&token=0fcdb4f6-7b95-4e37-8eb4-1f1c8b1bd149",
-        name: "boo house",
-        address: "2385 Valley Vista Rd",
-        rating: 5.0,
-        description: "wow man",
-        coords: (xLoc: 38.216518189838695, yLoc: -85.69859315920505))
-}
+
 #Preview {
     ContentView()
 }
