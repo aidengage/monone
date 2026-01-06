@@ -105,7 +105,7 @@ struct ContentView: View {
                     } else {
                         //change button visibility to false
                         
-                        Text("Not logged in")
+                        
                             
                     }
                 }
