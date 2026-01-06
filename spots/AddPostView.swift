@@ -7,6 +7,9 @@
 
 import SwiftUI
 import PhotosUI
+import MapKit
+import CoreLocation
+import Foundation
 
 struct PhotosSelector: View {
     @State var selectedItems: [PhotosPickerItem] = []
@@ -103,6 +106,40 @@ struct AddPostView: View {
 //            .glassEffect()
         }
         .navigationTitle("Add Post")
+        .task {
+            do {
+                address = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.address ?? "nil"
+            } catch {
+                address = "unknown"
+                print("reverse geocoding failed: \(error)")
+            }
+        }
+    }
+    func updateAddress() {
+        
+    }
+    
+}
+
+struct Place {
+    let lat: Double
+    let long: Double
+    let address: String
+    
+    init(from mapItem: MKMapItem) {
+        self.lat = mapItem.location.coordinate.latitude
+        self.long = mapItem.location.coordinate.longitude
+        self.address = mapItem.address?.fullAddress ?? "Unknown Address"
+    }
+}
+
+struct ReverseGeocoding {
+    func nearestAddress(location: CLLocation) async throws -> Place? {
+        if let request = MKReverseGeocodingRequest(location: location) {
+            let mapItems = try await request.mapItems
+            return mapItems.first.map(Place.init)
+        }
+        return nil
     }
 }
 
