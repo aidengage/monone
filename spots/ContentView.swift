@@ -54,15 +54,16 @@ struct ContentView: View {
                         centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
                         print("\(centerLat): \(centerLong)")
                     }
+                    Image(systemName: "mappin")
+                        .offset(y: -15)
+                        .font(.system(size: 33))
+//                        .foregroundStyle(Color.red)
+                    
                     .ignoresSafeArea(.all)
                     .onAppear {
                         loadPosts()
                     }
                     
-                    Image(systemName: "mappin")
-                        .offset(y: -15)
-                        .font(.system(size: 30))
-                        .foregroundStyle(Color.red)
                 }
 
                 Button(action: {
