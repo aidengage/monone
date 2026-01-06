@@ -18,7 +18,10 @@ class FirebaseManager { // add observableobject?
     let db: Database
     let storage: Storage
     var docDict: [String:Any]
+    
     var selectedItems: [PhotosPickerItem]
+    var images: [UIImage] = []
+    var isUploading: Bool = false
     
     init () {
         self.fs = Firestore.firestore()
@@ -29,12 +32,39 @@ class FirebaseManager { // add observableobject?
     }
     
     func storeImages() {
-        let fileName: String
+        let fileName: String = UUID().uuidString + ".png"
+//        let fileExtension: String = ""
+        
         let storageRef = storage.reference()
-        let imageRef = storageRef.child("spots-image-uplaod-")
+//        let uploadRef = storageRef.child("\(fileName).\(fileExtension)")
+//        let uploadImageRef = uploadRef.child("images/\(fileName).\(fileExtension)")
         
         
     }
+    
+    func pickerToImage(from items: [PhotosPickerItem]) {
+        images.removeAll()
+        
+        for item in items {
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    await MainActor.run {
+                        images.append(uiImage)
+                    }
+                }
+            }
+        }
+    }
+    
+    func imageToData() -> [Data] {
+        var dataArray: [Data] = []
+        for image in images {
+            dataArray.append(image.pngData()!)
+        }
+        return dataArray
+    }
+    
     
     func printDocs() {
         fs.collection("post").getDocuments { (querySnapshot, error) in
