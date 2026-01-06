@@ -63,8 +63,6 @@ struct ContentView: View {
                         .offset(y: -15)
                         .font(.system(size: 30))
                         .foregroundStyle(Color.red)
-//                    Image(systemName: "plus")
-//                        .font(.system(size: 50, weight: .ultraLight))
                 }
 
                 Button(action: {
@@ -92,25 +90,14 @@ struct ContentView: View {
                 .buttonStyle(.glass(.clear))
                 .buttonBorderShape(.circle)
                 .padding(.leading, 30)
-                // .glassEffect()
                 .navigationDestination(isPresented: $showAddPost) { 
 //                    Text("selected: \(selection)")
                     AddPostView(centerLat: centerLat, centerLong: centerLong)
                 }
-//                .sheet(isPresented: $showAddPost) {
-//                    NavigationView {
-//                        AddPostView(centerLat: centerLat, centerLong: centerLong)
-//                    }
-//                }
-                .navigationDestination(isPresented: $showLogin) { 
-//                    Text("slected: \(selection)")
+                .navigationDestination(isPresented: $showLogin) {
                     LoginView()
                 }
-//                .sheet(isPresented: $showLogin) {
-//                    NavigationView {
-//                        LoginView()
-//                    }
-//                }
+                
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
