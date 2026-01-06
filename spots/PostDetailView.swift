@@ -2,7 +2,7 @@
 //  PostDetailView.swift
 //  spots
 //
-//  Created on 1/4/26.
+//  Created by Minahil on 1/4/26.
 //
 
 import SwiftUI
