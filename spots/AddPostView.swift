@@ -78,7 +78,7 @@ struct AddPostView: View {
             }
             let fm = FirebaseManager()
             Button(action: {
-                if imageURL.isEmpty || title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || centerLat == 0.0 || centerLong == 0.0 {
+                if title.isEmpty || address.isEmpty || description.isEmpty || rating == 0.0 || centerLat == 0.0 || centerLong == 0.0 {
                     print("add every value to post")
                 } else {
                     fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
