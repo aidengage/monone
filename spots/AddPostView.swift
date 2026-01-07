@@ -11,7 +11,8 @@ import MapKit
 import CoreLocation
 import Foundation
 
-struct PhotosSelector: View {
+// basic photo selector storing images in selectedItems
+struct PhotoSelector: View {
     @State var selectedItems: [PhotosPickerItem] = []
 
 
@@ -37,6 +38,8 @@ struct AddPostView: View {
     @State var rating: Double = 0.0
     
     init(centerLat: Double, centerLong: Double) {
+        // state variables received from contentview
+        // center x and y for post location
         _centerLat = State(initialValue: centerLat)
         _centerLong = State(initialValue: centerLong)
     }
@@ -44,6 +47,9 @@ struct AddPostView: View {
     var body: some View {
         VStack {
 
+            // big form that takes in all the post data
+            // photos need to be implemented
+            // rating back to user needs to be implemented
             Form {
                 Section(header: Text("Add a new post")) {
                     TextField("Title", text: $title)
@@ -51,6 +57,8 @@ struct AddPostView: View {
                     TextField("Address", text: $address)
                     
                 }
+                
+                // rating needs to link back to user posting it
                 Section(header: Text("Rating")) {
                     HStack {
                         TextField("Rating", value: $rating, format: .number)
@@ -61,9 +69,7 @@ struct AddPostView: View {
                     
                 }
                 Section(header: Text("Image Upload")) {
-//                    TextField("image upload wip", text: $imageURL)
-                    PhotosSelector()
-//                    TextField("image upload wip", text: .constant(""))
+                    PhotoSelector()
                 }
                 Section(header: Text("Coordinates")) {
                     HStack {

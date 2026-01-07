@@ -91,8 +91,9 @@ struct ContentView: View {
                 .buttonStyle(.glass(.clear))
                 .buttonBorderShape(.circle)
                 .padding(.leading, 30)
-                .navigationDestination(isPresented: $showAddPost) { 
-//                    Text("selected: \(selection)")
+                
+                // navigation logic for login and addpost
+                .navigationDestination(isPresented: $showAddPost) {
                     AddPostView(centerLat: centerLat, centerLong: centerLong)
                 }
                 .navigationDestination(isPresented: $showLogin) {

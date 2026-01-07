@@ -32,10 +32,10 @@ class FirebaseManager { // add observableobject?
     }
     
     func storeImages() {
-        let fileName: String = UUID().uuidString + ".png"
+//        let fileName: String = UUID().uuidString + ".png"
 //        let fileExtension: String = ""
         
-        let storageRef = storage.reference()
+//        let storageRef = storage.reference()
 //        let uploadRef = storageRef.child("\(fileName).\(fileExtension)")
 //        let uploadImageRef = uploadRef.child("images/\(fileName).\(fileExtension)")
         
