@@ -101,9 +101,11 @@ struct AddPostView: View {
         .navigationTitle("Add Post")
         
         // task to use coords and receive its address if there is one
+        // also sets the name if available
         .task {
             do {
                 address = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.address ?? "nil"
+                title = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.name ?? ""
             } catch {
                 address = "unknown"
                 print("reverse geocoding failed: \(error)")
@@ -116,12 +118,15 @@ struct AddPostView: View {
 struct Place {
     let lat: Double
     let long: Double
+    let name: String?
     let address: String
     
     init(from mapItem: MKMapItem) {
         self.lat = mapItem.location.coordinate.latitude
         self.long = mapItem.location.coordinate.longitude
-        self.address = mapItem.address?.fullAddress ?? "Unknown Address"
+        self.name = mapItem.name
+        // changed fullAddress to shortAddress temporarily to avoid double names
+        self.address = mapItem.address?.shortAddress ?? "Unknown Address"
     }
 }
 
