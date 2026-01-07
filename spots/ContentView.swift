@@ -5,14 +5,24 @@
 //  Created by Aiden Gage on 12/21/25
 //  Contributions by Minahil starting 01/04/26
 
-
 import SwiftUI
 import MapKit
+import FirebaseAuth
 
 struct ContentView: View {
+    @State var path = NavigationPath()
+    
+    @State var centerLat: Double
+    @State var centerLong: Double
     @State private var posts: [PostMan] = []
     //tracks which post is selected
     @State private var selectedPost: PostMan? = nil
+    
+    @State private var showAddPost = false
+    @State private var showLogin = false
+    
+    @State private var loggedIn = false
+    
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
@@ -21,35 +31,87 @@ struct ContentView: View {
     )
     
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .bottom) {
-                Map(position: $cameraPosition) {
-                    ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
-                        Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
-                            Image(systemName: "mappin.circle.fill")
-                                .foregroundColor(.red)
-                                .font(.title2)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                                .onTapGesture {
-//                                    once user taps, state of selectedPost changes
-                                    selectedPost = post
-                                }
+        NavigationStack(path: $path) {
+            ZStack(alignment: .bottomLeading) {
+                ZStack {
+                    Map(position: $cameraPosition) {
+                        ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
+                            Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .foregroundColor(.red)
+                                    .font(.title2)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                                    .onTapGesture {
+    //                                    once user taps, state of selectedPost changes
+                                        selectedPost = post
+                                    }
+                            }
+                        }
+                    }
+                    .onMapCameraChange { mapCameraUpdateContext in
+                        centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+                        centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                        print("\(centerLat): \(centerLong)")
+                    }
+                    Image(systemName: "mappin")
+                        .offset(y: -15)
+                        .font(.system(size: 33))
+//                        .foregroundStyle(Color.red)
+                    
+                    .ignoresSafeArea(.all)
+                    .onAppear {
+                        loadPosts()
+                    }
+                    
+                }
+
+                Button(action: {
+                    let currentUser = Auth.auth().currentUser
+                    print("Current user: \(currentUser?.email ?? "nil")")
+                    print("User ID: \(currentUser?.uid ?? "nil")")
+                    
+                    if currentUser != nil {
+                        showAddPost = true
+                        showLogin = false
+//                        loggedIn = true
+                        path.append(showAddPost)
+                    } else {
+                        showLogin = true
+                        showAddPost = false
+//                        loggedIn = false
+                        path.append(showLogin)
+                    }
+                }) {
+                    // Label("Add Post", systemImage: "mappin")
+                    Image(systemName: "plus")
+                        .font(.largeTitle)
+                        .padding(10)
+                }
+                .buttonStyle(.glass(.clear))
+                .buttonBorderShape(.circle)
+                .padding(.leading, 30)
+                
+                // navigation logic for login and addpost
+                .navigationDestination(isPresented: $showAddPost) {
+                    AddPostView(centerLat: centerLat, centerLong: centerLong)
+                }
+                .navigationDestination(isPresented: $showLogin) {
+                    LoginView()
+                }
+                
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if Auth.auth().currentUser != nil {
+                        Button(action: {
+                            logout()
+                        }) {
+                            Label("Logout", systemImage: "arrow.right.square")
                         }
                     }
                 }
-                .ignoresSafeArea(.all)
-                .onAppear {
-                    loadPosts()
-                }
-                
-                    NavigationLink {
-                        AddPostView()
-                    } label: {
-                        Label("Add Post", systemImage: "mappin")
-                    }
-                .buttonStyle(.glass(.clear))
-                .glassEffect()
             }
             //once state of selectedPost changes, PostDetailView is launched. 
             .sheet(item: $selectedPost) { post in
@@ -73,6 +135,16 @@ struct ContentView: View {
         posts = loadedPosts
         print("Updated posts state variable. Map will now render markers.")
     }
+    
+    func logout() {
+        print("🚪 Logout button tapped")
+        do {
+            try Auth.auth().signOut()
+            print("Successfully signed out")
+        } catch {
+            print("Error signing out")
+        }
+    }
 }
 
 let fm = FirebaseManager()
@@ -82,17 +154,8 @@ func getDocs() {
     fm.getDocs()
 }
 
-func addPost() {
-    // info will be hardcoded for first test
-    fm.addPost(
-        image: "https://firebasestorage.googleapis.com/v0/b/monone-swift.firebasestorage.app/o/muhammed%20ali%20airport.jpg?alt=media&token=0fcdb4f6-7b95-4e37-8eb4-1f1c8b1bd149",
-        name: "boo house",
-        address: "2385 Valley Vista Rd",
-        rating: 5.0,
-        description: "wow man",
-        coords: (xLoc: 38.216518189838695, yLoc: -85.69859315920505))
-}
+
 #Preview {
-    ContentView()
+    ContentView(centerLat: 0.0, centerLong: 0.0)
 }
 
