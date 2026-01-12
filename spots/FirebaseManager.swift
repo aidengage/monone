@@ -12,59 +12,20 @@ import FirebaseFirestore
 import FirebaseStorage
 import FirebaseDatabase
 
-class FirebaseManager { // add observableobject?
+final class FirebaseManager {
+    static let shared = FirebaseManager()
     
     let fs: Firestore
     let db: Database
     let storage: Storage
     var docDict: [String:Any]
     
-    var selectedItems: [PhotosPickerItem]
-    var images: [UIImage] = []
-    var isUploading: Bool = false
-    
     init () {
         self.fs = Firestore.firestore()
         self.db = Database.database()
         self.storage = Storage.storage()
         self.docDict = [:]
-        self.selectedItems = []
     }
-    
-    func storeImages() {
-//        let fileName: String = UUID().uuidString + ".png"
-//        let fileExtension: String = ""
-        
-//        let storageRef = storage.reference()
-//        let uploadRef = storageRef.child("\(fileName).\(fileExtension)")
-//        let uploadImageRef = uploadRef.child("images/\(fileName).\(fileExtension)")
-        
-        
-    }
-    
-    func pickerToImage(from items: [PhotosPickerItem]) {
-        images.removeAll()
-        
-        for item in items {
-            Task {
-                if let data = try? await item.loadTransferable(type: Data.self),
-                   let uiImage = UIImage(data: data) {
-                    await MainActor.run {
-                        images.append(uiImage)
-                    }
-                }
-            }
-        }
-    }
-    
-    func imageToData() -> [Data] {
-        var dataArray: [Data] = []
-        for image in images {
-            dataArray.append(image.pngData()!)
-        }
-        return dataArray
-    }
-    
     
     func printDocs() {
         fs.collection("post").getDocuments { (querySnapshot, error) in
@@ -147,6 +108,75 @@ class FirebaseManager { // add observableobject?
             }
         } catch {
             print("error creating doc: \(error.localizedDescription)")
+        }
+    }
+    
+    func uploadImage(data: Data) async throws {
+        print("attempting upload...")
+//        if let data = data {
+            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
+            storageRef.putData(data, metadata: nil) { (metadata, error) in
+//                guard let metadata = metadata else {
+//                    return
+//                }
+                if error != nil {
+                    print("upload error")
+                } else {
+                    print("upload successful")
+                }
+            }
+//        }
+    }
+}
+
+struct PhotoSelector: View {
+    @Binding var data: Data?
+    @State var selectedItem: [PhotosPickerItem] = []
+
+    var body: some View {
+        PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, matching: .images, preferredItemEncoding: .automatic) {
+            if let data = data, let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame( maxHeight: 300)
+            } else {
+                Label("Select a picture", systemImage: "photo.on.rectangle.angled")
+            }
+        }.onChange (of: selectedItem) {_, newValue in
+            guard let item = selectedItem.first else {
+                return
+            }
+            item.loadTransferable(type: Data.self) { result in
+                switch result {
+                case .success(let data):
+                    if let data = data {
+                        self.data = data
+                        
+                    }
+                case .failure(let failure):
+                    print("Error: \(failure.localizedDescription)")
+                }
+            }
+            
+        }
+        
+    }
+    
+    func sendToFirestorage() {
+        print("attempting upload...")
+        if let data = data {
+            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
+            storageRef.putData(data, metadata: nil) { (metadata, error) in
+//                guard let metadata = metadata else {
+//                    return
+//                }
+                if error != nil {
+                    print("upload error")
+                } else {
+                    print("upload successful")
+                }
+            }
         }
     }
 }

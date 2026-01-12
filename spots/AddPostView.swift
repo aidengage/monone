@@ -14,20 +14,20 @@ import PhotosUI
 import FirebaseStorage
 
 // basic photo selector storing images in selectedItems
-struct PhotoSelector: View {
-    @State var selectedItems: [PhotosPickerItem] = []
-
-
-    var body: some View {
-        PhotosPicker(selection: $selectedItems, matching: .images) {
-            Text("Select Multiple Photos")
-        }
-    }
-    
-    func howManyPhotos() {
-        print("Selected \(selectedItems.count) items.")
-    }
-}
+//struct PhotoSelector: View {
+//    @State var selectedItems: [PhotosPickerItem] = []
+//
+//
+//    var body: some View {
+//        PhotosPicker(selection: $selectedItems, matching: .images) {
+//            Text("Select Multiple Photos")
+//        }
+//    }
+//    
+//    func howManyPhotos() {
+//        print("Selected \(selectedItems.count) items.")
+//    }
+//}
 
 struct AddPostView: View {
     @Environment(\.dismiss) private var dismiss
@@ -39,15 +39,19 @@ struct AddPostView: View {
     @State var imageURL: String = ""
     @State var rating: Double = 0.0
     
+    @State var imageData: Data?
+//    var ps: PhotoSelector
+    
     // photo picker
-    @State var data: Data?
-    @State var selectedItem: [PhotosPickerItem] = []
+//    @State var data: Data?
+//    @State var selectedItem: [PhotosPickerItem] = []
     
     init(centerLat: Double, centerLong: Double) {
         // state variables received from contentview
         // center x and y for post location
         _centerLat = State(initialValue: centerLat)
         _centerLong = State(initialValue: centerLong)
+//        ps = PhotoSelector()
     }
     
     var body: some View {
@@ -75,33 +79,34 @@ struct AddPostView: View {
                     
                 }
                 Section(header: Text("Image Upload")) {
+                    PhotoSelector(data: $imageData)
                     //                    PhotoSelector()
-                    PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, matching: .images, preferredItemEncoding: .automatic) {
-                        if let data = data, let image = UIImage(data: data) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame( maxHeight: 300)
-                        } else {
-                            Label("Select a picture", systemImage: "photo.on.rectangle.angled")
-                        }
-                    }.onChange (of: selectedItem) {_, newValue in
-                        guard let item = selectedItem.first else {
-                            return
-                        }
-                        item.loadTransferable(type: Data.self) { result in
-                            switch result {
-                            case .success(let data):
-                                if let data = data {
-                                    self.data = data
-                                    
-                                }
-                            case .failure(let failure):
-                                print("Error: \(failure.localizedDescription)")
-                            }
-                        }
-                        
-                    }
+//                    PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, matching: .images, preferredItemEncoding: .automatic) {
+//                        if let data = data, let image = UIImage(data: data) {
+//                            Image(uiImage: image)
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame( maxHeight: 300)
+//                        } else {
+//                            Label("Select a picture", systemImage: "photo.on.rectangle.angled")
+//                        }
+//                    }.onChange (of: selectedItem) {_, newValue in
+//                        guard let item = selectedItem.first else {
+//                            return
+//                        }
+//                        item.loadTransferable(type: Data.self) { result in
+//                            switch result {
+//                            case .success(let data):
+//                                if let data = data {
+//                                    self.data = data
+//                                    
+//                                }
+//                            case .failure(let failure):
+//                                print("Error: \(failure.localizedDescription)")
+//                            }
+//                        }
+//                        
+//                    }
                     Button("Upload Image") {
 //                        print("attempting upload...")
 //                        if let data = data {
@@ -118,8 +123,8 @@ struct AddPostView: View {
 //                            }
 //                        }
                     }
-                    .disabled(data == nil)
-                    .buttonStyle(.glassProminent)
+//                    .disabled(data == nil)
+//                    .buttonStyle(.glassProminent)
                 }
                 Section(header: Text("Coordinates")) {
                     HStack {
@@ -138,20 +143,20 @@ struct AddPostView: View {
                 } else {
                     // add post
                     fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
-                    print("attempting upload...")
-                    if let data = data {
-                        let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
-                        storageRef.putData(data, metadata: nil) { (metadata, error) in
-//                                guard let metadata = metadata else {
-//                                    return
-//                                }
-                            if error != nil {
-                                print("upload error")
-                            } else {
-                                print("upload successful")
-                            }
+
+                    guard let imageData else { return }
+                    Task {
+                        do {
+                            try await FirebaseManager.shared.uploadImage(data: imageData)
+//                            fm.uploadImage(data: imageData)
+                        } catch {
+                            print("upload failed: \(error)")
                         }
                     }
+                    
+//                    fm.uploadImage(data: imageData)
+//                    upload()
+
                     dismiss()
                 }
             }) {
@@ -175,6 +180,16 @@ struct AddPostView: View {
             }
         }
     }
+    
+//    func upload() {
+//        guard let imageData else { return }
+//        
+//        Task {
+//            do {
+//                fm.uploadImage(data: imageData)
+//            }
+//        }
+//    }
 }
 
 // all for reverse geocoding to get the nearest address to the coordinates
