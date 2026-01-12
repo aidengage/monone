@@ -162,23 +162,6 @@ struct PhotoSelector: View {
         }
         
     }
-    
-    func sendToFirestorage() {
-        print("attempting upload...")
-        if let data = data {
-            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
-            storageRef.putData(data, metadata: nil) { (metadata, error) in
-//                guard let metadata = metadata else {
-//                    return
-//                }
-                if error != nil {
-                    print("upload error")
-                } else {
-                    print("upload successful")
-                }
-            }
-        }
-    }
 }
     
 struct Post: Codable {

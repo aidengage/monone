@@ -78,53 +78,9 @@ struct AddPostView: View {
                     }
                     
                 }
+                // custom photo picker logic in AddPostView and FirebaseManager
                 Section(header: Text("Image Upload")) {
                     PhotoSelector(data: $imageData)
-                    //                    PhotoSelector()
-//                    PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, matching: .images, preferredItemEncoding: .automatic) {
-//                        if let data = data, let image = UIImage(data: data) {
-//                            Image(uiImage: image)
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame( maxHeight: 300)
-//                        } else {
-//                            Label("Select a picture", systemImage: "photo.on.rectangle.angled")
-//                        }
-//                    }.onChange (of: selectedItem) {_, newValue in
-//                        guard let item = selectedItem.first else {
-//                            return
-//                        }
-//                        item.loadTransferable(type: Data.self) { result in
-//                            switch result {
-//                            case .success(let data):
-//                                if let data = data {
-//                                    self.data = data
-//                                    
-//                                }
-//                            case .failure(let failure):
-//                                print("Error: \(failure.localizedDescription)")
-//                            }
-//                        }
-//                        
-//                    }
-//                    Button("Upload Image") {
-//                        print("attempting upload...")
-//                        if let data = data {
-//                            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
-//                            storageRef.putData(data, metadata: nil) { (metadata, error) in
-////                                guard let metadata = metadata else {
-////                                    return
-////                                }
-//                                if error != nil {
-//                                    print("upload error")
-//                                } else {
-//                                    print("upload successful")
-//                                }
-//                            }
-//                        }
-//                    }
-//                    .disabled(data == nil)
-//                    .buttonStyle(.glassProminent)
                 }
                 Section(header: Text("Coordinates")) {
                     HStack {
