@@ -39,7 +39,7 @@ struct AddPostView: View {
     @State var imageURL: String = ""
     @State var rating: Double = 0.0
     
-    @State var imageData: Data?
+    @State var imageData: [Data] = []
 //    var ps: PhotoSelector
     
     // photo picker
@@ -97,7 +97,7 @@ struct AddPostView: View {
             }
 //            let fm = FirebaseManager()
             Button(action: {
-                if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == nil {
+                if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
                     print("add every value to post")
                 } else {
                     // add post
@@ -108,7 +108,7 @@ struct AddPostView: View {
                     // need to unwrap optional Data type imageData before passing as param
                     // this can be put into seperate upload() function at bottom but later
                     // try catch is for async func
-                    guard let imageData else { return }
+//                    guard let imageData else { return }
                     Task {
                         do {
                             try await FirebaseManager.shared.uploadImage(data: imageData)

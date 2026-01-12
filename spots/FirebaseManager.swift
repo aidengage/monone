@@ -113,52 +113,90 @@ final class FirebaseManager {
     }
     
     // async function to upload imagedata to firebase storage
-    func uploadImage(data: Data) async throws {
+    func uploadImage(data: [Data]) async throws {
         print("attempting upload...")
+//        let storageRef = Storage.storage().reference()
+        for imageData in data {
+//            storageRef.child("\(UUID().uuidString)")
             let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
-            storageRef.putData(data, metadata: nil) { (metadata, error) in
+            storageRef.putData(imageData, metadata: nil) { (metadata, error) in
+                if error != nil {
+                    print("upload error")
+                } else {
+                    print("upload successful")
+                }
+            }
+        }
+    }
+            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
+//            storageRef.putData(data, metadata: nil) { (metadata, error) in
             // metadata doesnt seem to be working rn
 //            guard let metadata = metadata else {
 //                return
 //            }
-            if error != nil {
-                print("upload error")
-            } else {
-                print("upload successful")
-            }
-        }
-    }
+//            if error != nil {
+//                print("upload error")
+//            } else {
+//                print("upload successful")
+//            }
+//        }
+//    }
 }
 
 struct PhotoSelector: View {
-    @Binding var data: Data?
+    @Binding var data: [Data]
     @State var selectedItem: [PhotosPickerItem] = []
 
     var body: some View {
-        PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, matching: .images, preferredItemEncoding: .automatic) {
-            if let data = data, let image = UIImage(data: data) {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame( maxHeight: 300)
+        PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
+            if !data.isEmpty {
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(data, id: \.self) { imageData in
+                            if let image = UIImage(data: imageData) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame( maxHeight: 300)
+                            }
+                        }
+                    }
+                }
             } else {
                 Label("Select a picture", systemImage: "photo.on.rectangle.angled")
             }
+//            if let data = data, let image = UIImage(data: data) {
+//                Image(uiImage: image)
+//                    .resizable()
+//                    .scaledToFit()
+//                    .frame( maxHeight: 300)
+//            } else {
+//                Label("Select a picture", systemImage: "photo.on.rectangle.angled")
+//            }
         }.onChange (of: selectedItem) {_, newValue in
-            guard let item = selectedItem.first else {
-                return
-            }
-            item.loadTransferable(type: Data.self) { result in
-                switch result {
-                case .success(let data):
-                    if let data = data {
-                        self.data = data
-                        
+            for item in selectedItem {
+                Task {
+                    if let imageData = try? await item.loadTransferable(type: Data.self) {
+                        await MainActor.run {
+                            data.append(imageData)
+                        }
                     }
-                case .failure(let failure):
-                    print("Error: \(failure.localizedDescription)")
                 }
             }
+//            guard let item = selectedItem.first else {
+//                return
+//            }
+//            item.loadTransferable(type: Data.self) { result in
+//                switch result {
+//                case .success(let data):
+//                    if let data = data {
+//                        self.data = data
+//                        
+//                    }
+//                case .failure(let failure):
+//                    print("Error: \(failure.localizedDescription)")
+//                }
+//            }
             
         }
         
