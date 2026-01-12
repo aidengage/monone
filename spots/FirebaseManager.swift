@@ -13,6 +13,7 @@ import FirebaseStorage
 import FirebaseDatabase
 
 final class FirebaseManager {
+    // global firebasemanager for photo picker i think?
     static let shared = FirebaseManager()
     
     let fs: Firestore
@@ -111,21 +112,21 @@ final class FirebaseManager {
         }
     }
     
+    // async function to upload imagedata to firebase storage
     func uploadImage(data: Data) async throws {
         print("attempting upload...")
-//        if let data = data {
             let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
             storageRef.putData(data, metadata: nil) { (metadata, error) in
-//                guard let metadata = metadata else {
-//                    return
-//                }
-                if error != nil {
-                    print("upload error")
-                } else {
-                    print("upload successful")
-                }
+            // metadata doesnt seem to be working rn
+//            guard let metadata = metadata else {
+//                return
+//            }
+            if error != nil {
+                print("upload error")
+            } else {
+                print("upload successful")
             }
-//        }
+        }
     }
 }
 

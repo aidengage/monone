@@ -61,6 +61,7 @@ struct AddPostView: View {
             // photos need to be implemented
             // rating back to user needs to be implemented
             Form {
+                // title, description, and address for where pin is
                 Section(header: Text("Add a new post")) {
                     TextField("Title", text: $title)
                     TextField("Description", text: $description)
@@ -82,6 +83,8 @@ struct AddPostView: View {
                 Section(header: Text("Image Upload")) {
                     PhotoSelector(data: $imageData)
                 }
+                
+                // autofilled coordinates based on where the pin is
                 Section(header: Text("Coordinates")) {
                     HStack {
                         
@@ -100,11 +103,13 @@ struct AddPostView: View {
                     // add post
                     fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
 
+                    // need to unwrap optional Data type imageData before passing as param
+                    // this can be put into seperate upload() function at bottom but later
+                    // try catch is for async func
                     guard let imageData else { return }
                     Task {
                         do {
                             try await FirebaseManager.shared.uploadImage(data: imageData)
-//                            fm.uploadImage(data: imageData)
                         } catch {
                             print("upload failed: \(error)")
                         }
