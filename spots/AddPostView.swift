@@ -95,13 +95,15 @@ struct AddPostView: View {
                     }
                 }
             }
-            let fm = FirebaseManager()
+//            let fm = FirebaseManager()
             Button(action: {
                 if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == nil {
                     print("add every value to post")
                 } else {
                     // add post
-                    fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
+                    // uses the global shared firebasemanager object in the firebasemanager class
+                    FirebaseManager.shared.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
+                    //fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
 
                     // need to unwrap optional Data type imageData before passing as param
                     // this can be put into seperate upload() function at bottom but later
