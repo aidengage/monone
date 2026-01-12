@@ -103,15 +103,23 @@ struct AddPostView: View {
                         
                     }
                     Button("Upload Image") {
+                        print("attempting upload...")
                         if let data = data {
                             let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
                             storageRef.putData(data, metadata: nil) { (metadata, error) in
-                                guard let metadata = metadata else {
-                                    return
+//                                guard let metadata = metadata else {
+//                                    return
+//                                }
+                                if error != nil {
+                                    print("upload error")
+                                } else {
+                                    print("upload successful")
                                 }
                             }
                         }
                     }
+                    .disabled(data == nil)
+                    .buttonStyle(.glassProminent)
                 }
                 Section(header: Text("Coordinates")) {
                     HStack {
