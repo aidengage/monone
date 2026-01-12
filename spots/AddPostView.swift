@@ -107,7 +107,7 @@ struct AddPostView: View {
 //                        }
 //                        
 //                    }
-                    Button("Upload Image") {
+//                    Button("Upload Image") {
 //                        print("attempting upload...")
 //                        if let data = data {
 //                            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
@@ -122,7 +122,7 @@ struct AddPostView: View {
 //                                }
 //                            }
 //                        }
-                    }
+//                    }
 //                    .disabled(data == nil)
 //                    .buttonStyle(.glassProminent)
                 }
@@ -138,7 +138,7 @@ struct AddPostView: View {
             }
             let fm = FirebaseManager()
             Button(action: {
-                if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 {
+                if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == nil {
                     print("add every value to post")
                 } else {
                     // add post
