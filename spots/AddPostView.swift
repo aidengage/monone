@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
-import PhotosUI
 import MapKit
 import CoreLocation
 import Foundation
+
+import PhotosUI
+import FirebaseStorage
 
 // basic photo selector storing images in selectedItems
 struct PhotoSelector: View {
@@ -36,6 +38,10 @@ struct AddPostView: View {
     @State var address: String = ""
     @State var imageURL: String = ""
     @State var rating: Double = 0.0
+    
+    // photo picker
+    @State var data: Data?
+    @State var selectedItem: [PhotosPickerItem] = []
     
     init(centerLat: Double, centerLong: Double) {
         // state variables received from contentview
@@ -69,7 +75,43 @@ struct AddPostView: View {
                     
                 }
                 Section(header: Text("Image Upload")) {
-                    PhotoSelector()
+                    //                    PhotoSelector()
+                    PhotosPicker(selection: $selectedItem, maxSelectionCount: 1, matching: .images, preferredItemEncoding: .automatic) {
+                        if let data = data, let image = UIImage(data: data) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame( maxHeight: 300)
+                        } else {
+                            Label("Select a picture", systemImage: "photo.on.rectangle.angled")
+                        }
+                    }.onChange (of: selectedItem) {_, newValue in
+                        guard let item = selectedItem.first else {
+                            return
+                        }
+                        item.loadTransferable(type: Data.self) { result in
+                            switch result {
+                            case .success(let data):
+                                if let data = data {
+                                    self.data = data
+                                    
+                                }
+                            case .failure(let failure):
+                                print("Error: \(failure.localizedDescription)")
+                            }
+                        }
+                        
+                    }
+                    Button("Upload Image") {
+                        if let data = data {
+                            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
+                            storageRef.putData(data, metadata: nil) { (metadata, error) in
+                                guard let metadata = metadata else {
+                                    return
+                                }
+                            }
+                        }
+                    }
                 }
                 Section(header: Text("Coordinates")) {
                     HStack {
