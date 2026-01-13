@@ -12,6 +12,69 @@ import FirebaseFirestore
 import FirebaseStorage
 import FirebaseDatabase
 
+// codable post object to allow encoding data to send to firebase to to
+// needs work
+struct Post: Codable {
+//    @DocumentID var id: String?
+    var images: [String?]
+    var name: String?
+    var address: String?
+    var rating: Double?
+    var description: String?
+//    var location: (Double?, Double?)
+    var xLoc: Double?
+    var yLoc: Double?
+}
+
+// codable user obejct to send to firebase database
+struct User: Codable {
+    var userID: String?
+    var email: String?
+    var username: String?
+    var posts: [Post]
+}
+
+// photo selector view, maybe move this to add post view??
+struct PhotoSelector: View {
+    @Binding var data: [Data]
+    @Binding var imageUUIDs: [String]
+    @State var selectedItem: [PhotosPickerItem] = []
+
+    var body: some View {
+        PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
+            if !data.isEmpty {
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(data, id: \.self) { imageData in
+                            if let image = UIImage(data: imageData) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame( maxHeight: 300)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Label("Select a picture", systemImage: "photo.on.rectangle.angled")
+            }
+        }.onChange (of: selectedItem) {_, newValue in
+            for item in selectedItem {
+                Task {
+                    if let imageData = try? await item.loadTransferable(type: Data.self) {
+                        await MainActor.run {
+                            // add uuid to own array
+                            imageUUIDs.append(UUID().uuidString)
+                            data.append(imageData)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 final class FirebaseManager {
     // global firebasemanager for photo picker i think?
     static let shared = FirebaseManager()
@@ -32,17 +95,19 @@ final class FirebaseManager {
     }
     
     // queries the "post" collection in the database and prints out every post in "post"
-    func printDocs() {
-        fs.collection("post").getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("hello: \(error)")
-            } else {
-                for document in querySnapshot!.documents {
-                    print("\(document.documentID) => \(document.data())")
-                }
-            }
-        }
-    }
+//    func printDocs() {
+//        fs.collection("post").getDocuments { (querySnapshot, error) in
+//            if let error = error {
+//                print("hello: \(error)")
+//            } else {
+//                for document in querySnapshot!.documents {
+//                    print("\(document.documentID) => \(document.data())")
+//                }
+//            }
+//        }
+//    }
+    
+    // **  below is post database querying, currently reworking for users and posts  ** //
     
     // queries the "post" collection, getting every doc and storing them in a document dictionary
     // and prints everything in the dictionary (i dont think we need the above print function anymore then)
@@ -122,6 +187,9 @@ final class FirebaseManager {
         }
     }
     
+    
+    // **  below relates to photo selector  ** //
+    
     // async function to upload imagedata to firebase storage with the uuid as the file name (needs rework)
     func uploadImage(uuidArray: [String], data: [Data]) async throws {
         print("attempting upload...")
@@ -129,14 +197,12 @@ final class FirebaseManager {
         var imageIndex: Int = 0
         for imageData in data /*&& index in uuidArray*/ {
             let fileName = uuidArray[imageIndex]
-            print("index: \(imageIndex), uuid: \(fileName)")
-//            let fileName = "\(UUID().uuidString)"
+//            print("index: \(imageIndex), uuid: \(fileName)")
             let storageRef = FirebaseManager.shared.storage.reference().child(fileName)
-//            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
+            
             imageIndex += 1
+            
             storageRef.putData(imageData, metadata: nil) { (metadata, error) in
-//                uuidArray.append(fileName)
-                
                 if error != nil {
                     print("upload error")
                 } else {
@@ -162,15 +228,6 @@ final class FirebaseManager {
             if let image = UIImage(data: data) {
                 images.append(image)
             }
-//            uuidRef.getData(maxSize: 5 * 1024 * 1024) { data, error in
-//                if let error = error {
-//                    print("post has no saved uuids: \(error)")
-//                } else {
-//                    // these forces!! might make this volitile who knows lmao
-//                    print("found post: \(id)")
-//                    images.append(UIImage(data: data!)!)
-//                }
-//            }
         }
         
         return images
@@ -190,58 +247,3 @@ final class FirebaseManager {
         }
     }
 }
-
-// photo selector view, maybe move this to add post view??
-struct PhotoSelector: View {
-    @Binding var data: [Data]
-    @Binding var imageUUIDs: [String]
-    @State var selectedItem: [PhotosPickerItem] = []
-
-    var body: some View {
-        PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
-            if !data.isEmpty {
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(data, id: \.self) { imageData in
-                            if let image = UIImage(data: imageData) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame( maxHeight: 300)
-                            }
-                        }
-                    }
-                }
-            } else {
-                Label("Select a picture", systemImage: "photo.on.rectangle.angled")
-            }
-        }.onChange (of: selectedItem) {_, newValue in
-            for item in selectedItem {
-                Task {
-                    if let imageData = try? await item.loadTransferable(type: Data.self) {
-                        await MainActor.run {
-                            // add uuid to own array
-                            imageUUIDs.append(UUID().uuidString)
-                            data.append(imageData)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-    
-// codable post object to allow encoding data to send to firebase to to
-// needs work
-struct Post: Codable {
-//    @DocumentID var id: String?
-    var images: [String?]
-    var name: String?
-    var address: String?
-    var rating: Double?
-    var description: String?
-//    var location: (Double?, Double?)
-    var xLoc: Double?
-    var yLoc: Double?
-}
-
