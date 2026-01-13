@@ -98,6 +98,7 @@ final class FirebaseManager {
     // **  below is user database querying  ** //
     
     // adds  user to "users" collection in firebase
+    // maybe rework this just to send the uid and posts
     func addUser(uid: String, email: String, username: String, posts: [Post]) {
         let newUser = User(uid: uid, email: email, username: username, posts: posts)
         do {
