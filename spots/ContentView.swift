@@ -58,7 +58,6 @@ struct ContentView: View {
                             }
                         }
                     }
-                    .ignoresSafeArea(.all)
                     // loads posts when the map appears
                     .onAppear {
                         loadPosts()

@@ -14,6 +14,9 @@ import PhotosUI
 import FirebaseStorage
 
 struct AddPostView: View {
+    
+    // need to be able to send the uuid of each photo when uploading them and saving them in the post object
+    
     @Environment(\.dismiss) private var dismiss
     @State var centerLat: Double
     @State var centerLong: Double
@@ -24,6 +27,7 @@ struct AddPostView: View {
     @State var rating: Double = 0.0
     
     @State var imageData: [Data] = []
+    @State var imageUUIDs: [String] = []
     
     init(centerLat: Double, centerLong: Double) {
         // state variables received from contentview
@@ -34,6 +38,8 @@ struct AddPostView: View {
     
     var body: some View {
         VStack {
+            // need to resize the grab edge on the left because its annoying to grab the slider
+            // also need to figure out better rating system, maybe star
 
             // big form that takes in all the post data
             // photos need to be implemented
@@ -59,7 +65,7 @@ struct AddPostView: View {
                 }
                 // custom photo picker logic in AddPostView and FirebaseManager
                 Section(header: Text("Image Upload")) {
-                    PhotoSelector(data: $imageData)
+                    PhotoSelector(data: $imageData, imageUUIDs: $imageUUIDs)
                 }
                 
                 // autofilled coordinates based on where the pin is
@@ -80,7 +86,7 @@ struct AddPostView: View {
                 } else {
                     // add post
                     // uses the global shared firebasemanager object in the firebasemanager class
-                    FirebaseManager.shared.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
+                    FirebaseManager.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
                     //fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
 
                     // need to unwrap optional Data type imageData before passing as param

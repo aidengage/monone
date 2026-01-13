@@ -73,7 +73,7 @@ final class FirebaseManager {
                     // setting all data
                     let title = data["name"] as? String ?? ""
                     let description = data["description"] as? String ?? ""
-                    let image = data["imageURL"] as? String ?? ""  
+                    let images = data["imageURL"] as? [String] ?? []
                     let address = data["address"] as? String ?? ""
                     
                     var xLoc: Double = 0.0
@@ -91,7 +91,7 @@ final class FirebaseManager {
                         docId: document.documentID,
                         title: title,
                         description: description,
-                        image: image,
+                        images: images,
                         coords: (xLoc, yLoc),
                         address: address
                     )
@@ -106,8 +106,8 @@ final class FirebaseManager {
     }
     
     // creates post with these params and adds to the "post" collection
-    func addPost(image: String, name: String, address: String, rating: Double, description: String, coords: (xLoc: Double, yLoc: Double)) {
-        let newPost = Post(image: image, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc)
+    func addPost(images: [String], name: String, address: String, rating: Double, description: String, coords: (xLoc: Double, yLoc: Double)) {
+        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc)
         do {
             try fs.collection("post").addDocument(from: newPost) { error in
                 if let error = error {
@@ -136,11 +136,30 @@ final class FirebaseManager {
             }
         }
     }
+    
+    func getImages() async throws -> [UIImage] {
+        // boiler plate func
+        var images: [UIImage] = []
+        let storageRef = Storage.storage().reference()
+        
+        storageRef.listAll { result, error in
+            if let error = error {
+                print("Error listing files: \(error)")
+                return
+            }
+        }
+        return images
+    }
+    
+    func storeUUIDs(imageUUIDs: [String]) {
+        
+    }
 }
 
 // photo selector view, maybe move this to add post view??
 struct PhotoSelector: View {
     @Binding var data: [Data]
+    @Binding var imageUUIDs: [String]
     @State var selectedItem: [PhotosPickerItem] = []
 
     var body: some View {
@@ -166,6 +185,8 @@ struct PhotoSelector: View {
                 Task {
                     if let imageData = try? await item.loadTransferable(type: Data.self) {
                         await MainActor.run {
+                            // add uuid to own array
+                            imageUUIDs.append(UUID().uuidString)
                             data.append(imageData)
                         }
                     }
@@ -179,7 +200,7 @@ struct PhotoSelector: View {
 // needs work
 struct Post: Codable {
 //    @DocumentID var id: String?
-    var image: String?
+    var images: [String?]
     var name: String?
     var address: String?
     var rating: Double?
