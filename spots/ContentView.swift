@@ -25,7 +25,6 @@ struct ContentView: View {
     // probably dont need this many
     @State private var showAddPost = false
     @State private var showLogin = false
-    @State private var loggedIn = false
     
     // part of the navigation stack in body, appending to the end of this will send user to that page
     @State var path = NavigationPath()
@@ -119,7 +118,7 @@ struct ContentView: View {
                     }
                 }
             }
-            //once state of selectedPost changes, PostDetailView is launched. 
+            //once state of selectedPost changes, PostDetailView with post is launched. 
             .sheet(item: $selectedPost) { post in
                 NavigationView {
                     PostDetailView(post: post)

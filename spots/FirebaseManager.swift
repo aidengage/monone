@@ -26,7 +26,8 @@ final class FirebaseManager {
     init () {
         self.fs = Firestore.firestore()
         self.db = Database.database()
-        self.storage = Storage.storage()
+        let app = FirebaseApp.app()!
+        self.storage = Storage.storage(app: app)
         self.docDict = [:]
     }
     
@@ -73,7 +74,7 @@ final class FirebaseManager {
                     // setting all data
                     let title = data["name"] as? String ?? ""
                     let description = data["description"] as? String ?? ""
-                    let images = data["imageURL"] as? [String] ?? []
+                    let images = data["images"] as? [String] ?? []
                     let address = data["address"] as? String ?? ""
                     
                     var xLoc: Double = 0.0
@@ -122,12 +123,20 @@ final class FirebaseManager {
     }
     
     // async function to upload imagedata to firebase storage with the uuid as the file name (needs rework)
-    func uploadImage(data: [Data]) async throws {
+    func uploadImage(uuidArray: [String], data: [Data]) async throws {
         print("attempting upload...")
         
-        for imageData in data {
-            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
+        var imageIndex: Int = 0
+        for imageData in data /*&& index in uuidArray*/ {
+            let fileName = uuidArray[imageIndex]
+            print("index: \(imageIndex), uuid: \(fileName)")
+//            let fileName = "\(UUID().uuidString)"
+            let storageRef = FirebaseManager.shared.storage.reference().child(fileName)
+//            let storageRef = Storage.storage().reference().child("\(UUID().uuidString)")
+            imageIndex += 1
             storageRef.putData(imageData, metadata: nil) { (metadata, error) in
+//                uuidArray.append(fileName)
+                
                 if error != nil {
                     print("upload error")
                 } else {
@@ -137,22 +146,48 @@ final class FirebaseManager {
         }
     }
     
-    func getImages() async throws -> [UIImage] {
+    func getImagesByUUID(uuids: [String]) async throws -> [UIImage] {
         // boiler plate func
         var images: [UIImage] = []
-        let storageRef = Storage.storage().reference()
+        let storageRef = FirebaseManager.shared.storage.reference()
+//        let storageRef = Storage.storage().reference()//.child("images/")
         
-        storageRef.listAll { result, error in
-            if let error = error {
-                print("Error listing files: \(error)")
-                return
+        for id in uuids {
+//            let uuidRef = Storage.storage().reference(withPath: id)
+            let uuidRef = storageRef.child(id)
+            print(uuidRef)
+            
+//            let data = try await uuidRef.getData(maxSize: 5 * 1024 * 1024)
+            let data = try await downloadData(ref: uuidRef)
+            if let image = UIImage(data: data) {
+                images.append(image)
             }
+//            uuidRef.getData(maxSize: 5 * 1024 * 1024) { data, error in
+//                if let error = error {
+//                    print("post has no saved uuids: \(error)")
+//                } else {
+//                    // these forces!! might make this volitile who knows lmao
+//                    print("found post: \(id)")
+//                    images.append(UIImage(data: data!)!)
+//                }
+//            }
         }
+        
         return images
     }
     
-    func storeUUIDs(imageUUIDs: [String]) {
-        
+    func downloadData(ref: StorageReference) async throws -> Data {
+        try await withCheckedThrowingContinuation { continuation in
+            ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let data = data {
+                    continuation.resume(returning: data)
+                } else {
+                    continuation.resume(throwing: URLError(.badServerResponse))
+                }
+            }
+        }
     }
 }
 
@@ -196,7 +231,7 @@ struct PhotoSelector: View {
     }
 }
     
-// codable post object to allow encoding data to send to firebase to to to to
+// codable post object to allow encoding data to send to firebase to to
 // needs work
 struct Post: Codable {
 //    @DocumentID var id: String?

@@ -46,6 +46,11 @@ struct PostDetailView: View {
                         )
                     }
                     
+                    // photo card view should display all photos horizontally
+                    if !post.images.isEmpty {
+                        PhotoCard(imageUUIDs: post.images)
+                    }
+                    
                     // Coordinates Card
                     InfoCard(
                         icon: "location.circle.fill",
@@ -59,6 +64,9 @@ struct PostDetailView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            print("uuids: \(post.images)")
+        }
     }
 }
 
@@ -99,6 +107,42 @@ struct InfoCard: View {
     }
 }
 
-
-
-
+struct PhotoCard: View {
+    let imageUUIDs: [String]
+    @State var images: [UIImage] = []
+    
+    var body: some View {
+        ScrollView {
+            HStack(alignment: .top, spacing: 16) {
+                ForEach(images, id: \.self) { image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+//                        .frame(width: 100, height: 100)
+//                        .clipShape(Capsule())
+                }
+            }
+        }
+        .onAppear(){
+            Task {
+                await getImages()
+            }
+        }
+//        .task {
+//            do {
+//                images = try await FirebaseManager.shared.getImagesByUUID(uuids: imageUUIDs)
+//            } catch {
+//                print("error loading uuid images")
+//            }
+//        }
+    }
+    
+    func getImages() async {
+        do {
+            images = try await FirebaseManager.shared.getImagesByUUID(uuids: imageUUIDs)
+        } catch {
+            print("error loading uuid images")
+        }
+    }
+        
+}

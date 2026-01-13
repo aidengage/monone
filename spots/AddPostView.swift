@@ -95,7 +95,8 @@ struct AddPostView: View {
 //                    guard let imageData else { return }
                     Task {
                         do {
-                            try await FirebaseManager.shared.uploadImage(data: imageData)
+                            try await FirebaseManager.shared.uploadImage(uuidArray: imageUUIDs, data: imageData)
+//                            try await PhotoSelector.uploadImage(uuidArray: imageUUIDs, data: imageData)
                         } catch {
                             print("upload failed: \(error)")
                         }
