@@ -5,24 +5,32 @@
 //  Created by Aiden Gage on 12/21/25
 //  Contributions by Minahil starting 01/04/26
 
+// many things happen in this file beware
+
 import SwiftUI
 import MapKit
 import FirebaseAuth
 
 struct ContentView: View {
-    @State var path = NavigationPath()
+    // initializing all these variables for the main map view to work
     
+    // coords for center of the screen, sent to addpost view to autofill
     @State var centerLat: Double
     @State var centerLong: Double
     @State private var posts: [PostMan] = []
     //tracks which post is selected
     @State private var selectedPost: PostMan? = nil
     
+    // boolean variables set to show login or add post page for conditional
+    // probably dont need this many
     @State private var showAddPost = false
     @State private var showLogin = false
-    
     @State private var loggedIn = false
     
+    // part of the navigation stack in body, appending to the end of this will send user to that page
+    @State var path = NavigationPath()
+    
+    // setting camera position
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
@@ -35,55 +43,53 @@ struct ContentView: View {
             ZStack(alignment: .bottomLeading) {
                 ZStack {
                     Map(position: $cameraPosition) {
+                        // looping through posts array and displaying them all on map with a clickable marker
                         ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
                             Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
-                                Image(systemName: "mappin.circle.fill")
-                                    .foregroundColor(.red)
-                                    .font(.title2)
-                                    .background(Color.white)
-                                    .clipShape(Circle())
-                                    .onTapGesture {
-    //                                    once user taps, state of selectedPost changes
-                                        selectedPost = post
-                                    }
+                            Image(systemName: "mappin.circle.fill")
+                                .foregroundColor(.red)
+                                .font(.title2)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .onTapGesture {
+                                    // once user taps, state of selectedPost changes
+                                    selectedPost = post
+                                }
                             }
                         }
                     }
+                    .ignoresSafeArea(.all)
+                    // loads posts when the map appears
+                    .onAppear {
+                        loadPosts()
+                    }
+                    // when map camera changes, update center coords with new center
                     .onMapCameraChange { mapCameraUpdateContext in
                         centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
                         centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
                         print("\(centerLat): \(centerLong)")
                     }
+                    // visual indicator of the center of the screen
                     Image(systemName: "mappin")
                         .offset(y: -15)
                         .font(.system(size: 33))
-//                        .foregroundStyle(Color.red)
-                    
-                    .ignoresSafeArea(.all)
-                    .onAppear {
-                        loadPosts()
-                    }
-                    
                 }
 
+                // add post button
                 Button(action: {
                     let currentUser = Auth.auth().currentUser
                     print("Current user: \(currentUser?.email ?? "nil")")
                     print("User ID: \(currentUser?.uid ?? "nil")")
                     
+                    // when logged in, showAddPost is true, appends to path stack with variable
                     if currentUser != nil {
                         showAddPost = true
-                        showLogin = false
-//                        loggedIn = true
                         path.append(showAddPost)
                     } else {
                         showLogin = true
-                        showAddPost = false
-//                        loggedIn = false
                         path.append(showLogin)
                     }
                 }) {
-                    // Label("Add Post", systemImage: "mappin")
                     Image(systemName: "plus")
                         .font(.largeTitle)
                         .padding(10)
@@ -92,7 +98,7 @@ struct ContentView: View {
                 .buttonBorderShape(.circle)
                 .padding(.leading, 30)
                 
-                // navigation logic for login and addpost
+                // navigation logic for login and addpost, sending center coords with the navigation
                 .navigationDestination(isPresented: $showAddPost) {
                     AddPostView(centerLat: centerLat, centerLong: centerLong)
                 }
@@ -103,6 +109,7 @@ struct ContentView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                // creates a toolbar to logout of account
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if Auth.auth().currentUser != nil {
                         Button(action: {
@@ -122,6 +129,7 @@ struct ContentView: View {
         }
     }
     
+    // uses firebasemanager getposts with the completion below
     func loadPosts() {
         fm.getPosts(completion: handleLoadedPosts)
     }
@@ -136,6 +144,7 @@ struct ContentView: View {
         print("Updated posts state variable. Map will now render markers.")
     }
     
+    // logout function
     func logout() {
         print("🚪 Logout button tapped")
         do {

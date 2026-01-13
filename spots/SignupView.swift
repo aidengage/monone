@@ -9,13 +9,15 @@ import SwiftUI
 import FirebaseAuth
 
 struct SignupView: View {
+    @Environment(\.dismiss)private var dismiss
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
     @State private var error: String? = nil
-    @Environment(\.dismiss)private var dismiss
 
     var body: some View {
+        
+        // signup form for user to fill out to create an account
         Form {
             Section(header: Text("Email")) {
                 TextField("Email", text: $email)
@@ -36,6 +38,7 @@ struct SignupView: View {
 
     }
     
+    // signup function to create account linked to button
     func signup(email: String, password: String) {
         if password != confirmPassword {
             error = "Passwords do not match"

@@ -24,6 +24,9 @@ struct PostDetailView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
                     
+                    // info cards to represent address, description, and coords
+                    // need to add photos and name/title
+                    
                     if !post.address.isEmpty {
                         InfoCard(
                             icon: "mappin.circle.fill",
@@ -59,6 +62,7 @@ struct PostDetailView: View {
     }
 }
 
+// info card template used for each individual aspect of the post
 struct InfoCard: View {
     let icon: String
     let title: String

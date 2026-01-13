@@ -13,22 +13,6 @@ import Foundation
 import PhotosUI
 import FirebaseStorage
 
-// basic photo selector storing images in selectedItems
-//struct PhotoSelector: View {
-//    @State var selectedItems: [PhotosPickerItem] = []
-//
-//
-//    var body: some View {
-//        PhotosPicker(selection: $selectedItems, matching: .images) {
-//            Text("Select Multiple Photos")
-//        }
-//    }
-//    
-//    func howManyPhotos() {
-//        print("Selected \(selectedItems.count) items.")
-//    }
-//}
-
 struct AddPostView: View {
     @Environment(\.dismiss) private var dismiss
     @State var centerLat: Double
@@ -40,18 +24,12 @@ struct AddPostView: View {
     @State var rating: Double = 0.0
     
     @State var imageData: [Data] = []
-//    var ps: PhotoSelector
-    
-    // photo picker
-//    @State var data: Data?
-//    @State var selectedItem: [PhotosPickerItem] = []
     
     init(centerLat: Double, centerLong: Double) {
         // state variables received from contentview
         // center x and y for post location
         _centerLat = State(initialValue: centerLat)
         _centerLong = State(initialValue: centerLong)
-//        ps = PhotoSelector()
     }
     
     var body: some View {
@@ -156,6 +134,7 @@ struct AddPostView: View {
 }
 
 // all for reverse geocoding to get the nearest address to the coordinates
+// saving place information in place object/struct
 struct Place {
     let lat: Double
     let long: Double
@@ -172,6 +151,7 @@ struct Place {
 }
 
 struct ReverseGeocoding {
+    // gets address from coordinates
     func nearestAddress(location: CLLocation) async throws -> Place? {
         if let request = MKReverseGeocodingRequest(location: location) {
             let mapItems = try await request.mapItems
