@@ -112,13 +112,13 @@ struct PhotoCard: View {
     @State var images: [UIImage] = []
     
     var body: some View {
-        ScrollView {
+        ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: 16) {
                 ForEach(images, id: \.self) { image in
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
-//                        .frame(width: 100, height: 100)
+                        .frame(maxHeight: 200)
 //                        .clipShape(Capsule())
                 }
             }
