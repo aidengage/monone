@@ -11,6 +11,7 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseStorage
 import FirebaseDatabase
+import FirebaseAuth
 
 // codable post object to allow encoding data to send to firebase to to
 // needs work
@@ -28,7 +29,7 @@ struct Post: Codable {
 
 // codable user obejct to send to firebase database
 struct User: Codable {
-    var userID: String?
+    var uid: String?
     var email: String?
     var username: String?
     var posts: [Post]
@@ -94,18 +95,30 @@ final class FirebaseManager {
         self.docDict = [:]
     }
     
-    // queries the "post" collection in the database and prints out every post in "post"
-//    func printDocs() {
-//        fs.collection("post").getDocuments { (querySnapshot, error) in
-//            if let error = error {
-//                print("hello: \(error)")
-//            } else {
-//                for document in querySnapshot!.documents {
-//                    print("\(document.documentID) => \(document.data())")
-//                }
-//            }
-//        }
-//    }
+    // **  below is user database querying  ** //
+    
+    // adds  user to "users" collection in firebase
+    func addUser(uid: String, email: String, username: String, posts: [Post]) {
+        let newUser = User(uid: uid, email: email, username: username, posts: posts)
+        do {
+            try fs.collection("users").addDocument(from: newUser) { error in
+                if let error = error {
+                    print(error)
+                } else {
+                    print("user added")
+                }
+            }
+        } catch {
+            print("error creating doc: \(error.localizedDescription)")
+        }
+    }
+    
+    func getCurrentUserID() -> String {
+        let currentUser = Auth.auth().currentUser
+        let userID = currentUser?.uid ?? ""
+        return userID
+    }
+    
     
     // **  below is post database querying, currently reworking for users and posts  ** //
     
