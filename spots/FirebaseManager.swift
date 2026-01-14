@@ -32,7 +32,7 @@ struct User: Codable {
     var uid: String?
     var email: String?
     var username: String?
-    var posts: [Post]
+    var posts: [String]
 }
 
 // photo selector view, maybe move this to add post view??
@@ -99,10 +99,11 @@ final class FirebaseManager {
     
     // adds  user to "users" collection in firebase
     // maybe rework this just to send the uid and posts
-    func addUser(uid: String, email: String, username: String, posts: [Post]) {
+    func addUser(uid: String, email: String, username: String, posts: [String]) {
         let newUser = User(uid: uid, email: email, username: username, posts: posts)
         do {
-            try fs.collection("users").addDocument(from: newUser) { error in
+//            try fs.collection("users").addDocument(from: newUser) { error in
+            try fs.collection("users").document(uid).setData(from: newUser) { error in
                 if let error = error {
                     print(error)
                 } else {
@@ -120,13 +121,20 @@ final class FirebaseManager {
         return userID
     }
     
+    func addPostIDToUser(postID: String) {
+        let uid = getCurrentUserID()
+        let userRef = fs.collection("users").document(uid)
+        userRef.updateData(["posts": FieldValue.arrayUnion([postID])])
+    }
+    
     
     // **  below is post database querying, currently reworking for users and posts  ** //
     
     // queries the "post" collection, getting every doc and storing them in a document dictionary
     // and prints everything in the dictionary (i dont think we need the above print function anymore then)
     func getDocs() {
-        fs.collection("post").getDocuments() { (querySnapshot, error) in
+//        fs.collection("post").getDocuments() { (querySnapshot, error) in
+        fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
             if let error = error {
                 print("no docs: \(error)")
             } else {
@@ -142,7 +150,9 @@ final class FirebaseManager {
     // get posts function queries "post" collection and sets all the data to its corresponding post values
     func getPosts(completion: @escaping ([PostMan]) -> Void) {
         var postArray: [PostMan] = []
-        fs.collection("post").getDocuments { (querySnapshot, error) in
+//        fs.collection("post").getDocuments { (querySnapshot, error) in
+//        fs.collection("users").document(getCurrentUserID()).collection("posts").getDocuments { (querySnapshot, error) in
+        fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
             if let error = error {
                 print("error getting posts: \(error)")
                 completion([])
@@ -189,10 +199,16 @@ final class FirebaseManager {
     func addPost(images: [String], name: String, address: String, rating: Double, description: String, coords: (xLoc: Double, yLoc: Double)) {
         let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc)
         do {
-            try fs.collection("post").addDocument(from: newPost) { error in
+//            try fs.collection("post").addDocument(from: newPost) { error in
+//            let userDocID = fs.collection("users").document(getCurrentUserID()).documentID
+//            try fs.collection("users").document(getCurrentUserID()).collection("posts").addDocument(from: newPost) { error in
+            let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
+            try postRef.setData(from: newPost) { error in
+                /* addDocument(from: newPost) { error in*/
                 if let error = error {
                     print(error)
                 } else {
+                    self.addPostIDToUser(postID: postRef.documentID)
                     print("doc added")
                 }
             }
