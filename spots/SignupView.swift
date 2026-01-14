@@ -47,16 +47,19 @@ struct SignupView: View {
         } else {
             Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
                 
+                // unwrapping authresult to get user id from account creation
                 guard let user = authResult?.user else {
                     self.error = "Could not create user"
                     return
                 }
                 
+                // setting user id
                 let uid = user.uid
                 
                 if let error = error {
                     print(error)
                 } else {
+                    // creates corresponding user in firebase db to link to
                     print("User created successfully")
                     FirebaseManager.shared.addUser(uid: uid, email: email, username: username, posts: [])
                     dismiss()

@@ -119,7 +119,6 @@ struct PhotoCard: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxHeight: 200)
-//                        .clipShape(Capsule())
                 }
             }
         }
@@ -128,13 +127,6 @@ struct PhotoCard: View {
                 await getImages()
             }
         }
-//        .task {
-//            do {
-//                images = try await FirebaseManager.shared.getImagesByUUID(uuids: imageUUIDs)
-//            } catch {
-//                print("error loading uuid images")
-//            }
-//        }
     }
     
     func getImages() async {

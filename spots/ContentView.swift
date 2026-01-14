@@ -129,7 +129,7 @@ struct ContentView: View {
     
     // uses firebasemanager getposts with the completion below
     func loadPosts() {
-        fm.getPosts(completion: handleLoadedPosts)
+        FirebaseManager.shared.getPosts(completion: handleLoadedPosts)
     }
     
     //this completion handler is triggered once the posts are loaded, and it updates the posts state variable because there is a state change in the posts variable (going from empty to having data)
@@ -154,10 +154,9 @@ struct ContentView: View {
     }
 }
 
-let fm = FirebaseManager()
-
+// get docs wrapper function, gets all posts from all users
 func getDocs() {
-    fm.getDocs()
+    FirebaseManager.shared.getDocs()
 }
 
 

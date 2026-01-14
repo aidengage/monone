@@ -22,7 +22,6 @@ struct Post: Codable {
     var address: String?
     var rating: Double?
     var description: String?
-//    var location: (Double?, Double?)
     var xLoc: Double?
     var yLoc: Double?
 }
@@ -102,7 +101,6 @@ final class FirebaseManager {
     func addUser(uid: String, email: String, username: String, posts: [String]) {
         let newUser = User(uid: uid, email: email, username: username, posts: posts)
         do {
-//            try fs.collection("users").addDocument(from: newUser) { error in
             try fs.collection("users").document(uid).setData(from: newUser) { error in
                 if let error = error {
                     print(error)
@@ -115,12 +113,15 @@ final class FirebaseManager {
         }
     }
     
+    // gets and returns the id of current user logged in
     func getCurrentUserID() -> String {
         let currentUser = Auth.auth().currentUser
         let userID = currentUser?.uid ?? ""
         return userID
     }
     
+    // adds a specific post id (post document id) to the users posts array in database
+    // use this as template for things like saved posts, followed and following
     func addPostIDToUser(postID: String) {
         let uid = getCurrentUserID()
         let userRef = fs.collection("users").document(uid)
@@ -133,7 +134,6 @@ final class FirebaseManager {
     // queries the "post" collection, getting every doc and storing them in a document dictionary
     // and prints everything in the dictionary (i dont think we need the above print function anymore then)
     func getDocs() {
-//        fs.collection("post").getDocuments() { (querySnapshot, error) in
         fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
             if let error = error {
                 print("no docs: \(error)")
@@ -150,8 +150,6 @@ final class FirebaseManager {
     // get posts function queries "post" collection and sets all the data to its corresponding post values
     func getPosts(completion: @escaping ([PostMan]) -> Void) {
         var postArray: [PostMan] = []
-//        fs.collection("post").getDocuments { (querySnapshot, error) in
-//        fs.collection("users").document(getCurrentUserID()).collection("posts").getDocuments { (querySnapshot, error) in
         fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
             if let error = error {
                 print("error getting posts: \(error)")
@@ -199,12 +197,8 @@ final class FirebaseManager {
     func addPost(images: [String], name: String, address: String, rating: Double, description: String, coords: (xLoc: Double, yLoc: Double)) {
         let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc)
         do {
-//            try fs.collection("post").addDocument(from: newPost) { error in
-//            let userDocID = fs.collection("users").document(getCurrentUserID()).documentID
-//            try fs.collection("users").document(getCurrentUserID()).collection("posts").addDocument(from: newPost) { error in
             let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
             try postRef.setData(from: newPost) { error in
-                /* addDocument(from: newPost) { error in*/
                 if let error = error {
                     print(error)
                 } else {
@@ -225,9 +219,8 @@ final class FirebaseManager {
         print("attempting upload...")
         
         var imageIndex: Int = 0
-        for imageData in data /*&& index in uuidArray*/ {
+        for imageData in data {
             let fileName = uuidArray[imageIndex]
-//            print("index: \(imageIndex), uuid: \(fileName)")
             let storageRef = FirebaseManager.shared.storage.reference().child(fileName)
             
             imageIndex += 1
@@ -246,15 +239,12 @@ final class FirebaseManager {
         // boiler plate func
         var images: [UIImage] = []
         let storageRef = FirebaseManager.shared.storage.reference()
-//        let storageRef = Storage.storage().reference()//.child("images/")
         
         for id in uuids {
-//            let uuidRef = Storage.storage().reference(withPath: id)
             let uuidRef = storageRef.child(id)
             print(uuidRef)
-            
-//            let data = try await uuidRef.getData(maxSize: 5 * 1024 * 1024)
             let data = try await downloadData(ref: uuidRef)
+            
             if let image = UIImage(data: data) {
                 images.append(image)
             }
@@ -265,6 +255,7 @@ final class FirebaseManager {
     
     func downloadData(ref: StorageReference) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
+            // download limit is a problem when exceeded, default is 5MB but needs to be adaptable
             ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
                 if let error = error {
                     continuation.resume(throwing: error)

@@ -6,6 +6,7 @@
 //
 import SwiftUI
 
+// not used yet but will be when we get user accounts
 class UserManager: Identifiable {
     let userID: String
     let email: String
