@@ -5,6 +5,12 @@
 //  Created by Aiden Gage on 1/16/26.
 //
 
+// current bug with the stars not lining up, it has to do with the geometry reader wrapper
+// in the star rating view (dynamic) and the rating star view, adding a geomedy reader to
+// the star image view solves this problem but then there is a bit of extra room at the
+// buttom margin and looks wrong, probably wont matter later when we make actual design 
+// choices when that happens come back here and add the geometry reader to the star image
+
 import SwiftUI
 
 struct RatingStar: View {
