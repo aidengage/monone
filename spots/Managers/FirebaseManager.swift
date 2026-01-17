@@ -118,13 +118,17 @@ final class FirebaseManager {
             } else {
                 for document in querySnapshot!.documents {
                     let data = document.data()
+                    print("doc data: \(data)")
                     
                     // setting all data
                     let title = data["name"] as? String ?? ""
                     let description = data["description"] as? String ?? ""
                     let images = data["images"] as? [String] ?? []
                     let address = data["address"] as? String ?? ""
-                    let rating = data["rating"] as? Decimal ?? 0.0
+                    
+                    // this is a horrible line of code that somehow works to get double to decimal
+                    // figure out how to pull just a decimal
+                    let rating: Decimal = Decimal.init(data["rating"] as! Double) /*data["rating"] as? Decimal ?? 0.0*/
                     
                     var xLoc: Double = 0.0
                     var yLoc: Double = 0.0
