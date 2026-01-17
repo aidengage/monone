@@ -24,6 +24,9 @@ struct PostDetailView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
                     
+                    // info cards to represent address, description, and coords
+                    // need to add photos and name/title
+                    
                     if !post.address.isEmpty {
                         InfoCard(
                             icon: "mappin.circle.fill",
@@ -43,6 +46,11 @@ struct PostDetailView: View {
                         )
                     }
                     
+                    // photo card view should display all photos horizontally
+                    if !post.images.isEmpty {
+                        PhotoCard(imageUUIDs: post.images)
+                    }
+                    
                     // Coordinates Card
                     InfoCard(
                         icon: "location.circle.fill",
@@ -50,15 +58,21 @@ struct PostDetailView: View {
                         content: String(format: "Lat: %.6f\nLon: %.6f", post.coords.0, post.coords.1),
                         iconColor: .green
                     )
+                    
+                    StarRatingViewStatic(rating: post.rating, numStars: 5)
                 }
                 .padding(.bottom, 30)
             }
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            print("uuids: \(post.images)")
+        }
     }
 }
 
+// info card template used for each individual aspect of the post
 struct InfoCard: View {
     let icon: String
     let title: String
@@ -95,6 +109,34 @@ struct InfoCard: View {
     }
 }
 
-
-
-
+struct PhotoCard: View {
+    let imageUUIDs: [String]
+    @State var images: [UIImage] = []
+    
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack(alignment: .top, spacing: 16) {
+                ForEach(images, id: \.self) { image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 200)
+                }
+            }
+        }
+        .onAppear(){
+            Task {
+                await getImages()
+            }
+        }
+    }
+    
+    func getImages() async {
+        do {
+            images = try await FirebaseManager.shared.getImagesByUUID(uuids: imageUUIDs)
+        } catch {
+            print("error loading uuid images")
+        }
+    }
+        
+}

@@ -10,21 +10,16 @@ import FirebaseCore
 import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate {
+    
+    // essentially the main function of our app, configures firebase and return true
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
         FirebaseApp.configure()
-//        let fm = FirebaseManager.init()
-        
-//        print("printing printing printing")
-//        print(fm.getPostLocation(postCoords: (38.20306, -85.77000)))
-//        print(fm.getPostByName(postName: "Churchill Downs"))
-//        fm.addSnapListener()
-//        fm.getPostById(postID: "u9mohOI4BugTXOh0tYgQ")
-        
         return true
     }
 }
 
+// the main view of our app, where we call contentview to start everything
 @main
 struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
