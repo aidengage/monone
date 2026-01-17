@@ -24,7 +24,7 @@ struct AddPostView: View {
     @State var description: String = ""
     @State var address: String = ""
     @State var imageURL: String = ""
-    @State var rating: Double = 0.0
+    @State var rating: Decimal = 0.0
     
     @State var imageData: [Data] = []
     @State var imageUUIDs: [String] = []
@@ -55,13 +55,13 @@ struct AddPostView: View {
                 
                 // rating needs to link back to user posting it
                 Section(header: Text("Rating")) {
-                    HStack {
-                        TextField("Rating", value: $rating, format: .number)
-                            .frame(width: 35)
-                            .keyboardType(.decimalPad)
-                        Slider(value: $rating, in: 0...5, step: 0.05)
-                    }
-                    
+//                    HStack {
+//                        TextField("Rating", value: $rating, format: .number)
+//                            .frame(width: 35)
+//                            .keyboardType(.decimalPad)
+//                        Slider(value: $rating, in: 0...5, step: 0.05)
+//                    }
+                    StarRatingViewDynamic(rating: $rating, numStars: 5)
                 }
                 // custom photo picker logic in AddPostView and FirebaseManager
                 Section(header: Text("Image Upload")) {

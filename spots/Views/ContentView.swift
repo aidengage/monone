@@ -136,7 +136,7 @@ struct ContentView: View {
     func handleLoadedPosts(loadedPosts: [PostMan]) {
         print("\(loadedPosts.count) posts from Firebase")
         for (index, post) in loadedPosts.enumerated() {
-            print("   Post \(index + 1): \(post.title) - Coords: (\(post.coords.0), \(post.coords.1))")
+            print("   Post \(index + 1): \(post.title) - Coords: (\(post.coords.0), \(post.coords.1)), Rating: \(post.rating)")
         }
         posts = loadedPosts
         print("Updated posts state variable. Map will now render markers.")

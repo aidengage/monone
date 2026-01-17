@@ -58,6 +58,8 @@ struct PostDetailView: View {
                         content: String(format: "Lat: %.6f\nLon: %.6f", post.coords.0, post.coords.1),
                         iconColor: .green
                     )
+                    
+                    StarRatingViewStatic(rating: post.rating, numStars: 5)
                 }
                 .padding(.bottom, 30)
             }

@@ -19,7 +19,7 @@ struct Post: Codable {
     var images: [String?]
     var name: String?
     var address: String?
-    var rating: Double?
+    var rating: Decimal?
     var description: String?
     var xLoc: Double?
     var yLoc: Double?
@@ -124,6 +124,7 @@ final class FirebaseManager {
                     let description = data["description"] as? String ?? ""
                     let images = data["images"] as? [String] ?? []
                     let address = data["address"] as? String ?? ""
+                    let rating = data["rating"] as? Decimal ?? 0.0
                     
                     var xLoc: Double = 0.0
                     var yLoc: Double = 0.0
@@ -142,9 +143,10 @@ final class FirebaseManager {
                         description: description,
                         images: images,
                         coords: (xLoc, yLoc),
-                        address: address
+                        address: address,
+                        rating: rating
                     )
-                    
+//                    print(post)
                     // stores to the postArray
                     postArray.append(post)
                 }
@@ -155,7 +157,7 @@ final class FirebaseManager {
     }
     
     // creates post with these params and adds to the "post" collection
-    func addPost(images: [String], name: String, address: String, rating: Double, description: String, coords: (xLoc: Double, yLoc: Double)) {
+    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double)) {
         let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc)
         do {
             let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
