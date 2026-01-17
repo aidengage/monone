@@ -7,7 +7,7 @@
 import SwiftUI
 
 // not used yet but will be when we get user accounts
-class UserManager: Identifiable {
+class UserMan: Identifiable {
     let userID: String
     let email: String
     let username: String

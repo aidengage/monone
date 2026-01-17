@@ -243,7 +243,8 @@ final class FirebaseManager {
         for id in uuids {
             let uuidRef = storageRef.child(id)
             print(uuidRef)
-            let data = try await downloadData(ref: uuidRef)
+            let fileSize: Int64 = try await getFileSize(ref: uuidRef)
+            let data = try await downloadData(ref: uuidRef, size: fileSize)
             
             if let image = UIImage(data: data) {
                 images.append(image)
@@ -253,11 +254,19 @@ final class FirebaseManager {
         return images
     }
     
-    func downloadData(ref: StorageReference) async throws -> Data {
+    // gets file size in async before download, dont really know if this is correct or works 100%
+    func getFileSize(ref: StorageReference) async throws -> Int64 {
+        let metadata = try await ref.getMetadata()
+        return metadata.size
+    }
+    
+    func downloadData(ref: StorageReference, size: Int64) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
             // download limit is a problem when exceeded, default is 5MB but needs to be adaptable
-            ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+            // set max size to size of image, making it dynamic
+            ref.getData(maxSize: size) { data, error in
                 if let error = error {
+                    print("get data error: \(error)")
                     continuation.resume(throwing: error)
                 } else if let data = data {
                     continuation.resume(returning: data)
