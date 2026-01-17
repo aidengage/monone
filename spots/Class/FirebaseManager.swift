@@ -16,7 +16,6 @@ import FirebaseAuth
 // codable post object to allow encoding data to send to firebase to to
 // needs work
 struct Post: Codable {
-//    @DocumentID var id: String?
     var images: [String?]
     var name: String?
     var address: String?
@@ -33,47 +32,6 @@ struct User: Codable {
     var username: String?
     var posts: [String]
 }
-
-// photo selector view, maybe move this to add post view??
-struct PhotoSelector: View {
-    @Binding var data: [Data]
-    @Binding var imageUUIDs: [String]
-    @State var selectedItem: [PhotosPickerItem] = []
-
-    var body: some View {
-        PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
-            if !data.isEmpty {
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(data, id: \.self) { imageData in
-                            if let image = UIImage(data: imageData) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame( maxHeight: 300)
-                            }
-                        }
-                    }
-                }
-            } else {
-                Label("Select a picture", systemImage: "photo.on.rectangle.angled")
-            }
-        }.onChange (of: selectedItem) {_, newValue in
-            for item in selectedItem {
-                Task {
-                    if let imageData = try? await item.loadTransferable(type: Data.self) {
-                        await MainActor.run {
-                            // add uuid to own array
-                            imageUUIDs.append(UUID().uuidString)
-                            data.append(imageData)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 
 final class FirebaseManager {
     // global firebasemanager for photo picker i think?
@@ -93,6 +51,8 @@ final class FirebaseManager {
         self.storage = Storage.storage(app: app)
         self.docDict = [:]
     }
+    
+    
     
     // **  below is user database querying  ** //
     
@@ -127,6 +87,7 @@ final class FirebaseManager {
         let userRef = fs.collection("users").document(uid)
         userRef.updateData(["posts": FieldValue.arrayUnion([postID])])
     }
+    
     
     
     // **  below is post database querying, currently reworking for users and posts  ** //
@@ -212,6 +173,7 @@ final class FirebaseManager {
     }
     
     
+    
     // **  below relates to photo selector  ** //
     
     // async function to upload imagedata to firebase storage with the uuid as the file name (needs rework)
@@ -260,6 +222,7 @@ final class FirebaseManager {
         return metadata.size
     }
     
+    // downloads data from storage ref and file size
     func downloadData(ref: StorageReference, size: Int64) async throws -> Data {
         try await withCheckedThrowingContinuation { continuation in
             // download limit is a problem when exceeded, default is 5MB but needs to be adaptable
