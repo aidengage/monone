@@ -127,6 +127,7 @@ final class FirebaseManager {
                     let address = data["address"] as? String ?? ""
                     
                     // this is a horrible line of code that somehow works to get double to decimal
+                    // loses some accuracy
                     // figure out how to pull just a decimal
                     let rating: Decimal = Decimal.init(data["rating"] as! Double) /*data["rating"] as? Decimal ?? 0.0*/
                     
