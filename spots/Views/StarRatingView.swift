@@ -11,6 +11,8 @@
 // buttom margin and looks wrong, probably wont matter later when we make actual design 
 // choices when that happens come back here and add the geometry reader to the star image
 
+// need to make this move in incriments of .1 or something like that
+
 import SwiftUI
 
 struct RatingStar: View {
