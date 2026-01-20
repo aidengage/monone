@@ -202,18 +202,38 @@ final class FirebaseManager {
     
     // ** below relates to adding a rating document to a post's rating collection
     
-    func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) {
+    func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) async {
         let newRating = Rating(user: userID, rating: rating, comment: comment)
         do {
             let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document(FirebaseManager.shared.getCurrentUserID())
-            try ratingRef.setData(from: newRating) { error in
-                if let error = error {
-                    print(error)
-                } else {
-                    self.addPostToRated(postID: postID)
-                    print("rating added")
+            let snapshot = try await ratingRef.getDocument() //{ (document, error) in
+//                if let document = document, document.exists {
+            if snapshot.exists {
+                print("Document exists")
+            } else {
+                print("Document does not exist, adding rating")
+                try ratingRef.setData(from: newRating)
+                self.addPostIDToUser(postID: postID)
+                
+//                    { error in
+//                        if let error = error {
+//                            print(error)
+//                        } else {
+//                            self.addPostToRated(postID: postID)
+//                            print("rating added")
+//                        }
+//                    }
                 }
-            }
+            
+            
+//            try ratingRef.setData(from: newRating) { error in
+//                if let error = error {
+//                    print(error)
+//                } else {
+//                    self.addPostToRated(postID: postID)
+//                    print("rating added")
+//                }
+//            }
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }

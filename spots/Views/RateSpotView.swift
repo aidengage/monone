@@ -16,7 +16,11 @@ struct RateSpotView: View {
             HStack {
                 StarRatingViewDynamic(rating: $rating, numStars: 5)
                 Button(action: {
-                    FirebaseManager.shared.addRatingToPost(postOwner: post.userId, postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
+                    Task {
+                        await FirebaseManager.shared.addRatingToPost(postOwner: post.userId, postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
+                    }
+                    
+                    
                 }) {
                     Label("Rate Spot!", systemImage: "heart.fill")
                         .buttonStyle(.glassProminent)
