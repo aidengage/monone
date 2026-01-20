@@ -34,6 +34,9 @@ struct ContentView: View {
     @State private var showAddPost = false
     @State private var showLogin = false
     
+    @State private var postView = false
+//    @State private var bottomInset: CGFloat = 0
+    
     // part of the navigation stack in body, appending to the end of this will send user to that page
     @State var path = NavigationPath()
     
@@ -76,6 +79,14 @@ struct ContentView: View {
                             }
                         }
                     }
+                    // a bunch of bullshit i tried to get this to work and it doesnt
+//                    .safeAreaPadding(.bottom, postView ? /*0.75 * UIScreen.main.bounds.height*/500 : 0)
+//                    .animation(.easeInOut(duration: 0.5), value: postView)
+//                    .safeAreaInset(edge: .bottom) {
+//
+//                    }
+//                    .animation(.easeInOut(duration: 0.5), value: !postView)
+                    
                     // loads posts when the map appears
                     .onAppear {
                         loadPosts()
@@ -94,6 +105,9 @@ struct ContentView: View {
                         centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
                         print("\(centerLat): \(centerLong)")
                     }
+                    // change map safe areas when postview is true to recenter map upward above sheet
+                    
+                    
                     // visual indicator of the center of the screen
                     Image(systemName: "mappin")
                         .offset(y: -15)
@@ -153,12 +167,21 @@ struct ContentView: View {
                 }
             }
             //once state of selectedPost changes, PostDetailView with post is launched. 
-            .sheet(item: $selectedPost) { post in
+            .sheet(item: $selectedPost, onDismiss: {
+                postView = false
+                print("post view: \(postView)")
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    
+                }
+//                loadPosts()
+            }) { post in
                 PostDetailView(post: post)
                     .presentationDetents([.fraction(0.75)])
                 
                     .task {
                         withAnimation(.easeInOut(duration: 0.7)) {
+                            postView = true
+                            print("post view: \(postView)")
                             cameraZoomOnPost(post: selectedPost!)
                         }
                     }
@@ -168,14 +191,15 @@ struct ContentView: View {
     
     func cameraZoomOnPost(post: PostMan) {
         let targetLocation = CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)
-        let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
+        let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
 //        cameraPosition = .region(region)
         
         // hardcoded offset camera zoom that barely works
-        let offsetCenter = CLLocationCoordinate2D(latitude: post.coords.0 - 0.019, longitude: post.coords.1)
+        let offsetCenter = CLLocationCoordinate2D(latitude: post.coords.0 - 0.006, longitude: post.coords.1)
         let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
         cameraPosition = .region(offsetRegion)
+//        return postView
     }
 
     //using publisher provided by deviceLocationService
