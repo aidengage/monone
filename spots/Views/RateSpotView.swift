@@ -13,13 +13,16 @@ struct RateSpotView: View {
     
     var body: some View {
         VStack( spacing: 16) {
-            StarRatingViewDynamic(rating: $rating, numStars: 5)
-            TextField("Comment here...", text: $comment, axis: .vertical)
-            Button(action: {
-                FirebaseManager.shared.addRatingToPost(postOwner: post.userId, postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
-            }) {
-                Label("Rate Spot!", systemImage: "arrow.2.circlepath.circle")
+            HStack {
+                StarRatingViewDynamic(rating: $rating, numStars: 5)
+                Button(action: {
+                    FirebaseManager.shared.addRatingToPost(postOwner: post.userId, postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
+                }) {
+                    Label("Rate Spot!", systemImage: "heart.fill")
+                        .buttonStyle(.glassProminent)
+                }
             }
+            TextField("Comment here...", text: $comment, axis: .vertical)
         }
         .padding(20)
         .background(Color(.systemBackground))

@@ -205,27 +205,12 @@ final class FirebaseManager {
     func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) {
         let newRating = Rating(user: userID, rating: rating, comment: comment)
         do {
-//            let query = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").whereField(userID, isEqualTo: FirebaseManager.shared.getCurrentUserID())
-            
-//            if !RatingExists(postID: postID, userID: userID) {
-//                let ratingRef = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").document()
-//                try ratingRef.setData(from: newRating) { error in
-//                    if let error = error {
-//                        print(error)
-//                    } else {
-//                        print("rating added")
-//                    }
-//                }
-//            } else {
-//                print("rating already exists??")
-//            }
-            
-            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document()
+            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document(FirebaseManager.shared.getCurrentUserID())
             try ratingRef.setData(from: newRating) { error in
                 if let error = error {
                     print(error)
                 } else {
-                    self.addRatingIDToUser(ratingID: ratingRef.documentID)
+                    self.addPostToRated(postID: postID)
                     print("rating added")
                 }
             }
@@ -234,45 +219,35 @@ final class FirebaseManager {
         }
     }
     
-    func RatingExists(postID: String, userID: String) -> Bool {
-        let query = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").whereField(userID, isEqualTo: FirebaseManager.shared.getCurrentUserID())
-        
-        var ratingExists: Bool = false
-//        print(query)
-        
-        query.getDocuments { (document, error) in
-            if error != nil {
-                print("error checking rating: \(error!)")
-                ratingExists = false
-            } else {
-                print("document data: \(document!)")
-                ratingExists = true
-            }
-//            DispatchQueue.main.async {
-//                if let error = error {
-//                    print("Error getting document: \(error.localizedDescription)")
-//                    exists = false // Assuming an error means we can't confirm existence
-//                    return
-//                }
-//                
-//                guard let snapshot = snapshot else {
-//                    print("Document snapshot is nil")
-//                    exists = false
-//                    return
-//                }
-//                
-//                if snapshot.isEmpty {
-//                    print("rating exists")
-//                    exists = true
-//                } else {
-//                    print("no rating")
-//                    exists = false
-//                }
+//    func RatingExists(postOwner: String, postID: String, userID: String) -> Bool {
+//        let query = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").whereField(FirebaseManager.shared.getCurrentUserID(), isEqualTo: userID)
+//        
+//        var ratingExists: Bool = false
+//        
+//        query.getDocuments { (document, error) in
+//            if let error = error {
+//                print("Error getting document: \(error.localizedDescription)")
+//                ratingExists = false // Assuming an error means we can't confirm existence
+//                return
 //            }
-        }
-        
-        return ratingExists
-    }
+//            
+//            guard let snapshot = document else {
+//                print("Document snapshot is nil")
+//                ratingExists = false
+//                return
+//            }
+//            
+//            if snapshot.isEmpty {
+//                print("snapshot is empty / no rating: \(snapshot.documents)")
+//                ratingExists = false
+//            } else {
+//                print("rating should exist")
+//                ratingExists = true
+//            }
+//        }
+//        
+//        return ratingExists
+//    }
     
     func addRatingIDToUser(ratingID: String) {
         let uid = getCurrentUserID()
@@ -280,7 +255,11 @@ final class FirebaseManager {
         userRef.updateData(["ratedPosts": FieldValue.arrayUnion([ratingID])])
     }
     
-    
+    func addPostToRated(postID: String) {
+        let uid = getCurrentUserID()
+        let userRef = fs.collection("users").document(uid)
+        userRef.updateData(["ratedPosts": FieldValue.arrayUnion([postID])])
+    }
     
     // **  below relates to photo selector  ** //
     
