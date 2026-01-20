@@ -170,7 +170,12 @@ struct ContentView: View {
         let targetLocation = CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)
         let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
         let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
-        cameraPosition = .region(region)
+//        cameraPosition = .region(region)
+        
+        // hardcoded offset camera zoom that barely works
+        let offsetCenter = CLLocationCoordinate2D(latitude: post.coords.0 - 0.019, longitude: post.coords.1)
+        let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
+        cameraPosition = .region(offsetRegion)
     }
 
     //using publisher provided by deviceLocationService
