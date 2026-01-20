@@ -157,8 +157,20 @@ struct ContentView: View {
                 PostDetailView(post: post)
                     .presentationDetents([.fraction(0.75)])
                 
+                    .task {
+                        withAnimation(.easeInOut(duration: 0.7)) {
+                            cameraZoomOnPost(post: selectedPost!)
+                        }
+                    }
             }
         }
+    }
+    
+    func cameraZoomOnPost(post: PostMan) {
+        let targetLocation = CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)
+        let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
+        let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
+        cameraPosition = .region(region)
     }
 
     //using publisher provided by deviceLocationService
