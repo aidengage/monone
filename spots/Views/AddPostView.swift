@@ -153,6 +153,7 @@ struct Place {
         self.long = mapItem.location.coordinate.longitude
         self.name = mapItem.name
         // changed fullAddress to shortAddress temporarily to avoid double names
+        // need to work on how this shows up, want to show the actual address from the full address and the name specifically
         self.address = mapItem.address?.shortAddress ?? "Unknown Address"
     }
 }

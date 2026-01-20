@@ -14,22 +14,26 @@ import MapKit
 
 class PostMan: Identifiable {
     let docId: String
+    let userId: String
     let title: String
     let description: String
     let images: [String]
     let coords: (Double, Double)
     let address: String
     let rating: Decimal
+    let ratings: [Rating]
     
     // initializes a post manager object
-    init(docId: String, title: String, description: String, images: [String], coords: (Double, Double), address: String, rating: Decimal) {
+    init(docId: String, userId: String, title: String, description: String, images: [String], coords: (Double, Double), address: String, rating: Decimal) {
         self.docId = docId
+        self.userId = userId
         self.title = title
         self.description = description
         self.images = images
         self.coords = coords
         self.address = address
         self.rating = rating
+        self.ratings = []
     }
     
     // creates marker at post coords

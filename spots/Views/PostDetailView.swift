@@ -27,6 +27,13 @@ struct PostDetailView: View {
                     // info cards to represent address, description, and coords
                     // need to add photos and name/title
                     
+                    StarRatingViewStatic(rating: post.rating, numStars: 5)
+                    
+                    // photo card view should display all photos horizontally
+                    if !post.images.isEmpty {
+                        PhotoCard(imageUUIDs: post.images)
+                    }
+                    
                     if !post.address.isEmpty {
                         InfoCard(
                             icon: "mappin.circle.fill",
@@ -46,11 +53,6 @@ struct PostDetailView: View {
                         )
                     }
                     
-                    // photo card view should display all photos horizontally
-                    if !post.images.isEmpty {
-                        PhotoCard(imageUUIDs: post.images)
-                    }
-                    
                     // Coordinates Card
                     InfoCard(
                         icon: "location.circle.fill",
@@ -59,16 +61,17 @@ struct PostDetailView: View {
                         iconColor: .green
                     )
                     
-                    StarRatingViewStatic(rating: post.rating, numStars: 5)
+                    
+                    RateSpotView(post: post)
                 }
                 .padding(.bottom, 30)
             }
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            print("uuids: \(post.images)")
-        }
+//        .task {
+//            print("uuids: \(post.images)")
+//        }
     }
 }
 
@@ -129,6 +132,10 @@ struct PhotoCard: View {
                 await getImages()
             }
         }
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 20)
     }
     
     func getImages() async {

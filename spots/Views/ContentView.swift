@@ -208,6 +208,7 @@ struct ContentView: View {
         print("\(loadedPosts.count) posts from Firebase")
         for (index, post) in loadedPosts.enumerated() {
             print("   Post \(index + 1): \(post.title) - Coords: (\(post.coords.0), \(post.coords.1)), Rating: \(post.rating)")
+//            print(post)
         }
         posts = loadedPosts
         print("Updated posts state variable. Map will now render markers.")
