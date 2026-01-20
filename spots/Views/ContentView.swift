@@ -10,9 +10,17 @@
 import SwiftUI
 import MapKit
 import FirebaseAuth
+import Combine
 
 struct ContentView: View {
-    // initializing all these variables for the main map view to work
+    //these are implementations of DeviceLocationManager
+    @StateObject var deviceLocationService = DeviceLocationService.shared
+    @State var tokens: Set<AnyCancellable> = []
+    @State var coordinates: (lat: Double, lon: Double) = (0,0)
+    @State private var hasValidLocation = false
+    @State private var hasCenteredOnUser = false
+    @State private var observersSetUp = false
+    
     
     // coords for center of the screen, sent to addpost view to autofill
     @State var centerLat: Double
@@ -42,6 +50,17 @@ struct ContentView: View {
             ZStack(alignment: .bottomLeading) {
                 ZStack {
                     Map(position: $cameraPosition) {
+
+                        //for curr location, display a marker (only when we have valid coordinates)
+                        if hasValidLocation {
+                            Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: coordinates.lat, longitude: coordinates.lon)) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .foregroundColor(.green)
+                                    .font(.title2)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                            }
+                        }
                         // looping through posts array and displaying them all on map with a clickable marker
                         ForEach(posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
                             Annotation(post.title, coordinate: CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)) {
@@ -60,6 +79,14 @@ struct ContentView: View {
                     // loads posts when the map appears
                     .onAppear {
                         loadPosts()
+                        // Set up location observers only once
+                        if !observersSetUp {
+                            observeCoordinateUpdates()
+                            observeLocationAccessDenied()
+                            observersSetUp = true
+                        }
+                        // Request location updates every time view appears (in case app was backgrounded)
+                        deviceLocationService.requestLocationUpdates()
                     }
                     // when map camera changes, update center coords with new center
                     .onMapCameraChange { mapCameraUpdateContext in
@@ -72,7 +99,8 @@ struct ContentView: View {
                         .offset(y: -15)
                         .font(.system(size: 33))
                 }
-
+                
+          
                 // add post button
                 Button(action: {
                     let currentUser = Auth.auth().currentUser
@@ -132,6 +160,43 @@ struct ContentView: View {
             }
         }
     }
+
+    //using publisher provided by deviceLocationService
+    func observeCoordinateUpdates(){
+        deviceLocationService.coordinatesPublisher
+            .receive(on: DispatchQueue.main)
+            .sink{ completion in
+                if case .failure(let error) = completion {
+                    print(error)
+                }
+            } receiveValue: { coordinates in
+                // Update coordinates and mark as valid
+                self.coordinates = (coordinates.latitude, coordinates.longitude)
+                self.hasValidLocation = true
+                
+                // Center map on user's location the first time we get it
+                if !hasCenteredOnUser {
+                    cameraPosition = .region(
+                        MKCoordinateRegion(
+                            center: coordinates,
+                            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+                        )
+                    )
+                    hasCenteredOnUser = true
+                }
+                
+            }
+            .store(in: &tokens)
+    }
+    
+    func observeLocationAccessDenied(){
+        deviceLocationService.deniedLocationAccessPublisher
+            .receive(on: DispatchQueue.main)
+            .sink{
+                print("location denied")
+            }
+            .store(in: &tokens)
+    }
     
     // uses firebasemanager getposts with the completion below
     func loadPosts() {
@@ -161,6 +226,11 @@ struct ContentView: View {
 // get docs wrapper function, gets all posts from all users
 func getDocs() {
     FirebaseManager.shared.getDocs()
+}
+
+func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+    print("locations = \(locValue.latitude) \(locValue.longitude)")
 }
 
 
