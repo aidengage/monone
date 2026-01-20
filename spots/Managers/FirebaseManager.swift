@@ -24,6 +24,7 @@ struct Post: Codable {
     var xLoc: Double?
     var yLoc: Double?
     var ratings: [String?]
+    var userID: String?
 }
 
 // codable user obejct to send to firebase database
@@ -32,6 +33,7 @@ struct User: Codable {
     var email: String?
     var username: String?
     var posts: [String?]
+    var ratedPosts: [String?]
 }
 
 // codable rating obejct to send to firebase db
@@ -68,7 +70,7 @@ final class FirebaseManager {
     // adds  user to "users" collection in firebase
     // maybe rework this just to send the uid and posts
     func addUser(uid: String, email: String, username: String, posts: [String]) {
-        let newUser = User(uid: uid, email: email, username: username, posts: posts)
+        let newUser = User(uid: uid, email: email, username: username, posts: posts, ratedPosts: [])
         do {
             try fs.collection("users").document(uid).setData(from: newUser) { error in
                 if let error = error {
@@ -135,6 +137,8 @@ final class FirebaseManager {
                     let images = data["images"] as? [String] ?? []
                     let address = data["address"] as? String ?? ""
                     
+                    let userId: String = data["userID"] as? String ?? ""
+                    
                     // this is a horrible line of code that somehow works to get double to decimal
                     // loses some accuracy
                     // figure out how to pull just a decimal
@@ -155,6 +159,7 @@ final class FirebaseManager {
                     // creating post from set data with post manager (PostMan)
                     let post = PostMan(
                         docId: document.documentID,
+                        userId: userId,
                         title: title,
                         description: description,
                         images: images,
@@ -175,8 +180,8 @@ final class FirebaseManager {
     }
     
     // creates post with these params and adds to the "post" collection
-    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double)/*, ratings: [String]*/) {
-        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: []/*, ratings: ratings*/)
+    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double)) {
+        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: getCurrentUserID())
         do {
             let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
             try postRef.setData(from: newPost) { error in
@@ -194,22 +199,85 @@ final class FirebaseManager {
     
     
     
+    
     // ** below relates to adding a rating document to a post's rating collection
     
-    func addRatingToPost(postID: String, userID: String, rating: Decimal, comment: String) {
+    func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) {
         let newRating = Rating(user: userID, rating: rating, comment: comment)
         do {
-            let ratingRef = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").document()
+//            let query = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").whereField(userID, isEqualTo: FirebaseManager.shared.getCurrentUserID())
+            
+//            if !RatingExists(postID: postID, userID: userID) {
+//                let ratingRef = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").document()
+//                try ratingRef.setData(from: newRating) { error in
+//                    if let error = error {
+//                        print(error)
+//                    } else {
+//                        print("rating added")
+//                    }
+//                }
+//            } else {
+//                print("rating already exists??")
+//            }
+            
+            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document()
             try ratingRef.setData(from: newRating) { error in
                 if let error = error {
                     print(error)
                 } else {
+                    self.addRatingIDToUser(ratingID: ratingRef.documentID)
                     print("rating added")
                 }
             }
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }
+    }
+    
+    func RatingExists(postID: String, userID: String) -> Bool {
+        let query = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").whereField(userID, isEqualTo: FirebaseManager.shared.getCurrentUserID())
+        
+        var ratingExists: Bool = false
+//        print(query)
+        
+        query.getDocuments { (document, error) in
+            if error != nil {
+                print("error checking rating: \(error!)")
+                ratingExists = false
+            } else {
+                print("document data: \(document!)")
+                ratingExists = true
+            }
+//            DispatchQueue.main.async {
+//                if let error = error {
+//                    print("Error getting document: \(error.localizedDescription)")
+//                    exists = false // Assuming an error means we can't confirm existence
+//                    return
+//                }
+//                
+//                guard let snapshot = snapshot else {
+//                    print("Document snapshot is nil")
+//                    exists = false
+//                    return
+//                }
+//                
+//                if snapshot.isEmpty {
+//                    print("rating exists")
+//                    exists = true
+//                } else {
+//                    print("no rating")
+//                    exists = false
+//                }
+//            }
+        }
+        
+        return ratingExists
+    }
+    
+    func addRatingIDToUser(ratingID: String) {
+        let uid = getCurrentUserID()
+        let userRef = fs.collection("users").document(uid)
+        userRef.updateData(["ratedPosts": FieldValue.arrayUnion([ratingID])])
     }
     
     

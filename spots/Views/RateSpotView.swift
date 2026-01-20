@@ -16,7 +16,7 @@ struct RateSpotView: View {
             StarRatingViewDynamic(rating: $rating, numStars: 5)
             TextField("Comment here...", text: $comment, axis: .vertical)
             Button(action: {
-                FirebaseManager.shared.addRatingToPost(postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
+                FirebaseManager.shared.addRatingToPost(postOwner: post.userId, postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
             }) {
                 Label("Rate Spot!", systemImage: "arrow.2.circlepath.circle")
             }

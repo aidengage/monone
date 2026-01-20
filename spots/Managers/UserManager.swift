@@ -12,11 +12,13 @@ class UserMan: Identifiable {
     let email: String
     let username: String
     let posts: [Post]
+    let ratedPosts: [String]
     
     init(userID: String, email: String, username: String, posts: [Post]) {
         self.userID = userID
         self.email = email
         self.username = username
         self.posts = posts
+        self.ratedPosts = []
     }
 }
