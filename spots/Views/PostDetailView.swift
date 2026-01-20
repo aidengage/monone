@@ -14,25 +14,32 @@ struct PostDetailView: View {
         ScrollView {
             VStack(spacing: 0) {
                
-                VStack(spacing: 20) {
+                VStack {
                     // Title Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(post.title)
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundColor(.primary)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
-                    
-                    // info cards to represent address, description, and coords
-                    // need to add photos and name/title
-                    
-                    StarRatingViewStatic(rating: post.rating, numStars: 5)
-                    
                     // photo card view should display all photos horizontally
                     if !post.images.isEmpty {
                         PhotoCard(imageUUIDs: post.images)
                     }
+//                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(post.title)
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.primary)
+                        }
+                        .padding(.horizontal, 10)
+    //                    .padding(.top, 20)
+                        
+                        StarRatingViewStatic(rating: post.rating, numStars: 5)
+                        .padding(.horizontal, 20)
+//                    }
+                    
+                    
+                    // info cards to represent address, description, and coords
+                    // need to add photos and name/title
+                    
+                    
+                    
+                    
                     
                     if !post.address.isEmpty {
                         InfoCard(
@@ -123,7 +130,7 @@ struct PhotoCard: View {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
-                        .frame(maxHeight: 200)
+                        .frame(maxHeight: 300)
                 }
             }
         }
@@ -133,9 +140,9 @@ struct PhotoCard: View {
             }
         }
         .background(Color(.systemBackground))
-        .cornerRadius(16)
+//        .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .padding(.horizontal, 20)
+//        .padding(.horizontal, 20)
     }
     
     func getImages() async {

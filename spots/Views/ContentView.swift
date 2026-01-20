@@ -154,9 +154,9 @@ struct ContentView: View {
             }
             //once state of selectedPost changes, PostDetailView with post is launched. 
             .sheet(item: $selectedPost) { post in
-                NavigationView {
-                    PostDetailView(post: post)
-                }
+                PostDetailView(post: post)
+                    .presentationDetents([.fraction(0.75)])
+                
             }
         }
     }

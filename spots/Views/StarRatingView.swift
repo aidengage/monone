@@ -51,6 +51,8 @@ struct RatingStar: View {
                         )
                     
                 )
+//                .resizable()
+                .scaledToFit()
             
         }
     }
