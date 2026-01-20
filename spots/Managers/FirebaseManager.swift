@@ -23,6 +23,7 @@ struct Post: Codable {
     var description: String?
     var xLoc: Double?
     var yLoc: Double?
+    var ratings: [String?]
 }
 
 // codable user obejct to send to firebase database
@@ -30,9 +31,17 @@ struct User: Codable {
     var uid: String?
     var email: String?
     var username: String?
-    var posts: [String]
+    var posts: [String?]
 }
 
+// codable rating obejct to send to firebase db
+struct Rating: Codable {
+    var user: String?
+    var rating: Decimal?
+    var comment: String?
+}
+
+// big firebase
 final class FirebaseManager {
     // global firebasemanager for photo picker i think?
     static let shared = FirebaseManager()
@@ -131,6 +140,8 @@ final class FirebaseManager {
                     // figure out how to pull just a decimal
                     let rating: Decimal = Decimal.init(data["rating"] as! Double) /*data["rating"] as? Decimal ?? 0.0*/
                     
+//                    let ratings = data["ratings"] as? [Rating] ?? []
+                    
                     var xLoc: Double = 0.0
                     var yLoc: Double = 0.0
                     
@@ -149,7 +160,9 @@ final class FirebaseManager {
                         images: images,
                         coords: (xLoc, yLoc),
                         address: address,
-                        rating: rating
+                        rating: rating,
+                        // maybe add user ratings in here idk
+//                        ratings: ratings
                     )
 //                    print(post)
                     // stores to the postArray
@@ -162,8 +175,8 @@ final class FirebaseManager {
     }
     
     // creates post with these params and adds to the "post" collection
-    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double)) {
-        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc)
+    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double)/*, ratings: [String]*/) {
+        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: []/*, ratings: ratings*/)
         do {
             let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
             try postRef.setData(from: newPost) { error in
@@ -172,6 +185,26 @@ final class FirebaseManager {
                 } else {
                     self.addPostIDToUser(postID: postRef.documentID)
                     print("doc added")
+                }
+            }
+        } catch {
+            print("error creating doc: \(error.localizedDescription)")
+        }
+    }
+    
+    
+    
+    // ** below relates to adding a rating document to a post's rating collection
+    
+    func addRatingToPost(postID: String, userID: String, rating: Decimal, comment: String) {
+        let newRating = Rating(user: userID, rating: rating, comment: comment)
+        do {
+            let ratingRef = fs.collection("users").document(userID).collection("posts").document(postID).collection("ratings").document()
+            try ratingRef.setData(from: newRating) { error in
+                if let error = error {
+                    print(error)
+                } else {
+                    print("rating added")
                 }
             }
         } catch {
