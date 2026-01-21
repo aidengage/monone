@@ -135,9 +135,11 @@ struct PhotoCard: View {
     @State var images: [UIImage] = []
     @State var urls: [URL] = []
     
+    @State var data: [Data] = []
+    @State var newImageUUIDs: [String] = []
+    
     var body: some View {
         ScrollView(.horizontal) {
-            GeometryReader { geo in
                 HStack(alignment: .top, spacing: 16) {
                     ForEach(urls, id: \.self) { url in
                         AsyncImage(url: url) { image in
@@ -146,15 +148,21 @@ struct PhotoCard: View {
                                 .scaledToFit()
                                 .frame(maxHeight: 300)
                         } placeholder: {
-    //                        ProgressView()
-                            Image(systemName: "photo")
+                            ProgressView()
+                                .scaleEffect(1.5)
+//                            Image(systemName: "photo")
                         }
                         
                         
                     }
+//                    VStack {
+//                        PhotoSelector(data: $data, imageUUIDs: $newImageUUIDs)
+//                    }
+                    
                 }
-            }
-            .frame(maxHeight: 300)
+                .frame(height: 300)
+                
+            
             
         }
         .onAppear(){
