@@ -25,6 +25,7 @@ struct Post: Codable {
     var yLoc: Double?
     var ratings: [String?]
     var userID: String?
+    var selectedActivity: String?
 }
 
 // codable user obejct to send to firebase database
@@ -138,6 +139,7 @@ final class FirebaseManager {
                     let address = data["address"] as? String ?? ""
                     
                     let userId: String = data["userID"] as? String ?? ""
+                    let selectedActivity: String = data["selectedActivity"] as? String ?? ""
                     
                     // this is a horrible line of code that somehow works to get double to decimal
                     // loses some accuracy
@@ -166,6 +168,7 @@ final class FirebaseManager {
                         coords: (xLoc, yLoc),
                         address: address,
                         rating: rating,
+                        selectedActivity: selectedActivity
                         // maybe add user ratings in here idk
 //                        ratings: ratings
                     )
@@ -180,8 +183,8 @@ final class FirebaseManager {
     }
     
     // creates post with these params and adds to the "post" collection
-    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double)) {
-        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: getCurrentUserID())
+    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
+        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: getCurrentUserID(), selectedActivity: selectedActivity)
         do {
             let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
             try postRef.setData(from: newPost) { error in
@@ -391,3 +394,4 @@ final class FirebaseManager {
         }
     }
 }
+

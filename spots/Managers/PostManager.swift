@@ -22,9 +22,10 @@ class PostMan: Identifiable {
     let address: String
     let rating: Decimal
     let ratings: [Rating]
+    let selectedActivity: String
     
     // initializes a post manager object
-    init(docId: String, userId: String, title: String, description: String, images: [String], coords: (Double, Double), address: String, rating: Decimal) {
+    init(docId: String, userId: String, title: String, description: String, images: [String], coords: (Double, Double), address: String, rating: Decimal, selectedActivity: String) {
         self.docId = docId
         self.userId = userId
         self.title = title
@@ -34,6 +35,7 @@ class PostMan: Identifiable {
         self.address = address
         self.rating = rating
         self.ratings = []
+        self.selectedActivity = selectedActivity
     }
     
     // creates marker at post coords

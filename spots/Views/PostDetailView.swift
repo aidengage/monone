@@ -69,6 +69,10 @@ struct PostDetailView: View {
                         iconColor: .green
                     )
                     
+                    if !post.selectedActivity.isEmpty{
+                        InfoCard(icon: "text.align.left", title: "Type", content:post.selectedActivity, iconColor: .pink)
+                    }
+                    
                     
                     RateSpotView(post: post)
                     
