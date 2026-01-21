@@ -87,9 +87,10 @@ final class FirebaseManager {
     
     // gets and returns the id of current user logged in
     func getCurrentUserID() -> String {
-        let currentUser = Auth.auth().currentUser
-        let userID = currentUser?.uid ?? ""
-        return userID
+//        let currentUser = Auth.auth().currentUser
+//        let userID = currentUser?.uid ?? ""
+//        return userID
+        return FireMod.shared.auth.getCurrentUserID()
     }
     
     // adds a specific post id (post document id) to the users posts array in database
@@ -250,7 +251,8 @@ final class FirebaseManager {
             } else {
                 print("Document does not exist, adding rating")
                 try ratingRef.setData(from: newRating)
-                self.addPostIDToUser(postID: postID)
+                self.addPostToRated(postID: postID)
+//                self.addRatingIDToUser(ratingID: ratingRef.documentID)
                 
 //                    { error in
 //                        if let error = error {
