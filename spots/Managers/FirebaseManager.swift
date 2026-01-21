@@ -357,6 +357,16 @@ final class FirebaseManager {
         return images
     }
     
+    func getImageURLs(uuids: [String]) -> [URL] {
+        var urls: [URL] = []
+        for id in uuids {
+            let url = "https://firebasestorage.googleapis.com/v0/b/monone-swift.firebasestorage.app/o/\(id)?alt=media"
+            urls.append(URL(string: url)!)
+        }
+        
+        return urls
+    }
+    
     // gets file size in async before download, dont really know if this is correct or works 100%
     func getFileSize(ref: StorageReference) async throws -> Int64 {
         let metadata = try await ref.getMetadata()
