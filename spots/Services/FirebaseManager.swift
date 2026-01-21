@@ -191,20 +191,21 @@ final class FirebaseManager {
     
     // creates post with these params and adds to the "post" collection
     func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
-        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: getCurrentUserID(), selectedActivity: selectedActivity)
-        do {
-            let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
-            try postRef.setData(from: newPost) { error in
-                if let error = error {
-                    print(error)
-                } else {
-                    self.addPostIDToUser(postID: postRef.documentID)
-                    print("doc added")
-                }
-            }
-        } catch {
-            print("error creating doc: \(error.localizedDescription)")
-        }
+        FireIntegration.shared.addPost(images: images, name: name, address: address, rating: rating, description: description, coords: (xLoc: coords.xLoc, yLoc: coords.yLoc), selectedActivity: selectedActivity)
+//        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: getCurrentUserID(), selectedActivity: selectedActivity)
+//        do {
+//            let postRef = fs.collection("users").document(getCurrentUserID()).collection("posts").document()
+//            try postRef.setData(from: newPost) { error in
+//                if let error = error {
+//                    print(error)
+//                } else {
+//                    self.addPostIDToUser(postID: postRef.documentID)
+//                    print("doc added")
+//                }
+//            }
+//        } catch {
+//            print("error creating doc: \(error.localizedDescription)")
+//        }
     }
     
     

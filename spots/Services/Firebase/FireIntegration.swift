@@ -34,7 +34,7 @@ final class FireIntegration {
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
-        fs.addPost(images: images, name: name, address: address, rating: rating, description: description, coords: coords, selectedActivity: selectedActivity)
+        fs.addPost(images: images, name: name, address: address, rating: rating, description: description, coords: (xLoc: coords.xLoc, yLoc: coords.yLoc), selectedActivity: selectedActivity)
     }
     
     func addPostIDToUser(postID: String) {
