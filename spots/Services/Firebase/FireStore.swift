@@ -141,7 +141,26 @@ final class FireStore {
         return userPosts
     }
     
-//    init() {
-//        self.docDict = [:]
-//    }
+    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
+        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: FireIntegration.shared.getCurrentUserID(), selectedActivity: selectedActivity)
+        do {
+            let postRef = fs.collection("users").document(FireIntegration.shared.getCurrentUserID()).collection("posts").document()
+            try postRef.setData(from: newPost) { error in
+                if let error = error {
+                    print(error)
+                } else {
+                    self.addPostIDToUser(postID: postRef.documentID)
+                    print("doc added")
+                }
+            }
+        } catch {
+            print("error creating doc: \(error.localizedDescription)")
+        }
+    }
+    
+    func addPostIDToUser(postID: String) {
+        let uid = FireIntegration.shared.getCurrentUserID()
+        let userRef = fs.collection("users").document(uid)
+        userRef.updateData(["posts": FieldValue.arrayUnion([postID])])
+    }
 }

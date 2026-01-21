@@ -29,12 +29,16 @@ final class FireIntegration {
         fs.getAllPosts(completion: completion)
     }
     
-//    func handleLoadedPosts(loadedPosts: [PostMan], posts: inout [PostMan]) {
-//        fs.handleLoadedPosts(loadedPosts: loadedPosts, posts: &posts)
-//    }
-    
     func getUserPosts() -> [String:Any] {
         return fs.getUserPosts()
+    }
+    
+    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
+        fs.addPost(images: images, name: name, address: address, rating: rating, description: description, coords: coords, selectedActivity: selectedActivity)
+    }
+    
+    func addPostIDToUser(postID: String) {
+        fs.addPostIDToUser(postID: postID)
     }
     
     

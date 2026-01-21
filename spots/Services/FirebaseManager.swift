@@ -97,9 +97,10 @@ final class FirebaseManager {
     // adds a specific post id (post document id) to the users posts array in database
     // use this as template for things like saved posts, followed and following
     func addPostIDToUser(postID: String) {
-        let uid = getCurrentUserID()
-        let userRef = fs.collection("users").document(uid)
-        userRef.updateData(["posts": FieldValue.arrayUnion([postID])])
+//        let uid = getCurrentUserID()
+//        let userRef = fs.collection("users").document(uid)
+//        userRef.updateData(["posts": FieldValue.arrayUnion([postID])])
+        FireIntegration.shared.addPostIDToUser(postID: postID)
     }
     
     
