@@ -41,10 +41,8 @@ final class FireIntegration {
         fs.addPostIDToUser(postID: postID)
     }
     
-    
-    
-    
-//    init() {
-//        let app = FirebaseApp.app()!
-//    }
+    func getPostRatings(postOwner: String, postID: String, completion: @escaping ([RatingMan]) -> Void) {
+        fs.getPostRatings(postOwner: postOwner, postID: postID, completion: completion)
+    }
+
 }

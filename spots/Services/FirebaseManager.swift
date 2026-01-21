@@ -213,35 +213,36 @@ final class FirebaseManager {
     
     // ** below relates to adding a rating document to a post's rating collection
     
-    func getPostRatings(completion: @escaping ([RatingMan]) -> Void, postOwner: String, postID: String) {
-        var ratings: [RatingMan] = []
-        fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("error getting post ratings: \(error)")
-                completion([])
-                // add completion maybe
-            } else {
-                for document in querySnapshot!.documents {
-                    let data = document.data()
-                    
-                    let comment = data["comment"] as? String ?? ""
-                    let rating = Decimal.init(data["rating"] as! Double)
-                    let userID = data["user"] as? String ?? ""
-                    
-                    
-                    let newRating = RatingMan(
-                        userID: userID,
-                        rating: rating,
-                        comment: comment
-                    )
-//                    print(newRating.user) // works
-                    print("user: \(newRating.userID), rating: \(newRating.rating), comment: \(newRating.comment)")
-                    ratings.append(newRating)
-                }
-                completion(ratings)
-//                return ratings
-            }
-        }
+    func getPostRatings(postOwner: String, postID: String, completion: @escaping ([RatingMan]) -> Void) {
+        FireIntegration.shared.getPostRatings(postOwner: postOwner, postID: postID, completion: completion)
+//        var ratings: [RatingMan] = []
+//        fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").getDocuments { (querySnapshot, error) in
+//            if let error = error {
+//                print("error getting post ratings: \(error)")
+//                completion([])
+//                // add completion maybe
+//            } else {
+//                for document in querySnapshot!.documents {
+//                    let data = document.data()
+//                    
+//                    let comment = data["comment"] as? String ?? ""
+//                    let rating = Decimal.init(data["rating"] as! Double)
+//                    let userID = data["user"] as? String ?? ""
+//                    
+//                    
+//                    let newRating = RatingMan(
+//                        userID: userID,
+//                        rating: rating,
+//                        comment: comment
+//                    )
+////                    print(newRating.user) // works
+//                    print("user: \(newRating.userID), rating: \(newRating.rating), comment: \(newRating.comment)")
+//                    ratings.append(newRating)
+//                }
+//                completion(ratings)
+////                return ratings
+//            }
+//        }
 
 //        print("rating array: \(ratings)")
 //        return ratings

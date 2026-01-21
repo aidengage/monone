@@ -206,23 +206,12 @@ struct UserRatings: View {
             }
         }
         .onAppear() {
-            Task {
-                getRatings()
+            FireIntegration.shared.getPostRatings(postOwner: postOwner, postID: postID) { loadedRatings in
+                DispatchQueue.main.async {
+                    self.ratingsArray = loadedRatings
+                }
             }
         }
-    }
-    
-    func getRatings() {
-        FirebaseManager.shared.getPostRatings(completion: handleLoadedRatings, postOwner: postOwner, postID: postID)
-    }
-    
-    func handleLoadedRatings(loadedRatings: [RatingMan]) {
-        print("\(loadedRatings.count) ratings from Firebase")
-        for (index, rating) in loadedRatings.enumerated() {
-            print("Rating \(index + 1) from user: \(rating.userID): \(rating.rating), comment: \(rating.comment)")
-        }
-        ratingsArray = loadedRatings
-        print("loading ratings...")
     }
 }
 
