@@ -70,7 +70,7 @@ struct PostDetailView: View {
                     )
                     
                     if !post.selectedActivity.isEmpty{
-                        InfoCard(icon: "text.align.left", title: "Type", content:post.selectedActivity, iconColor: .pink)
+                        InfoCard(icon: "text.alignleft", title: "Type", content:post.selectedActivity, iconColor: .pink)
                     }
                     
                     

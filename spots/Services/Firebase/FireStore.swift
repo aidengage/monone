@@ -227,4 +227,16 @@ final class FireStore {
             print("error creating doc: \(error.localizedDescription)")
         }
     }
+    
+    func addRatingIDToUser(ratingID: String) {
+        let uid = FireIntegration.shared.getCurrentUserID()
+        let userRef = fs.collection("users").document(uid)
+        userRef.updateData(["ratedPosts": FieldValue.arrayUnion([ratingID])])
+    }
+    
+    func addPostToRated(postID: String) {
+        let uid = FireIntegration.shared.getCurrentUserID()
+        let userRef = fs.collection("users").document(uid)
+        userRef.updateData(["ratedPosts": FieldValue.arrayUnion([postID])])
+    }
 }

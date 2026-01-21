@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseFirestore
+import FirebaseStorage
 
 final class FireIntegration {
     static let shared = FireIntegration()
@@ -47,6 +48,34 @@ final class FireIntegration {
     
     func addUser(uid: String, email: String, username: String, posts: [String]) {
         fs.addUser(uid: uid, email: email, username: username, posts: posts)
+    }
+    
+    func addRatingIDToUser(ratingID: String) {
+        fs.addRatingIDToUser(ratingID: ratingID)
+    }
+    
+    func addPostToRated(postID: String) {
+        fs.addPostToRated(postID: postID)
+    }
+    
+    func uploadImage(uuidArray: [String], data: [Data]) async throws {
+        try await storage.uploadImage(uuidArray: uuidArray, data: data)
+    }
+    
+    func getImagesByUUID(uuids: [String]) async throws -> [UIImage] {
+        try await storage.getImagesByUUID(uuids: uuids)
+    }
+    
+    func getImageURLs(uuids: [String]) -> [URL] {
+        storage.getImageURLs(uuids: uuids)
+    }
+    
+    func getFileSize(ref: StorageReference) async throws -> Int64 {
+        try await storage.getFileSize(ref: ref)
+    }
+    
+    func downloadData(ref: StorageReference, size: Int64) async throws -> Data {
+        try await storage.downloadData(ref: ref, size: size)
     }
 
 }
