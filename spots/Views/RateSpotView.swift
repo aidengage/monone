@@ -17,7 +17,12 @@ struct RateSpotView: View {
                 StarRatingViewDynamic(rating: $rating, numStars: 5)
                 Button(action: {
                     Task {
-                        await FirebaseManager.shared.addRatingToPost(postOwner: post.userId, postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
+                        if FireMod.shared.auth.getCurrentUserID() != "" {
+                            await FirebaseManager.shared.addRatingToPost(postOwner: post.userId, postID: post.docId, userID: FirebaseManager.shared.getCurrentUserID(), rating: rating, comment: comment)
+                        } else {
+                            print("please login")
+                        }
+                        
                     }
                     
                     
