@@ -71,18 +71,19 @@ final class FirebaseManager {
     // adds  user to "users" collection in firebase
     // maybe rework this just to send the uid and posts
     func addUser(uid: String, email: String, username: String, posts: [String]) {
-        let newUser = User(uid: uid, email: email, username: username, posts: posts, ratedPosts: [])
-        do {
-            try fs.collection("users").document(uid).setData(from: newUser) { error in
-                if let error = error {
-                    print(error)
-                } else {
-                    print("user added")
-                }
-            }
-        } catch {
-            print("error creating doc: \(error.localizedDescription)")
-        }
+        FireIntegration.shared.addUser(uid: uid, email: email, username: username, posts: posts)
+//        let newUser = User(uid: uid, email: email, username: username, posts: posts, ratedPosts: [])
+//        do {
+//            try fs.collection("users").document(uid).setData(from: newUser) { error in
+//                if let error = error {
+//                    print(error)
+//                } else {
+//                    print("user added")
+//                }
+//            }
+//        } catch {
+//            print("error creating doc: \(error.localizedDescription)")
+//        }
     }
     
     // gets and returns the id of current user logged in

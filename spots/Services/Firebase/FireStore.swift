@@ -212,4 +212,19 @@ final class FireStore {
 //        print("rating array: \(ratings)")
 //        return ratings
     }
+    
+    func addUser(uid: String, email: String, username: String, posts: [String]) {
+        let newUser = User(uid: uid, email: email, username: username, posts: posts, ratedPosts: [])
+        do {
+            try fs.collection("users").document(uid).setData(from: newUser) { error in
+                if let error = error {
+                    print(error)
+                } else {
+                    print("user added")
+                }
+            }
+        } catch {
+            print("error creating doc: \(error.localizedDescription)")
+        }
+    }
 }

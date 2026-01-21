@@ -44,5 +44,9 @@ final class FireIntegration {
     func getPostRatings(postOwner: String, postID: String, completion: @escaping ([RatingMan]) -> Void) {
         fs.getPostRatings(postOwner: postOwner, postID: postID, completion: completion)
     }
+    
+    func addUser(uid: String, email: String, username: String, posts: [String]) {
+        fs.addUser(uid: uid, email: email, username: username, posts: posts)
+    }
 
 }
