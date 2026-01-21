@@ -9,14 +9,14 @@ import SwiftUI
 
 // basic rating and comment for now
 class RatingMan: Identifiable {
-    let user: String
+    let userID: String
     let rating: Decimal
     let comment: String
     
     // need to add things like photos and attaching song
     
-    init (user: String, rating: Decimal, comment: String) {
-        self.user = user
+    init (userID: String, rating: Decimal, comment: String) {
+        self.userID = userID
         self.rating = rating
         self.comment = comment
     }

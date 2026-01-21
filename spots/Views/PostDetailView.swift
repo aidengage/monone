@@ -22,6 +22,7 @@ struct PostDetailView: View {
                     }
 //                    HStack {
                         VStack(alignment: .leading) {
+                            Text(post.userId)
                             Text(post.title)
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundColor(.primary)
@@ -70,6 +71,12 @@ struct PostDetailView: View {
                     
                     
                     RateSpotView(post: post)
+                    
+                    if !post.docId.isEmpty {
+                        Text("comments go here")
+//                        CommentCard(postID: post.docId, postOwner: post.userId)
+                        UserRatings(postID: post.docId, postOwner: post.userId)
+                    }
                 }
                 .padding(.bottom, 30)
             }
@@ -153,4 +160,62 @@ struct PhotoCard: View {
         }
     }
         
+}
+
+struct UserRatings: View {
+    let postID: String
+    let postOwner: String
+    @State var ratingsArray: [RatingMan] = []
+    
+    var body: some View {
+        ScrollView(.vertical) {
+            VStack {
+                Text("user ratings go here...")
+                ForEach(ratingsArray) { rating in
+                    CommentCard(rating: rating.rating, user: rating.userID, comment: rating.comment)
+                }
+            }
+        }
+        .onAppear() {
+            Task {
+                getRatings()
+            }
+        }
+    }
+    
+    func getRatings() {
+        FirebaseManager.shared.getPostRatings(completion: handleLoadedRatings, postOwner: postOwner, postID: postID)
+    }
+    
+    func handleLoadedRatings(loadedRatings: [RatingMan]) {
+        print("\(loadedRatings.count) ratings from Firebase")
+        for (index, rating) in loadedRatings.enumerated() {
+            print("Rating \(index + 1) from user: \(rating.userID): \(rating.rating), comment: \(rating.comment)")
+        }
+        ratingsArray = loadedRatings
+        print("loading ratings...")
+    }
+}
+
+struct CommentCard: View {
+
+    var rating: Decimal
+    var user: String
+    var comment: String
+    
+    var body: some View {
+        VStack {
+            Text(user)
+            StarRatingViewStatic(rating: rating, numStars: 5)
+            Text(comment)
+        }
+        .padding(20)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 20)
+    }
+    
+    
+
 }
