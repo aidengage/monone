@@ -28,6 +28,9 @@ struct AddPostView: View {
     
     @State var imageData: [Data] = []
     @State var imageUUIDs: [String] = []
+    @State var selectedActivty: String = "Smoke"
+    let activityType = ["Smoke", "Photography", "Date"]
+    
     
     init(centerLat: Double, centerLong: Double) {
         // state variables received from contentview
@@ -40,7 +43,7 @@ struct AddPostView: View {
         VStack {
             // need to resize the grab edge on the left because its annoying to grab the slider
             // also need to figure out better rating system, maybe star
-
+            
             // big form that takes in all the post data
             // photos need to be implemented
             // rating back to user needs to be implemented
@@ -51,124 +54,131 @@ struct AddPostView: View {
                     TextField("Description", text: $description)
                     TextField("Address", text: $address)
                     
+                    
                 }
-                
-                // rating needs to link back to user posting it
-                Section(header: Text("Rating")) {
-//                    HStack {
-//                        TextField("Rating", value: $rating, format: .number)
-//                            .frame(width: 35)
-//                            .keyboardType(.decimalPad)
-//                        Slider(value: $rating, in: 0...5, step: 0.05)
-//                    }
-                    StarRatingViewDynamic(rating: $rating, numStars: 5)
-                }
-                // custom photo picker logic in AddPostView and FirebaseManager
-                Section(header: Text("Image Upload")) {
-                    PhotoSelector(data: $imageData, imageUUIDs: $imageUUIDs)
-                }
-                
-                // autofilled coordinates based on where the pin is
-                Section(header: Text("Coordinates")) {
-                    HStack {
-                        
-                        TextField("Latitude", value: $centerLat, format: .number)
-                            .keyboardType(.decimalPad)
-                        TextField("Longitude", value: $centerLong, format: .number)
-                            .keyboardType(.decimalPad)
-                    }
-                }
-            }
-//            let fm = FirebaseManager()
-            Button(action: {
-                if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
-                    print("add every value to post")
-                } else {
-                    // add post
-                    // uses the global shared firebasemanager object in the firebasemanager class
-                    FirebaseManager.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
-                    //fm.addPost(image: imageURL, name: title, address: address, rating: rating, description: description, coords: (centerLat, centerLong))
-
-                    // need to unwrap optional Data type imageData before passing as param
-                    // this can be put into seperate upload() function at bottom but later
-                    // try catch is for async func
-//                    guard let imageData else { return }
-                    Task {
-                        do {
-                            try await FirebaseManager.shared.uploadImage(uuidArray: imageUUIDs, data: imageData)
-//                            try await PhotoSelector.uploadImage(uuidArray: imageUUIDs, data: imageData)
-                        } catch {
-                            print("upload failed: \(error)")
+                Section(header: Text("Activity Type")) {
+                    Picker("Activity", selection: $selectedActivty) { //
+                        ForEach(activityType, id: \.self) {
+                            Text($0)
                         }
                     }
                     
-//                    fm.uploadImage(data: imageData)
-//                    upload()
-
-                    dismiss()
+                    // rating needs to link back to user posting it
+                    Section(header: Text("Rating")) {
+                        //                    HStack {
+                        //                        TextField("Rating", value: $rating, format: .number)
+                        //                            .frame(width: 35)
+                        //                            .keyboardType(.decimalPad)
+                        //                        Slider(value: $rating, in: 0...5, step: 0.05)
+                        //                    }
+                        StarRatingViewDynamic(rating: $rating, numStars: 5)
+                    }
+                    // custom photo picker logic in AddPostView and FirebaseManager
+                    Section(header: Text("Image Upload")) {
+                        PhotoSelector(data: $imageData, imageUUIDs: $imageUUIDs)
+                    }
+                    
+                    // autofilled coordinates based on where the pin is
+                    Section(header: Text("Coordinates")) {
+                        HStack {
+                            
+                            TextField("Latitude", value: $centerLat, format: .number)
+                                .keyboardType(.decimalPad)
+                            TextField("Longitude", value: $centerLong, format: .number)
+                                .keyboardType(.decimalPad)
+                        }
+                    }
                 }
-            }) {
-                Label("Post!", systemImage: "plus")
+                //            let fm = FirebaseManager()
+                Button(action: {
+                    if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
+                        print("add every value to post")
+                    } else {
+                        // add post
+                        // uses the global shared firebasemanager object in the firebasemanager class
+                        FirebaseManager.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, description: description, coords: (xLoc: centerLat, yLoc: centerLong), selectedActivity: selectedActivty)
+                        
+                        // need to unwrap optional Data type imageData before passing as param
+                        // this can be put into seperate upload() function at bottom but later
+                        // try catch is for async func
+                        //                    guard let imageData else { return }
+                        Task {
+                            do {
+                                try await FirebaseManager.shared.uploadImage(uuidArray: imageUUIDs, data: imageData)
+                                //                            try await PhotoSelector.uploadImage(uuidArray: imageUUIDs, data: imageData)
+                            } catch {
+                                print("upload failed: \(error)")
+                            }
+                        }
+                        
+                        //                    fm.uploadImage(data: imageData)
+                        //                    upload()
+                        
+                        dismiss()
+                    }
+                }) {
+                    Label("Post!", systemImage: "plus")
+                }
+                //            .buttonStyle(.glass(.clear))
+                .buttonStyle(.glassProminent)
+                //            .glassEffect()
             }
-//            .buttonStyle(.glass(.clear))
-            .buttonStyle(.glassProminent)
-//            .glassEffect()
+            .navigationTitle("Add Post")
+            
+            // task to use coords and receive its address if there is one
+            // also sets the name if available
+            .task {
+                do {
+                    address = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.address ?? "nil"
+                    title = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.name ?? ""
+                } catch {
+                    address = "unknown"
+                    print("reverse geocoding failed: \(error)")
+                }
+            }
         }
-        .navigationTitle("Add Post")
         
-        // task to use coords and receive its address if there is one
-        // also sets the name if available
-        .task {
-            do {
-                address = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.address ?? "nil"
-                title = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: centerLat, longitude: centerLong))?.name ?? ""
-            } catch {
-                address = "unknown"
-                print("reverse geocoding failed: \(error)")
+        //    func upload() {
+        //        guard let imageData else { return }
+        //
+        //        Task {
+        //            do {
+        //                fm.uploadImage(data: imageData)
+        //            }
+        //        }
+        //    }
+    }
+    
+    // all for reverse geocoding to get the nearest address to the coordinates
+    // saving place information in place object/struct
+    struct Place {
+        let lat: Double
+        let long: Double
+        let name: String?
+        let address: String
+        
+        init(from mapItem: MKMapItem) {
+            self.lat = mapItem.location.coordinate.latitude
+            self.long = mapItem.location.coordinate.longitude
+            self.name = mapItem.name
+            // changed fullAddress to shortAddress temporarily to avoid double names
+            // need to work on how this shows up, want to show the actual address from the full address and the name specifically
+            self.address = mapItem.address?.shortAddress ?? "Unknown Address"
+        }
+    }
+    
+    struct ReverseGeocoding {
+        // gets address from coordinates
+        func nearestAddress(location: CLLocation) async throws -> Place? {
+            if let request = MKReverseGeocodingRequest(location: location) {
+                let mapItems = try await request.mapItems
+                return mapItems.first.map(Place.init)
             }
+            return nil
         }
     }
     
-//    func upload() {
-//        guard let imageData else { return }
-//        
-//        Task {
-//            do {
-//                fm.uploadImage(data: imageData)
-//            }
-//        }
-//    }
-}
-
-// all for reverse geocoding to get the nearest address to the coordinates
-// saving place information in place object/struct
-struct Place {
-    let lat: Double
-    let long: Double
-    let name: String?
-    let address: String
-    
-    init(from mapItem: MKMapItem) {
-        self.lat = mapItem.location.coordinate.latitude
-        self.long = mapItem.location.coordinate.longitude
-        self.name = mapItem.name
-        // changed fullAddress to shortAddress temporarily to avoid double names
-        // need to work on how this shows up, want to show the actual address from the full address and the name specifically
-        self.address = mapItem.address?.shortAddress ?? "Unknown Address"
+    #Preview {
+        AddPostView(centerLat: 0.0, centerLong: 0.0)
     }
-}
-
-struct ReverseGeocoding {
-    // gets address from coordinates
-    func nearestAddress(location: CLLocation) async throws -> Place? {
-        if let request = MKReverseGeocodingRequest(location: location) {
-            let mapItems = try await request.mapItems
-            return mapItems.first.map(Place.init)
-        }
-        return nil
-    }
-}
-
-#Preview {
-    AddPostView(centerLat: 0.0, centerLong: 0.0)
 }
