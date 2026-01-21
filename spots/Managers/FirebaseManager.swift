@@ -90,7 +90,8 @@ final class FirebaseManager {
 //        let currentUser = Auth.auth().currentUser
 //        let userID = currentUser?.uid ?? ""
 //        return userID
-        return FireMod.shared.auth.getCurrentUserID()
+//        return FireIntegration.shared.auth.getCurrentUserID()
+        return FireIntegration.shared.getCurrentUserID()
     }
     
     // adds a specific post id (post document id) to the users posts array in database
@@ -108,79 +109,83 @@ final class FirebaseManager {
     // queries the "post" collection, getting every doc and storing them in a document dictionary
     // and prints everything in the dictionary (i dont think we need the above print function anymore then)
     func getDocs() {
-        fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("no docs: \(error)")
-            } else {
-                print("getting docs...")
-                for document in querySnapshot!.documents {
-                    self.docDict[document.documentID] = document.data()
-                }
-                print(self.docDict)
-            }
-        }
+//        fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
+//            if let error = error {
+//                print("no docs: \(error)")
+//            } else {
+//                print("getting docs...")
+//                for document in querySnapshot!.documents {
+//                    self.docDict[document.documentID] = document.data()
+//                }
+//                print(self.docDict)
+//            }
+//        }
+        print(FireIntegration.shared.getAllPostsDocs())
     }
     
     // get posts function queries "post" collection and sets all the data to its corresponding post values
     func getPosts(completion: @escaping ([PostMan]) -> Void) {
-        var postArray: [PostMan] = []
-        fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("error getting posts: \(error)")
-                completion([])
-            } else {
-                for document in querySnapshot!.documents {
-                    let data = document.data()
-                    print("doc data: \(data)")
-                    
-                    // setting all data
-                    let title = data["name"] as? String ?? ""
-                    let description = data["description"] as? String ?? ""
-                    let images = data["images"] as? [String] ?? []
-                    let address = data["address"] as? String ?? ""
-                    
-                    let userId: String = data["userID"] as? String ?? ""
-                    let selectedActivity: String = data["selectedActivity"] as? String ?? ""
-                    
-                    // this is a horrible line of code that somehow works to get double to decimal
-                    // loses some accuracy
-                    // figure out how to pull just a decimal
-                    let rating: Decimal = Decimal.init(data["rating"] as! Double) /*data["rating"] as? Decimal ?? 0.0*/
-                    
-//                    let ratings = data["ratings"] as? [Rating] ?? []
-                    
-                    var xLoc: Double = 0.0
-                    var yLoc: Double = 0.0
-                    
-                    if let x = data["xLoc"] as? Double, let y = data["yLoc"] as? Double {
-                        xLoc = x
-                        yLoc = y
-                    } else {
-                        print("No coordinates found for post '\(data["name"] as? String ?? "unknown")'")
-                    }
-                    
-                    // creating post from set data with post manager (PostMan)
-                    let post = PostMan(
-                        docId: document.documentID,
-                        userId: userId,
-                        title: title,
-                        description: description,
-                        images: images,
-                        coords: (xLoc, yLoc),
-                        address: address,
-                        rating: rating,
-                        selectedActivity: selectedActivity
-                        // maybe add user ratings in here idk
-//                        ratings: ratings
-                    )
-//                    print(post)
-                    // stores to the postArray
-                    postArray.append(post)
-                }
-                //this completion handler triggers handleLoadedPosts method in ContentView.swift and its only triggered once the posts are loaded                
-                completion(postArray)
-            }
-        }
+//        FireIntegration.shared.getAllPosts(completion: FireIntegration.shared.handleLoadedPosts)
+        FireIntegration.shared.getAllPosts(completion: completion)
+        
+//        var postArray: [PostMan] = []
+//        fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
+//            if let error = error {
+//                print("error getting posts: \(error)")
+//                completion([])
+//            } else {
+//                for document in querySnapshot!.documents {
+//                    let data = document.data()
+//                    print("doc data: \(data)")
+//                    
+//                    // setting all data
+//                    let title = data["name"] as? String ?? ""
+//                    let description = data["description"] as? String ?? ""
+//                    let images = data["images"] as? [String] ?? []
+//                    let address = data["address"] as? String ?? ""
+//                    
+//                    let userId: String = data["userID"] as? String ?? ""
+//                    let selectedActivity: String = data["selectedActivity"] as? String ?? ""
+//                    
+//                    // this is a horrible line of code that somehow works to get double to decimal
+//                    // loses some accuracy
+//                    // figure out how to pull just a decimal
+//                    let rating: Decimal = Decimal.init(data["rating"] as! Double) /*data["rating"] as? Decimal ?? 0.0*/
+//                    
+////                    let ratings = data["ratings"] as? [Rating] ?? []
+//                    
+//                    var xLoc: Double = 0.0
+//                    var yLoc: Double = 0.0
+//                    
+//                    if let x = data["xLoc"] as? Double, let y = data["yLoc"] as? Double {
+//                        xLoc = x
+//                        yLoc = y
+//                    } else {
+//                        print("No coordinates found for post '\(data["name"] as? String ?? "unknown")'")
+//                    }
+//                    
+//                    // creating post from set data with post manager (PostMan)
+//                    let post = PostMan(
+//                        docId: document.documentID,
+//                        userId: userId,
+//                        title: title,
+//                        description: description,
+//                        images: images,
+//                        coords: (xLoc, yLoc),
+//                        address: address,
+//                        rating: rating,
+//                        selectedActivity: selectedActivity
+//                        // maybe add user ratings in here idk
+////                        ratings: ratings
+//                    )
+////                    print(post)
+//                    // stores to the postArray
+//                    postArray.append(post)
+//                }
+//                //this completion handler triggers handleLoadedPosts method in ContentView.swift and its only triggered once the posts are loaded                
+//                completion(postArray)
+//            }
+//        }
     }
     
     // creates post with these params and adds to the "post" collection
