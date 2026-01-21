@@ -228,6 +228,44 @@ final class FireStore {
         }
     }
     
+    func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) async {
+        let newRating = Rating(user: userID, rating: rating, comment: comment)
+        do {
+            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document(FirebaseManager.shared.getCurrentUserID())
+            let snapshot = try await ratingRef.getDocument() //{ (document, error) in
+//                if let document = document, document.exists {
+            if snapshot.exists {
+                print("Document exists")
+            } else {
+                print("Document does not exist, adding rating")
+                try ratingRef.setData(from: newRating)
+                self.addPostToRated(postID: postID)
+//                self.addRatingIDToUser(ratingID: ratingRef.documentID)
+                
+//                    { error in
+//                        if let error = error {
+//                            print(error)
+//                        } else {
+//                            self.addPostToRated(postID: postID)
+//                            print("rating added")
+//                        }
+//                    }
+                }
+            
+            
+//            try ratingRef.setData(from: newRating) { error in
+//                if let error = error {
+//                    print(error)
+//                } else {
+//                    self.addPostToRated(postID: postID)
+//                    print("rating added")
+//                }
+//            }
+        } catch {
+            print("error creating doc: \(error.localizedDescription)")
+        }
+    }
+    
     func addRatingIDToUser(ratingID: String) {
         let uid = FireIntegration.shared.getCurrentUserID()
         let userRef = fs.collection("users").document(uid)

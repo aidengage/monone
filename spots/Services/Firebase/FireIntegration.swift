@@ -58,6 +58,10 @@ final class FireIntegration {
         fs.addPostToRated(postID: postID)
     }
     
+    func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) async {
+        await fs.addRatingToPost(postOwner: postOwner, postID: postID, userID: userID, rating: rating, comment: comment)
+    }
+    
     func uploadImage(uuidArray: [String], data: [Data]) async throws {
         try await storage.uploadImage(uuidArray: uuidArray, data: data)
     }
