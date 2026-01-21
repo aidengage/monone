@@ -62,6 +62,7 @@ struct AddPostView: View {
                             Text($0)
                         }
                     }
+                }
                     
                     // rating needs to link back to user posting it
                     Section(header: Text("Rating")) {
@@ -88,7 +89,7 @@ struct AddPostView: View {
                                 .keyboardType(.decimalPad)
                         }
                     }
-                }
+                
                 //            let fm = FirebaseManager()
                 Button(action: {
                     if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
