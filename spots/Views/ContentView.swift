@@ -250,15 +250,15 @@ struct ContentView: View {
 //    }
     
     //this completion handler is triggered once the posts are loaded, and it updates the posts state variable because there is a state change in the posts variable (going from empty to having data)
-    func handleLoadedPosts(loadedPosts: [PostMan]) {
-        print("\(loadedPosts.count) posts from Firebase")
-        for (index, post) in loadedPosts.enumerated() {
-            print("   Post \(index + 1): \(post.title) - Coords: (\(post.coords.0), \(post.coords.1)), Rating: \(post.rating)")
+//    func handleLoadedPosts(loadedPosts: [PostMan]) {
+//        print("\(loadedPosts.count) posts from Firebase")
+//        for (index, post) in loadedPosts.enumerated() {
+//            print("   Post \(index + 1): \(post.title) - Coords: (\(post.coords.0), \(post.coords.1)), Rating: \(post.rating)")
 //            print(post)
-        }
-        posts = loadedPosts
-        print("Updated posts state variable. Map will now render markers.")
-    }
+//        }
+//        posts = loadedPosts
+//        print("Updated posts state variable. Map will now render markers.")
+//    }
 }
 
 func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
