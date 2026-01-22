@@ -90,7 +90,7 @@ struct ContentView: View {
                     // loads posts when the map appears
                     .onAppear {
 //                        loadPosts()
-                        FireIntegration.shared.getAllPosts { loadedPosts in
+                        Firebase.shared.getAllPosts { loadedPosts in
                             DispatchQueue.main.async {
                                 self.posts = loadedPosts
                             }
@@ -268,11 +268,6 @@ struct ContentView: View {
             print("Error signing out: \(error.localizedDescription)")
         }
     }
-}
-
-// get docs wrapper function, gets all posts from all users
-func getDocs() {
-    FirebaseManager.shared.getDocs()
 }
 
 func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {

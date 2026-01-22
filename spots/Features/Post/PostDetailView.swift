@@ -178,12 +178,12 @@ struct PhotoCard: View {
     }
     
     func getAsyncImageURLs() {
-        urls = FirebaseManager.shared.getImageURLs(uuids: imageUUIDs)
+        urls = Firebase.shared.getImageURLs(uuids: imageUUIDs)
     }
     
     func getImages() async {
         do {
-            images = try await FirebaseManager.shared.getImagesByUUID(uuids: imageUUIDs)
+            images = try await Firebase.shared.getImagesByUUID(uuids: imageUUIDs)
         } catch {
             print("error loading uuid images")
         }
@@ -206,7 +206,7 @@ struct UserRatings: View {
             }
         }
         .onAppear() {
-            FireIntegration.shared.getPostRatings(postOwner: postOwner, postID: postID) { loadedRatings in
+            Firebase.shared.getPostRatings(postOwner: postOwner, postID: postID) { loadedRatings in
                 DispatchQueue.main.async {
                     self.ratingsArray = loadedRatings
                 }

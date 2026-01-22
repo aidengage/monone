@@ -17,6 +17,10 @@ final class FireStorage {
         storage = Storage.storage(app: app)
     }
     
+    func getStorage() -> Storage {
+        return storage
+    }
+    
     // async function to upload imagedata to firebase storage with the uuid as the file name (needs rework)
     func uploadImage(uuidArray: [String], data: [Data]) async throws {
         print("attempting upload...")
@@ -24,7 +28,8 @@ final class FireStorage {
         var imageIndex: Int = 0
         for imageData in data {
             let fileName = uuidArray[imageIndex]
-            let storageRef = FirebaseManager.shared.storage.reference().child(fileName)
+//            let storageRef = Firebase.shared.storage.reference().child(fileName)
+            let storageRef = Firebase.shared.getStorage().reference().child(fileName)
             
             imageIndex += 1
             
@@ -41,7 +46,7 @@ final class FireStorage {
     func getImagesByUUID(uuids: [String]) async throws -> [UIImage] {
         // boiler plate func
         var images: [UIImage] = []
-        let storageRef = FirebaseManager.shared.storage.reference()
+        let storageRef = Firebase.shared.getStorage().reference()
         
         for id in uuids {
             let uuidRef = storageRef.child(id)

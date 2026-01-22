@@ -10,14 +10,18 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseStorage
 
-final class FireIntegration {
-    static let shared = FireIntegration()
+final class Firebase {
+    static let shared = Firebase()
     
     private let fs = FireStore()
     private let auth = FireAuth()
     private let storage = FireStorage()
     
     // function proxies to separate out firebase implementation
+    func getStorage() -> Storage {
+        return self.storage.getStorage()
+    }
+    
     func getCurrentUserID() -> String {
         return auth.getCurrentUserID()
     }

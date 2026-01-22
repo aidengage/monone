@@ -97,7 +97,7 @@ struct AddPostView: View {
                     } else {
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
-                        FirebaseManager.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, description: description, coords: (xLoc: centerLat, yLoc: centerLong), selectedActivity: selectedActivty)
+                        Firebase.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, description: description, coords: (xLoc: centerLat, yLoc: centerLong), selectedActivity: selectedActivty)
                         
                         // need to unwrap optional Data type imageData before passing as param
                         // this can be put into seperate upload() function at bottom but later
@@ -105,7 +105,7 @@ struct AddPostView: View {
                         //                    guard let imageData else { return }
                         Task {
                             do {
-                                try await FirebaseManager.shared.uploadImage(uuidArray: imageUUIDs, data: imageData)
+                                try await Firebase.shared.uploadImage(uuidArray: imageUUIDs, data: imageData)
                                 //                            try await PhotoSelector.uploadImage(uuidArray: imageUUIDs, data: imageData)
                             } catch {
                                 print("upload failed: \(error)")

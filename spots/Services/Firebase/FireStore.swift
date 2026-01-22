@@ -36,7 +36,6 @@ final class FireStore {
     }
     
     func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
-//        var postArray: [PostMan] = []
         fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
             guard let documents = querySnapshot?.documents else {
                 completion([])
@@ -57,79 +56,12 @@ final class FireStore {
                 )
             }
             completion(posts)
-            
-            // old
-//            if let error = error {
-//                print("error getting posts: \(error)")
-//                completion([])
-//            } else {
-//                for document in querySnapshot!.documents {
-//                    let data = document.data()
-//                    print("doc data: \(data)")
-//                    
-//                    // setting all data
-//                    let title = data["name"] as? String ?? ""
-//                    let description = data["description"] as? String ?? ""
-//                    let images = data["images"] as? [String] ?? []
-//                    let address = data["address"] as? String ?? ""
-//                    
-//                    let userId: String = data["userID"] as? String ?? ""
-//                    let selectedActivity: String = data["selectedActivity"] as? String ?? ""
-//                    
-//                    // this is a horrible line of code that somehow works to get double to decimal
-//                    // loses some accuracy
-//                    // figure out how to pull just a decimal
-//                    let rating: Decimal = Decimal.init(data["rating"] as! Double) /*data["rating"] as? Decimal ?? 0.0*/
-//                    
-////                    let ratings = data["ratings"] as? [Rating] ?? []
-//                    
-//                    var xLoc: Double = 0.0
-//                    var yLoc: Double = 0.0
-//                    
-//                    if let x = data["xLoc"] as? Double, let y = data["yLoc"] as? Double {
-//                        xLoc = x
-//                        yLoc = y
-//                    } else {
-//                        print("No coordinates found for post '\(data["name"] as? String ?? "unknown")'")
-//                    }
-//                    
-//                    // creating post from set data with post manager (PostMan)
-//                    let post = PostMan(
-//                        docId: document.documentID,
-//                        userId: userId,
-//                        title: title,
-//                        description: description,
-//                        images: images,
-//                        coords: (xLoc, yLoc),
-//                        address: address,
-//                        rating: rating,
-//                        selectedActivity: selectedActivity
-//                        // maybe add user ratings in here idk
-////                        ratings: ratings
-//                    )
-////                    print(post)
-//                    // stores to the postArray
-//                    postArray.append(post)
-//                }
-//                //this completion handler triggers handleLoadedPosts method in ContentView.swift and its only triggered once the posts are loaded
-//                completion(postArray)
         }
     }
     
-    //this completion handler is triggered once the posts are loaded, and it updates the posts state variable because there is a state change in the posts variable (going from empty to having data)
-//    func handleLoadedPosts(loadedPosts: [PostMan], posts: inout [PostMan]) {
-//        print("\(loadedPosts.count) posts from Firebase")
-//        for (index, post) in loadedPosts.enumerated() {
-//            print("   Post \(index + 1): \(post.title) - Coords: (\(post.coords.0), \(post.coords.1)), Rating: \(post.rating)")
-////            print(post)
-//        }
-//        posts = loadedPosts
-//        print("Updated posts state variable. Map will now render markers.")
-//    }
-    
     func getUserPosts() -> [String:Any] {
         var userPosts: [String:Any] = [:]
-        fs.collection("users").document(FireIntegration.shared.getCurrentUserID()).collection("posts").getDocuments { (querySnapshot, error) in
+        fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").getDocuments { (querySnapshot, error) in
             if let error = error {
                 print("no user docs... \(error)")
             } else {
@@ -142,9 +74,9 @@ final class FireStore {
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
-        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: FireIntegration.shared.getCurrentUserID(), selectedActivity: selectedActivity)
+        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
         do {
-            let postRef = fs.collection("users").document(FireIntegration.shared.getCurrentUserID()).collection("posts").document()
+            let postRef = fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").document()
             try postRef.setData(from: newPost) { error in
                 if let error = error {
                     print(error)
@@ -159,7 +91,7 @@ final class FireStore {
     }
     
     func addPostIDToUser(postID: String) {
-        let uid = FireIntegration.shared.getCurrentUserID()
+        let uid = Firebase.shared.getCurrentUserID()
         let userRef = fs.collection("users").document(uid)
         userRef.updateData(["posts": FieldValue.arrayUnion([postID])])
     }
@@ -178,41 +110,9 @@ final class FireStore {
                 )
             }
             completion(ratings)
-        
-        
-//        var ratings: [RatingMan] = []
-//        fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").getDocuments { (querySnapshot, error) in
-//            if let error = error {
-//                print("error getting post ratings: \(error)")
-//                completion([])
-//                // add completion maybe
-//            } else {
-//                for document in querySnapshot!.documents {
-//                    let data = document.data()
-//                    
-//                    let comment = data["comment"] as? String ?? ""
-//                    let rating = Decimal.init(data["rating"] as! Double)
-//                    let userID = data["user"] as? String ?? ""
-//                    
-//                    
-//                    let newRating = RatingMan(
-//                        userID: userID,
-//                        rating: rating,
-//                        comment: comment
-//                    )
-////                    print(newRating.user) // works
-//                    print("user: \(newRating.userID), rating: \(newRating.rating), comment: \(newRating.comment)")
-//                    ratings.append(newRating)
-//                }
-//                completion(ratings)
-////                return ratings
-//            }
         }
-
-//        print("rating array: \(ratings)")
-//        return ratings
     }
-    
+        
     func addUser(uid: String, email: String, username: String, posts: [String]) {
         let newUser = User(uid: uid, email: email, username: username, posts: posts, ratedPosts: [])
         do {
@@ -227,53 +127,35 @@ final class FireStore {
             print("error creating doc: \(error.localizedDescription)")
         }
     }
-    
+        
     func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) async {
         let newRating = Rating(user: userID, rating: rating, comment: comment)
         do {
-            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document(FirebaseManager.shared.getCurrentUserID())
+            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document(Firebase.shared.getCurrentUserID())
             let snapshot = try await ratingRef.getDocument() //{ (document, error) in
-//                if let document = document, document.exists {
+            //                if let document = document, document.exists {
             if snapshot.exists {
                 print("Document exists")
             } else {
                 print("Document does not exist, adding rating")
                 try ratingRef.setData(from: newRating)
                 self.addPostToRated(postID: postID)
-//                self.addRatingIDToUser(ratingID: ratingRef.documentID)
-                
-//                    { error in
-//                        if let error = error {
-//                            print(error)
-//                        } else {
-//                            self.addPostToRated(postID: postID)
-//                            print("rating added")
-//                        }
-//                    }
-                }
+            }
             
-            
-//            try ratingRef.setData(from: newRating) { error in
-//                if let error = error {
-//                    print(error)
-//                } else {
-//                    self.addPostToRated(postID: postID)
-//                    print("rating added")
-//                }
-//            }
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }
+        
     }
-    
+        
     func addRatingIDToUser(ratingID: String) {
-        let uid = FireIntegration.shared.getCurrentUserID()
+        let uid = Firebase.shared.getCurrentUserID()
         let userRef = fs.collection("users").document(uid)
         userRef.updateData(["ratedPosts": FieldValue.arrayUnion([ratingID])])
     }
     
     func addPostToRated(postID: String) {
-        let uid = FireIntegration.shared.getCurrentUserID()
+        let uid = Firebase.shared.getCurrentUserID()
         let userRef = fs.collection("users").document(uid)
         userRef.updateData(["ratedPosts": FieldValue.arrayUnion([postID])])
     }
