@@ -12,6 +12,20 @@ import MapKit
 // need to change image to something like an array of [images] to link them to posts
 // still need to rework database for users/posts
 
+// codable user obejct to send to firebase database
+struct Post: Codable {
+    var images: [String?]
+    var name: String?
+    var address: String?
+    var rating: Decimal?
+    var description: String?
+    var xLoc: Double?
+    var yLoc: Double?
+    var ratings: [String?]
+    var userID: String?
+    var selectedActivity: String?
+}
+
 class PostMan: Identifiable {
     let docId: String
     let userId: String

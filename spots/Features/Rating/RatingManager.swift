@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+// codable rating obejct to send to firebase db
+struct Rating: Codable {
+    var user: String?
+    var rating: Decimal?
+    var comment: String?
+}
+
 // basic rating and comment for now
 class RatingMan: Identifiable {
     let userID: String

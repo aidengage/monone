@@ -6,6 +6,15 @@
 //
 import SwiftUI
 
+// codable user obejct to send to firebase database
+struct User: Codable {
+    var uid: String?
+    var email: String?
+    var username: String?
+    var posts: [String?]
+    var ratedPosts: [String?]
+}
+
 // not used yet but will be when we get user accounts
 class UserMan: Identifiable {
     let userID: String
