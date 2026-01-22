@@ -159,7 +159,7 @@ struct ContentView: View {
                     let currentUser = Auth.auth().currentUser
                     if currentUser != nil {
                         Button(action: {
-                            logout()
+                            Firebase.shared.logout()
                         }) {
                             Label("Logout", systemImage: "arrow.right.square")
                         }
@@ -258,15 +258,6 @@ struct ContentView: View {
         }
         posts = loadedPosts
         print("Updated posts state variable. Map will now render markers.")
-    }
-    
-    // logout function
-    func logout() {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("Error signing out: \(error.localizedDescription)")
-        }
     }
 }
 

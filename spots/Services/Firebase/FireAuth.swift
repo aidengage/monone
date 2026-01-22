@@ -15,4 +15,12 @@ final class FireAuth {
         let userID = currentUser?.uid ?? ""
         return userID
     }
+    
+    func logout() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+        }
+    }
 }

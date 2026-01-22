@@ -25,6 +25,10 @@ final class Firebase {
         return auth.getCurrentUserID()
     }
     
+    func logout() {
+        auth.logout()
+    }
+    
     func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
         fs.getAllPosts(completion: completion)
     }
