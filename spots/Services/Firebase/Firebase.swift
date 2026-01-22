@@ -10,6 +10,37 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseStorage
 
+// codable post object to allow encoding data to send to firebase to to
+// needs work
+struct Post: Codable {
+    var images: [String?]
+    var name: String?
+    var address: String?
+    var rating: Decimal?
+    var description: String?
+    var xLoc: Double?
+    var yLoc: Double?
+    var ratings: [String?]
+    var userID: String?
+    var selectedActivity: String?
+}
+
+// codable user obejct to send to firebase database
+struct User: Codable {
+    var uid: String?
+    var email: String?
+    var username: String?
+    var posts: [String?]
+    var ratedPosts: [String?]
+}
+
+// codable rating obejct to send to firebase db
+struct Rating: Codable {
+    var user: String?
+    var rating: Decimal?
+    var comment: String?
+}
+
 final class Firebase {
     static let shared = Firebase()
     
