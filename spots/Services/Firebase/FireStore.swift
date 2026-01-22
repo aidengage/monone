@@ -11,33 +11,6 @@ import FirebaseFirestore
 
 final class FireStore {
     private var fs = Firestore.firestore()
-    private var postDict: [String:Any] = [:]
-//    private var postsArray: [PostMan] = []
-    
-    private func resetPostDict() {
-        self.postDict.removeAll()
-    }
-    
-//    func getPosts() -> [PostMan] {
-//        return postsArray
-//    }
-    
-    func getAllPostsDocs() -> [String:Any] {
-        // queries the "post" collection, getting every doc and storing them in a document dictionary
-        // and prints everything in the dictionary (i dont think we need the above print function anymore then)
-        fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("no docs: \(error)")
-            } else {
-                print("getting docs...")
-                for document in querySnapshot!.documents {
-                    self.postDict[document.documentID] = document.data()
-                }
-                print(self.postDict)
-            }
-        }
-        return postDict
-    }
     
     func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
         fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
@@ -63,8 +36,7 @@ final class FireStore {
         }
     }
     
-    func getUserPosts(completion: @escaping ([PostMan]) -> Void) /*-> [String:Any]*/ {
-//        var userPosts: [String:Any] = [:]
+    func getUserPosts(completion: @escaping ([PostMan]) -> Void) {
         fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").getDocuments { (querySnapshot, error) in
             guard let documents = querySnapshot?.documents else {
                 completion([])
@@ -84,15 +56,7 @@ final class FireStore {
                 )
             }
             completion(posts)
-//            if let error = error {
-//                print("no user docs... \(error)")
-//            } else {
-//                for document in querySnapshot!.documents {
-//                    userPosts[document.documentID] = document.data()
-//                }
-//            }
         }
-//        return userPosts
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {

@@ -18,22 +18,18 @@ final class Firebase {
     
     // function proxies to separate out firebase implementation
     func getStorage() -> Storage {
-        return self.storage.getStorage()
+        return storage.getStorage()
     }
     
     func getCurrentUserID() -> String {
         return auth.getCurrentUserID()
     }
     
-    func getAllPostsDocs() -> [String:Any] {
-        return fs.getAllPostsDocs()
-    }
-    
     func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
         fs.getAllPosts(completion: completion)
     }
     
-    func getUserPosts(completion: @escaping ([PostMan]) -> Void) /*-> [String:Any]*/ {
+    func getUserPosts(completion: @escaping ([PostMan]) -> Void) {
         return fs.getUserPosts(completion: completion)
     }
     
