@@ -89,7 +89,12 @@ struct ContentView: View {
                     
                     // loads posts when the map appears
                     .onAppear {
-                        loadPosts()
+//                        loadPosts()
+                        Firebase.shared.getAllPosts { loadedPosts in
+                            DispatchQueue.main.async {
+                                self.posts = loadedPosts
+                            }
+                        }
                         // Set up location observers only once
                         if !observersSetUp {
                             observeCoordinateUpdates()
@@ -240,9 +245,9 @@ struct ContentView: View {
     }
     
     // uses firebasemanager getposts with the completion below
-    func loadPosts() {
-        FirebaseManager.shared.getPosts(completion: handleLoadedPosts)
-    }
+//    func loadPosts() {
+//        FirebaseManager.shared.getPosts(completion: completion)
+//    }
     
     //this completion handler is triggered once the posts are loaded, and it updates the posts state variable because there is a state change in the posts variable (going from empty to having data)
     func handleLoadedPosts(loadedPosts: [PostMan]) {
@@ -263,11 +268,6 @@ struct ContentView: View {
             print("Error signing out: \(error.localizedDescription)")
         }
     }
-}
-
-// get docs wrapper function, gets all posts from all users
-func getDocs() {
-    FirebaseManager.shared.getDocs()
 }
 
 func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {

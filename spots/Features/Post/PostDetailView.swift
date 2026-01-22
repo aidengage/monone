@@ -70,7 +70,7 @@ struct PostDetailView: View {
                     )
                     
                     if !post.selectedActivity.isEmpty{
-                        InfoCard(icon: "text.align.left", title: "Type", content:post.selectedActivity, iconColor: .pink)
+                        InfoCard(icon: "text.alignleft", title: "Type", content:post.selectedActivity, iconColor: .pink)
                     }
                     
                     
@@ -178,12 +178,12 @@ struct PhotoCard: View {
     }
     
     func getAsyncImageURLs() {
-        urls = FirebaseManager.shared.getImageURLs(uuids: imageUUIDs)
+        urls = Firebase.shared.getImageURLs(uuids: imageUUIDs)
     }
     
     func getImages() async {
         do {
-            images = try await FirebaseManager.shared.getImagesByUUID(uuids: imageUUIDs)
+            images = try await Firebase.shared.getImagesByUUID(uuids: imageUUIDs)
         } catch {
             print("error loading uuid images")
         }
@@ -206,23 +206,12 @@ struct UserRatings: View {
             }
         }
         .onAppear() {
-            Task {
-                getRatings()
+            Firebase.shared.getPostRatings(postOwner: postOwner, postID: postID) { loadedRatings in
+                DispatchQueue.main.async {
+                    self.ratingsArray = loadedRatings
+                }
             }
         }
-    }
-    
-    func getRatings() {
-        FirebaseManager.shared.getPostRatings(completion: handleLoadedRatings, postOwner: postOwner, postID: postID)
-    }
-    
-    func handleLoadedRatings(loadedRatings: [RatingMan]) {
-        print("\(loadedRatings.count) ratings from Firebase")
-        for (index, rating) in loadedRatings.enumerated() {
-            print("Rating \(index + 1) from user: \(rating.userID): \(rating.rating), comment: \(rating.comment)")
-        }
-        ratingsArray = loadedRatings
-        print("loading ratings...")
     }
 }
 
