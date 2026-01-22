@@ -33,8 +33,8 @@ final class Firebase {
         fs.getAllPosts(completion: completion)
     }
     
-    func getUserPosts() -> [String:Any] {
-        return fs.getUserPosts()
+    func getUserPosts(completion: @escaping ([PostMan]) -> Void) /*-> [String:Any]*/ {
+        return fs.getUserPosts(completion: completion)
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
@@ -51,10 +51,6 @@ final class Firebase {
     
     func addUser(uid: String, email: String, username: String, posts: [String]) {
         fs.addUser(uid: uid, email: email, username: username, posts: posts)
-    }
-    
-    func addRatingIDToUser(ratingID: String) {
-        fs.addRatingIDToUser(ratingID: ratingID)
     }
     
     func addPostToRated(postID: String) {

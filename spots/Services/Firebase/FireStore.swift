@@ -12,11 +12,15 @@ import FirebaseFirestore
 final class FireStore {
     private var fs = Firestore.firestore()
     private var postDict: [String:Any] = [:]
-    var posts: [PostMan] = []
+//    private var postsArray: [PostMan] = []
     
     private func resetPostDict() {
         self.postDict.removeAll()
     }
+    
+//    func getPosts() -> [PostMan] {
+//        return postsArray
+//    }
     
     func getAllPostsDocs() -> [String:Any] {
         // queries the "post" collection, getting every doc and storing them in a document dictionary
@@ -59,18 +63,36 @@ final class FireStore {
         }
     }
     
-    func getUserPosts() -> [String:Any] {
-        var userPosts: [String:Any] = [:]
+    func getUserPosts(completion: @escaping ([PostMan]) -> Void) /*-> [String:Any]*/ {
+//        var userPosts: [String:Any] = [:]
         fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("no user docs... \(error)")
-            } else {
-                for document in querySnapshot!.documents {
-                    userPosts[document.documentID] = document.data()
-                }
+            guard let documents = querySnapshot?.documents else {
+                completion([])
+                return
             }
+            let posts = documents.compactMap { documents -> PostMan? in
+                let data = documents.data()
+                return PostMan(docId: documents.documentID,
+                               userId: data["userID"] as? String ?? "",
+                               title: data["name"] as? String ?? "",
+                               description: data["description"] as? String ?? "",
+                               images: data["images"] as? [String] ?? [],
+                               coords: (data["xLoc"] as! Double, data["yLoc"] as! Double),
+                               address: data["address"] as? String ?? "",
+                               rating: Decimal.init(data["rating"] as! Double),
+                               selectedActivity: data["selectedActivity"] as? String ?? ""
+                )
+            }
+            completion(posts)
+//            if let error = error {
+//                print("no user docs... \(error)")
+//            } else {
+//                for document in querySnapshot!.documents {
+//                    userPosts[document.documentID] = document.data()
+//                }
+//            }
         }
-        return userPosts
+//        return userPosts
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
@@ -94,6 +116,12 @@ final class FireStore {
         let uid = Firebase.shared.getCurrentUserID()
         let userRef = fs.collection("users").document(uid)
         userRef.updateData(["posts": FieldValue.arrayUnion([postID])])
+    }
+    
+    func addPostToRated(postID: String) {
+        let uid = Firebase.shared.getCurrentUserID()
+        let userRef = fs.collection("users").document(uid)
+        userRef.updateData(["ratedPosts": FieldValue.arrayUnion([postID])])
     }
     
     func getPostRatings(postOwner: String, postID: String, completion: @escaping ([RatingMan]) -> Void) {
@@ -146,17 +174,5 @@ final class FireStore {
             print("error creating doc: \(error.localizedDescription)")
         }
         
-    }
-        
-    func addRatingIDToUser(ratingID: String) {
-        let uid = Firebase.shared.getCurrentUserID()
-        let userRef = fs.collection("users").document(uid)
-        userRef.updateData(["ratedPosts": FieldValue.arrayUnion([ratingID])])
-    }
-    
-    func addPostToRated(postID: String) {
-        let uid = Firebase.shared.getCurrentUserID()
-        let userRef = fs.collection("users").document(uid)
-        userRef.updateData(["ratedPosts": FieldValue.arrayUnion([postID])])
     }
 }
