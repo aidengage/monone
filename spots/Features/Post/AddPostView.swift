@@ -138,16 +138,6 @@ struct AddPostView: View {
                 }
             }
         }
-        
-        //    func upload() {
-        //        guard let imageData else { return }
-        //
-        //        Task {
-        //            do {
-        //                fm.uploadImage(data: imageData)
-        //            }
-        //        }
-        //    }
     }
     
     // all for reverse geocoding to get the nearest address to the coordinates
