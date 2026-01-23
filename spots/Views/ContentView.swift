@@ -23,8 +23,9 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             ZStack {
-                MainMapView(centerLat: 0, centerLong: 0, path: $path)
+                MainMapView(centerLat: centerLat, centerLong: centerLong, path: $path)
             }
+//            AddButton(path: $path, centerLat: centerLat, centerLong: centerLong)
         }
     }
 }

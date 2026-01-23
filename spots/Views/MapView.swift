@@ -98,7 +98,7 @@ struct MainMapView: View {
                         .offset(y: -15)
                         .font(.system(size: 33))
                 }
-            AddButton(path: $path, centerLat: centerLat, centerLong: centerLong)
+            AddButton(path: $path, centerLat: $centerLat, centerLong: $centerLong)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -116,33 +116,19 @@ struct MainMapView: View {
                 }
             }
         }
-            
-            
+   
         }
         .sheet(item: $selectedPost, onDismiss: {
-//            .sheet(item: , onDismiss: {
-//            postView = false
-//            print("post view: \(postView)")
-            withAnimation(.easeInOut(duration: 0.6)) {
-                
-            }
-//                loadPosts()
+            // camera zoom back out needs to be implemented
         }) { post in
             PostDetailView(post: post)
                 .presentationDetents([.fraction(0.75)])
-            
                 .task {
                     withAnimation(.easeInOut(duration: 0.7)) {
-//                        postView = true
-//                        print("post view: \(postView)")
                         cameraZoomOnPost(post: selectedPost!)
                     }
                 }
         }
-//        AddButton(path: $path, centerLat: centerLat, centerLong: centerLong)
-//        .ignoresSafeArea()
-        
-        
     }
     
     func cameraZoomOnPost(post: PostMan) {

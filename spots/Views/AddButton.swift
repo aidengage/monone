@@ -15,8 +15,8 @@ struct AddButton: View {
     
     @Binding var path: NavigationPath
     
-    @State var centerLat: Double
-    @State var centerLong: Double
+    @Binding var centerLat: Double
+    @Binding var centerLong: Double
     
     var body: some View {
         Button(action: {
@@ -27,6 +27,7 @@ struct AddButton: View {
             // when logged in, showAddPost is true, appends to path stack with variable
             if currentUser != nil {
                 showAddPost = true
+                print(" coords: \(centerLat), \(centerLong)")
                 path.append(showAddPost)
             } else {
                 showLogin = true

@@ -57,7 +57,7 @@ struct AddPostView: View {
                     
                 }
                 Section(header: Text("Activity Type")) {
-                    Picker("Activity", selection: $selectedActivty) { //
+                    Picker("Activity", selection: $selectedActivty) {
                         ForEach(activityType, id: \.self) {
                             Text($0)
                         }
@@ -66,12 +66,6 @@ struct AddPostView: View {
                     
                     // rating needs to link back to user posting it
                     Section(header: Text("Rating")) {
-                        //                    HStack {
-                        //                        TextField("Rating", value: $rating, format: .number)
-                        //                            .frame(width: 35)
-                        //                            .keyboardType(.decimalPad)
-                        //                        Slider(value: $rating, in: 0...5, step: 0.05)
-                        //                    }
                         StarRatingViewDynamic(rating: $rating, numStars: 5)
                     }
                     // custom photo picker logic in AddPostView and FirebaseManager
@@ -90,7 +84,6 @@ struct AddPostView: View {
                         }
                     }
                 
-                //            let fm = FirebaseManager()
                 Button(action: {
                     if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
                         print("add every value to post")
@@ -102,27 +95,19 @@ struct AddPostView: View {
                         // need to unwrap optional Data type imageData before passing as param
                         // this can be put into seperate upload() function at bottom but later
                         // try catch is for async func
-                        //                    guard let imageData else { return }
                         Task {
                             do {
                                 try await Firebase.shared.uploadImage(uuidArray: imageUUIDs, data: imageData)
-                                //                            try await PhotoSelector.uploadImage(uuidArray: imageUUIDs, data: imageData)
                             } catch {
                                 print("upload failed: \(error)")
                             }
                         }
-                        
-                        //                    fm.uploadImage(data: imageData)
-                        //                    upload()
-                        
                         dismiss()
                     }
                 }) {
                     Label("Post!", systemImage: "plus")
                 }
-                //            .buttonStyle(.glass(.clear))
                 .buttonStyle(.glassProminent)
-                //            .glassEffect()
             }
             .navigationTitle("Add Post")
             
