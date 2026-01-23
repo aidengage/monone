@@ -88,10 +88,6 @@ struct MainMapView: View {
                         centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
                         print("\(centerLat): \(centerLong)")
                     }
-//                    .ignoresSafeArea()
-                    
-                    // change map safe areas when postview is true to recenter map upward above sheet
-                    
                     
                     // visual indicator of the center of the screen
                     Image(systemName: "mappin")

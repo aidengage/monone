@@ -27,7 +27,6 @@ struct AddButton: View {
             // when logged in, showAddPost is true, appends to path stack with variable
             if currentUser != nil {
                 showAddPost = true
-                print(" coords: \(centerLat), \(centerLong)")
                 path.append(showAddPost)
             } else {
                 showLogin = true
