@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseStorage
+import FirebaseAuth
 
 final class Firebase {
     static let shared = Firebase()
@@ -23,6 +24,10 @@ final class Firebase {
     
     func getCurrentUserID() -> String {
         return auth.getCurrentUserID()
+    }
+    
+    func getCurrentUser() -> FirebaseAuth.User? {
+        return auth.getCurrentUser()
     }
     
     func logout() {

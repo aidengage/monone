@@ -23,4 +23,13 @@ final class FireAuth {
             print("Error signing out: \(error.localizedDescription)")
         }
     }
+    
+    func getCurrentUser() -> FirebaseAuth.User? {
+        if Auth.auth().currentUser != nil {
+            return Auth.auth().currentUser
+        } else {
+            print("no current user")
+            return nil
+        }
+    }
 }
