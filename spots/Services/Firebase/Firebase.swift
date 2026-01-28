@@ -42,8 +42,8 @@ final class Firebase {
         return fs.getUserPosts(completion: completion)
     }
     
-    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
-        fs.addPost(images: images, name: name, address: address, rating: rating, description: description, coords: (xLoc: coords.xLoc, yLoc: coords.yLoc), selectedActivity: selectedActivity)
+    func addPost(images: [String], name: String, address: String, rating: Decimal, comment: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
+        fs.addPost(images: images, name: name, address: address, rating: rating, comment: comment, coords: (xLoc: coords.xLoc, yLoc: coords.yLoc), selectedActivity: selectedActivity)
     }
     
     func addPostIDToUser(postID: String) {

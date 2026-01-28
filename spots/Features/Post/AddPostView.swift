@@ -21,7 +21,7 @@ struct AddPostView: View {
     @State var centerLat: Double
     @State var centerLong: Double
     @State var title: String = ""
-    @State var description: String = ""
+    @State var comment: String = ""
     @State var address: String = ""
     @State var imageURL: String = ""
     @State var rating: Decimal = 0.0
@@ -51,7 +51,7 @@ struct AddPostView: View {
                 // title, description, and address for where pin is
                 Section(header: Text("Add a new post")) {
                     TextField("Title", text: $title)
-                    TextField("Description", text: $description)
+                    TextField("Description/Comment", text: $comment)
                     TextField("Address", text: $address)
                     
                     
@@ -85,12 +85,12 @@ struct AddPostView: View {
                     }
                 
                 Button(action: {
-                    if title.isEmpty || address.isEmpty || description.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
+                    if title.isEmpty || address.isEmpty || comment.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
                         print("add every value to post")
                     } else {
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
-                        Firebase.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, description: description, coords: (xLoc: centerLat, yLoc: centerLong), selectedActivity: selectedActivty)
+                        Firebase.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, comment: comment, coords: (xLoc: centerLat, yLoc: centerLong), selectedActivity: selectedActivty)
                         
                         // need to unwrap optional Data type imageData before passing as param
                         // this can be put into seperate upload() function at bottom but later
