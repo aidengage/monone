@@ -68,6 +68,13 @@ struct PostDetailView: View {
                             content: post.comment,
                             iconColor: .blue
                         )
+                    } else {
+                        InfoCard(
+                            icon: "text.alignleft",
+                            title: "bruh",
+                            content: "comment unavailable at this time, need to reorganize db",
+                            iconColor: .red
+                        )
                     }
                     
                     // Coordinates Card
@@ -79,7 +86,12 @@ struct PostDetailView: View {
                     )
                     
                     if !post.selectedActivity.isEmpty{
-                        InfoCard(icon: "text.alignleft", title: "Type", content:post.selectedActivity, iconColor: .pink)
+                        InfoCard(
+                            icon: "leaf",
+                            title: "Type",
+                            content: post.selectedActivity,
+                            iconColor: .green
+                        )
                     }
                     
                     
