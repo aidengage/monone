@@ -64,6 +64,7 @@ final class FireStore {
         let newRating = Rating(user: Firebase.shared.getCurrentUserID(), rating: rating, comment: description)
         
         do {
+            // adding post to posts collection
             let postRef = fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").document()
             try postRef.setData(from: newPost) { error in
                 if let error = error {
@@ -74,6 +75,7 @@ final class FireStore {
                 }
             }
             
+            // adding rating to ratings collection
             let ratingRef = postRef.collection("ratings").document(Firebase.shared.getCurrentUserID())
             try ratingRef.setData(from: newRating) { error in
                 if let error = error {
