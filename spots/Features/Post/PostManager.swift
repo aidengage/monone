@@ -21,7 +21,7 @@ struct Post: Codable {
     var description: String?
     var xLoc: Double?
     var yLoc: Double?
-    var ratings: [String?]
+//    var ratings: [String?]
     var userID: String?
     var selectedActivity: String?
 }
@@ -35,7 +35,7 @@ class PostMan: Identifiable {
     let coords: (Double, Double)
     let address: String
     let rating: Decimal
-    let ratings: [Rating]
+//    let ratings: [Rating]
     let selectedActivity: String
     
     // initializes a post manager object
@@ -48,7 +48,7 @@ class PostMan: Identifiable {
         self.coords = coords
         self.address = address
         self.rating = rating
-        self.ratings = []
+//        self.ratings = []
         self.selectedActivity = selectedActivity
     }
     
