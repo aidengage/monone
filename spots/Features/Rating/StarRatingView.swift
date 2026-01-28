@@ -51,8 +51,7 @@ struct RatingStar: View {
                         )
                     
                 )
-//                .resizable()
-                .scaledToFit()
+//                .aspectRatio(contentMode: .fit)
             
         }
     }
@@ -89,7 +88,6 @@ public struct StarRatingViewDynamic: View {
         }
 //        .frame(height: 50)
         .aspectRatio(CGFloat(numStars), contentMode: .fit)
-//        .scaledToFit()
     }
 }
 
@@ -111,6 +109,7 @@ public struct StarRatingViewStatic: View {
             BackgroundStars(numStars: numStars, color: backgroundColor)
             ForegroundStars(numStars: numStars, rating: rating, color: starColor)
         }
+        .aspectRatio(CGFloat(numStars), contentMode: .fit)
     }
 }
 
@@ -128,8 +127,9 @@ private struct BackgroundStars: View {
         HStack {
             ForEach(0..<numStars) { index in
                 StarImage()
+                    .foregroundColor(color)
             }
-        }.foregroundColor(color)
+        }
     }
 }
 
@@ -155,11 +155,10 @@ private struct ForegroundStars: View {
 
 private struct StarImage: View {
     var body: some View {
-//        GeometryReader { geo in
+        GeometryReader { geo in
             Image(systemName: "star.fill")
                 .resizable()
-//                .aspectRatio(contentMode: .fill)
-                .scaledToFit()
-//        }
+                .aspectRatio(contentMode: .fit)
+        }
     }
 }
