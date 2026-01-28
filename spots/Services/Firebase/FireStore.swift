@@ -59,9 +59,9 @@ final class FireStore {
         }
     }
     
-    func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
-        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, /*ratings: [],*/ userID: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
-        let newRating = Rating(user: Firebase.shared.getCurrentUserID(), rating: rating, comment: description)
+    func addPost(images: [String], name: String, address: String, rating: Decimal, comment: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
+        let newPost = Post(images: images, name: name, address: address, rating: rating, comment: comment, xLoc: coords.xLoc, yLoc: coords.yLoc, /*ratings: [],*/ userID: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
+        let newRating = Rating(user: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
         
         do {
             // adding post to posts collection

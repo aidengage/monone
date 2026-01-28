@@ -18,7 +18,7 @@ struct Post: Codable {
     var name: String?
     var address: String?
     var rating: Decimal?
-    var description: String?
+    var comment: String?
     var xLoc: Double?
     var yLoc: Double?
 //    var ratings: [String?]
@@ -30,7 +30,7 @@ class PostMan: Identifiable {
     let docId: String
     let userId: String
     let title: String
-    let description: String
+    let comment: String
     let images: [String]
     let coords: (Double, Double)
     let address: String
@@ -39,11 +39,11 @@ class PostMan: Identifiable {
     let selectedActivity: String
     
     // initializes a post manager object
-    init(docId: String, userId: String, title: String, description: String, images: [String], coords: (Double, Double), address: String, rating: Decimal, selectedActivity: String) {
+    init(docId: String, userId: String, title: String, comment: String, images: [String], coords: (Double, Double), address: String, rating: Decimal, selectedActivity: String) {
         self.docId = docId
         self.userId = userId
         self.title = title
-        self.description = description
+        self.comment = comment
         self.images = images
         self.coords = coords
         self.address = address
