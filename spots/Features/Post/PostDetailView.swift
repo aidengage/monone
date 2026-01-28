@@ -61,11 +61,11 @@ struct PostDetailView: View {
                     }
                     
                     // Description Card
-                    if !post.description.isEmpty {
+                    if !post.comment.isEmpty {
                         InfoCard(
                             icon: "text.alignleft",
                             title: "Description",
-                            content: post.description,
+                            content: post.comment,
                             iconColor: .blue
                         )
                     }
