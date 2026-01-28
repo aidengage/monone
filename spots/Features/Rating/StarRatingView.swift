@@ -81,8 +81,11 @@ public struct StarRatingViewDynamic: View {
                     let totalWidth = CGFloat(geo.size.width)
                     let x = min(max(value.location.x, 0), totalWidth)
                     let percent = x / totalWidth
+                    let rawRating = Double(self.numStars) * percent
+                    let snappedRating = round(rawRating * 10) / 10
                     
-                    self.rating = Decimal(Double(self.numStars) * percent) as Decimal
+//                    self.rating = Decimal(Double(self.numStars) * percent) as Decimal
+                    self.rating = Decimal(snappedRating)
                 }
             )
         }
