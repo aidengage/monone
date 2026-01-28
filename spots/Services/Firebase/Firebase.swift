@@ -54,6 +54,10 @@ final class Firebase {
         fs.getPostRatings(postOwner: postOwner, postID: postID, completion: completion)
     }
     
+    func getPostAverageRatings(postOwner: String, postID: String) async throws -> Decimal {
+        return try await fs.getPostAverageRatings(postOwner: postOwner, postID: postID)
+    }
+    
     func addUser(uid: String, email: String, username: String, posts: [String]) {
         fs.addUser(uid: uid, email: email, username: username, posts: posts)
     }

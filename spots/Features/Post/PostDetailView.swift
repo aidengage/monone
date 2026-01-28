@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: PostMan
+    @State private var avgRating: Decimal = 0.0
     
     var body: some View {
         ScrollView {
@@ -30,7 +31,15 @@ struct PostDetailView: View {
                         .padding(.horizontal, 10)
     //                    .padding(.top, 20)
                         
-                        StarRatingViewStatic(rating: post.rating, numStars: 5)
+                        StarRatingViewStatic(rating: avgRating, numStars: 5)
+                        .task {
+                            do {
+                                avgRating = try await Firebase.shared.getPostAverageRatings(postOwner: post.userId, postID: post.docId)
+                            } catch {
+                                print("error fetching avg rating in post detail view: \(error)")
+                            }
+                        }
+//                    StarRatingViewStatic(rating: Firebase.shared.getPostAverageRatings(postOwner: post.userId, postID: post.docId), numStars: 5)
                         .padding(.horizontal, 20)
 //                    }
                     

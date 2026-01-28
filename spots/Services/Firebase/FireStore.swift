@@ -104,6 +104,29 @@ final class FireStore {
             completion(ratings)
         }
     }
+    
+    func getPostAverageRatings(postOwner: String, postID: String) async throws -> Decimal {
+//        print("owner: \(postOwner), post: \(postID)")
+        let ratingsRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings")
+        let querySnapshot = try await ratingsRef.getDocuments()
+        
+        guard !querySnapshot.documents.isEmpty else {
+            print("empty rating docs")
+            return 0.0
+        }
+        
+        let sum = querySnapshot.documents.reduce(Decimal(0.0)) { partialResult, document in
+            if let rating = document.data()["rating"] as? Double {
+                return partialResult + Decimal(rating)
+            }
+            return partialResult
+        }
+        
+        let avgRating = sum / Decimal(querySnapshot.documents.count)
+        print("avgRating: \(avgRating)")
+        return avgRating
+        
+    }
         
     func addUser(uid: String, email: String, username: String, posts: [String]) {
         let newUser = User(uid: uid, email: email, username: username, posts: posts, ratedPosts: [])
