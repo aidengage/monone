@@ -60,7 +60,9 @@ final class FireStore {
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, description: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
-        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, ratings: [], userID: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
+        let newPost = Post(images: images, name: name, address: address, rating: rating, description: description, xLoc: coords.xLoc, yLoc: coords.yLoc, /*ratings: [],*/ userID: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
+        let newRating = Rating(user: Firebase.shared.getCurrentUserID(), rating: rating, comment: description)
+        
         do {
             let postRef = fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").document()
             try postRef.setData(from: newPost) { error in
@@ -69,6 +71,15 @@ final class FireStore {
                 } else {
                     self.addPostIDToUser(postID: postRef.documentID)
                     print("doc added")
+                }
+            }
+            
+            let ratingRef = postRef.collection("ratings").document(Firebase.shared.getCurrentUserID())
+            try ratingRef.setData(from: newRating) { error in
+                if let error = error {
+                    print(error)
+                } else {
+                    print("rating added??")
                 }
             }
         } catch {
@@ -123,7 +134,7 @@ final class FireStore {
         }
         
         let avgRating = sum / Decimal(querySnapshot.documents.count)
-        print("avgRating: \(avgRating)")
+//        print("avgRating: \(avgRating)")
         return avgRating
         
     }
