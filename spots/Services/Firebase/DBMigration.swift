@@ -151,9 +151,40 @@ class DBMigration {
     
     func cleanUserDocs() async throws {
         print("deleting posts and rated posts lists")
+        
+        let usersSnapshot = try await Firebase.shared.store.fs.collection("users").getDocuments()
+        
+        for userDoc in usersSnapshot.documents {
+            let userId = userDoc.documentID
+            
+            try await Firebase.shared.store.fs.collection("users")
+                .document(userId)
+                .updateData([
+                    "posts": FieldValue.delete(),
+                    "ratedPosts": FieldValue.delete()
+                ])
+            print("    cleaned up user: \(userId)")
+        }
+        print("  user cleanup complete")
     }
     
     func verifyMigration() async throws {
         print("\n=== verifying... ===")
+        
+        let postsCount = try await Firebase.shared.store.fs.collection("posts").getDocuments().documents.count
+        print("  top level posts count: \(postsCount)")
+        
+        let ratingsCount = try await Firebase.shared.store.fs.collection("ratings").getDocuments().documents.count
+        print("  top level ratings count: \(ratingsCount)")
+        
+        let samplePost = try await Firebase.shared.store.fs.collection("posts").limit(to: 1).getDocuments().documents.first
+        if let post = samplePost {
+            print("\nSample post verification:")
+            print("    Post ID: \(post.documentID)")
+            print("    User ID: \(post.data()["userId"] ?? "missing")")
+            print("    Average Rating: \(post.data()["averageRating"] ?? "missing")")
+            print("    Rating Count: \(post.data()["ratingCount"] ?? "missing")")
+        }
+        
     }
 }
