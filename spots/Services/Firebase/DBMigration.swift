@@ -188,3 +188,15 @@ class DBMigration {
         
     }
 }
+
+struct FireMigrateButton: View {
+    var body: some View {
+        Button("migrate db...") {
+            Task {
+                let dbm = DBMigration()
+                await dbm.migrateDatabase()
+                try? await dbm.verifyMigration()
+            }
+        }
+    }
+}
