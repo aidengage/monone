@@ -76,6 +76,53 @@ class DBMigration {
     
     func migrateRatings() async throws {
         print("migrating ratings subcollection to top level")
+        
+        let usersSnapshot = try await Firebase.shared.store.fs.collection("users").getDocuments()
+        
+        print("  migrating ratings.....")
+        
+        for userDoc in usersSnapshot.documents {
+            let userId = userDoc.documentID
+            
+            let postsSnapshot = try await Firebase.shared.store.fs.collection("users")
+                .document(userId)
+                .collection("posts")
+                .getDocuments()
+            
+            for postDoc in postsSnapshot.documents {
+                let postId = postDoc.documentID
+                
+                let ratingsSnapshot = try await Firebase.shared.store.fs.collection("users")
+                    .document(userId)
+                    .collection("posts")
+                    .document(postId)
+                    .collection("ratings")
+                    .getDocuments()
+                
+                print("    found user \(userId)'s rating for post \(postId)")
+                
+                for ratingDoc in ratingsSnapshot.documents {
+                    let ratingId = UUID().uuidString
+                    // ratingDoc.documentID // this is still user id
+                    let ratingData = ratingDoc.data()
+                    var newRatingData: [String: Any] = [:]
+                    
+                    newRatingData["postId"] = postId
+                    newRatingData["userId"] = ratingData["user"]
+                    newRatingData["rating"] = ratingData["rating"]
+                    newRatingData["comment"] = ratingData["comment"]
+                    newRatingData["createdAt"] = FieldValue.serverTimestamp()
+                    
+                    try await Firebase.shared.store.fs.collection("ratings")
+                        .document(ratingId)
+                        .setData(newRatingData)
+                    
+                    print("      migrated rating: \(ratingId)")
+                    
+                }
+            }
+        }
+        print("  migrated ratings....")
     }
     
     func calcAvgRating(userId: String, postId: String) async throws -> (avgRating: Decimal, count: Int) {
