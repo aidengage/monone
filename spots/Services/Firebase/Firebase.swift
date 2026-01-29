@@ -13,7 +13,7 @@ import FirebaseAuth
 final class Firebase {
     static let shared = Firebase()
     
-    private let fs = FireStore()
+    let store = FireStore()
     private let auth = FireAuth()
     private let storage = FireStorage()
     
@@ -35,39 +35,39 @@ final class Firebase {
     }
     
     func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
-        fs.getAllPosts(completion: completion)
+        store.getAllPosts(completion: completion)
     }
     
     func getUserPosts(completion: @escaping ([PostMan]) -> Void) {
-        return fs.getUserPosts(completion: completion)
+        return store.getUserPosts(completion: completion)
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, comment: String, coords: (xLoc: Double, yLoc: Double), selectedActivity: String) {
-        fs.addPost(images: images, name: name, address: address, rating: rating, comment: comment, coords: (xLoc: coords.xLoc, yLoc: coords.yLoc), selectedActivity: selectedActivity)
+        store.addPost(images: images, name: name, address: address, rating: rating, comment: comment, coords: (xLoc: coords.xLoc, yLoc: coords.yLoc), selectedActivity: selectedActivity)
     }
     
     func addPostIDToUser(postID: String) {
-        fs.addPostIDToUser(postID: postID)
+        store.addPostIDToUser(postID: postID)
     }
     
     func getPostRatings(postOwner: String, postID: String, completion: @escaping ([RatingMan]) -> Void) {
-        fs.getPostRatings(postOwner: postOwner, postID: postID, completion: completion)
+        store.getPostRatings(postOwner: postOwner, postID: postID, completion: completion)
     }
     
     func getPostAverageRatings(postOwner: String, postID: String) async throws -> Decimal {
-        return try await fs.getPostAverageRatings(postOwner: postOwner, postID: postID)
+        return try await store.getPostAverageRatings(postOwner: postOwner, postID: postID)
     }
     
     func addUser(uid: String, email: String, username: String, posts: [String]) {
-        fs.addUser(uid: uid, email: email, username: username, posts: posts)
+        store.addUser(uid: uid, email: email, username: username, posts: posts)
     }
     
     func addPostToRated(postID: String) {
-        fs.addPostToRated(postID: postID)
+        store.addPostToRated(postID: postID)
     }
     
     func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) async {
-        await fs.addRatingToPost(postOwner: postOwner, postID: postID, userID: userID, rating: rating, comment: comment)
+        await store.addRatingToPost(postOwner: postOwner, postID: postID, userID: userID, rating: rating, comment: comment)
     }
     
     func uploadImage(uuidArray: [String], data: [Data]) async throws {

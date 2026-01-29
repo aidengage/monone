@@ -10,7 +10,7 @@ import FirebaseCore
 import FirebaseFirestore
 
 final class FireStore {
-    private var fs = Firestore.firestore()
+    let fs = Firestore.firestore()
     
     func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
         fs.collectionGroup("posts").getDocuments { (querySnapshot, error) in
