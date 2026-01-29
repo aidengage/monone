@@ -128,7 +128,25 @@ class DBMigration {
     func calcAvgRating(userId: String, postId: String) async throws -> (avgRating: Decimal, count: Int) {
         print("calculating average rating of post")
         
+        let ratingsSnapshot = try await Firebase.shared.store.fs.collection("users")
+            .document(userId)
+            .collection("posts")
+            .document(postId)
+            .collection("ratings")
+            .getDocuments()
         
+        guard !ratingsSnapshot.documents.isEmpty else {
+            return (0.0, 0)
+        }
+        
+        let sum = ratingsSnapshot.documents.reduce(Decimal(0.0)) { partialResult, doc in
+            let rating = doc.data()["rating"] as? Double ?? 0.0
+            return partialResult + Decimal(rating)
+        }
+        
+        let avgRating = sum / Decimal(ratingsSnapshot.documents.count)
+        
+        return (avgRating, ratingsSnapshot.documents.count)
     }
     
     func cleanUserDocs() async throws {
