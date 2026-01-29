@@ -10,6 +10,15 @@ import SwiftUI
 class DBMigration {
     func migrateDatabase() async {
         print("migrating db")
+        
+        do {
+            try await migratePosts()
+            try await migrateRatings()
+            try await cleanUserDocs()
+            print("migrationg complete..............")
+        } catch {
+            print("migration failed with: \(error)")
+        }
     }
     
     func migratePosts() async throws {
