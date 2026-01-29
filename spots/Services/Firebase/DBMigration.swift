@@ -9,6 +9,28 @@ import SwiftUI
 
 class DBMigration {
     func migrateDatabase() async {
-        print("migrating db from subcollections to top level")
+        print("migrating db")
+    }
+    
+    func migratePosts() async throws {
+        print("migrating posts subcollection to top level")
+    }
+    
+    func migrateRatings() async throws {
+        print("migrating ratings subcollection to top level")
+    }
+    
+    func calcAvgRating(userId: String, postId: String) async throws -> (avgRating: Decimal, count: Int) {
+        print("calculating average rating of post")
+        
+        
+    }
+    
+    func cleanUserDocs() async throws {
+        print("deleting posts and rated posts lists")
+    }
+    
+    func verifyMigration() async throws {
+        print("\n=== verifying... ===")
     }
 }
