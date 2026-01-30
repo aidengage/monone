@@ -106,8 +106,6 @@ final class FireStore {
             
             // adding rating to ratings collection
             let ratingRef = fs.collection("ratings").document()
-//                .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
-//            let ratingRef = postRef.collection("ratings").document(Firebase.shared.getCurrentUserID())
             
             try ratingRef.setData(from: newRating) { error in
                 
@@ -115,7 +113,6 @@ final class FireStore {
                     print(error)
                 } else {
                     ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
-//                    postRef.updateData(["avgRating": avgRating])
                     print("rating added??")
                 }
             }
@@ -139,7 +136,7 @@ final class FireStore {
     }
     
     func getPostRatings(postOwner: String, postId: String, completion: @escaping ([RatingMan]) -> Void) {
-//        fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").getDocuments { (querySnapshot, error) in
+
         fs.collection("ratings")
             .whereField("postId", isEqualTo: postId)
             .getDocuments { (querySnapshot, error) in
@@ -162,13 +159,10 @@ final class FireStore {
     }
     
     func getPostAverageRatings(postId: String) async throws -> Decimal {
-//        print("owner: \(postOwner), post: \(postID)")
-//        let ratingsRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings")
+
         let queryRating = try await fs.collection("ratings")
             .whereField("postId", isEqualTo: postId)
             .getDocuments()
-//        let querySnapshot = try await ratingsRef.getDocuments()
-//        let postRef = fs.collection("posts").document(postId)
         
         guard !queryRating.documents.isEmpty else {
             print("empty rating docs")
@@ -184,14 +178,12 @@ final class FireStore {
         
         let avgRating = sum / Decimal(queryRating.documents.count)
         
-//        try await postRef.updateData(["avgRating": avgRating])
-//        print("avgRating: \(avgRating)")
         return avgRating
         
     }
         
-    func addUser(uid: String, email: String, username: String, /*posts: [String]*/) {
-        let newUser = User(uid: uid, email: email, username: username/*, posts: posts, ratedPosts: []*/)
+    func addUser(uid: String, email: String, username: String) {
+        let newUser = User(uid: uid, email: email, username: username)
         do {
             let userRef = fs.collection("users").document(uid)
             try userRef.setData(from: newUser) { error in
@@ -218,7 +210,7 @@ final class FireStore {
                 .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
                 .getDocuments()
             //                if let document = document, document.exists {
-            if snapshot.isEmpty {
+            if !snapshot.isEmpty {
                 print("Document exists")
             } else {
                 print("Document does not exist, adding rating")
