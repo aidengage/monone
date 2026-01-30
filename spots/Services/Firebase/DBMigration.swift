@@ -182,7 +182,7 @@ class DBMigration {
             print("\nSample post verification:")
             print("    Post ID: \(post.documentID)")
             print("    User ID: \(post.data()["userId"] ?? "missing")")
-            print("    Average Rating: \(post.data()["averageRating"] ?? "missing")")
+            print("    Average Rating: \(post.data()["avgRating"] ?? "missing")")
             print("    Rating Count: \(post.data()["ratingCount"] ?? "missing")")
         }
         

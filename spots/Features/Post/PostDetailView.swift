@@ -61,21 +61,21 @@ struct PostDetailView: View {
                     }
                     
                     // Description Card
-                    if !post.comment.isEmpty {
-                        InfoCard(
-                            icon: "text.alignleft",
-                            title: "Description",
-                            content: post.comment,
-                            iconColor: .blue
-                        )
-                    } else {
-                        InfoCard(
-                            icon: "text.alignleft",
-                            title: "bruh",
-                            content: "comment unavailable at this time, need to reorganize db",
-                            iconColor: .red
-                        )
-                    }
+//                    if !post.comment.isEmpty {
+//                        InfoCard(
+//                            icon: "text.alignleft",
+//                            title: "Description",
+//                            content: post.comment,
+//                            iconColor: .blue
+//                        )
+//                    } else {
+//                        InfoCard(
+//                            icon: "text.alignleft",
+//                            title: "bruh",
+//                            content: "comment unavailable at this time, need to reorganize db",
+//                            iconColor: .red
+//                        )
+//                    }
                     
                     // Coordinates Card
                     InfoCard(
@@ -100,7 +100,7 @@ struct PostDetailView: View {
                     if !post.docId.isEmpty {
                         Text("comments go here")
 //                        CommentCard(postID: post.docId, postOwner: post.userId)
-                        UserRatings(postID: post.docId, postOwner: post.userId)
+                        UserRatings(postId: post.docId, postOwner: post.userId)
                     }
                 }
                 .padding(.bottom, 30)
@@ -213,7 +213,7 @@ struct PhotoCard: View {
 }
 
 struct UserRatings: View {
-    let postID: String
+    let postId: String
     let postOwner: String
     @State var ratingsArray: [RatingMan] = []
     
@@ -227,7 +227,7 @@ struct UserRatings: View {
             }
         }
         .onAppear() {
-            Firebase.shared.getPostRatings(postOwner: postOwner, postID: postID) { loadedRatings in
+            Firebase.shared.getPostRatings(postOwner: postOwner, postId: postId) { loadedRatings in
                 DispatchQueue.main.async {
                     self.ratingsArray = loadedRatings
                 }

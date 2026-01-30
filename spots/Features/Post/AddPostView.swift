@@ -90,7 +90,7 @@ struct AddPostView: View {
                     } else {
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
-                        Firebase.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, comment: comment, coords: (xLoc: centerLat, yLoc: centerLong), selectedActivity: selectedActivty)
+                        Firebase.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, comment: comment, coords: (lat: centerLat, long: centerLong), selectedActivity: selectedActivty)
                         
                         // need to unwrap optional Data type imageData before passing as param
                         // this can be put into seperate upload() function at bottom but later

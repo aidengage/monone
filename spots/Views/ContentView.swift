@@ -23,8 +23,8 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             ZStack {
-//                MainMapView(centerLat: centerLat, centerLong: centerLong, path: $path)
-                FireMigrateButton()
+                MainMapView(centerLat: centerLat, centerLong: centerLong, path: $path)
+//                FireMigrateButton()
             }
 //            AddButton(path: $path, centerLat: centerLat, centerLong: centerLong)
         }
