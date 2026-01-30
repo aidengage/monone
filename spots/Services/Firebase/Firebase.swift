@@ -66,8 +66,8 @@ final class Firebase {
         store.addPostToRated(postID: postID)
     }
     
-    func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) async {
-        await store.addRatingToPost(postOwner: postOwner, postID: postID, userID: userID, rating: rating, comment: comment)
+    func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
+        await store.addRatingToPost(postOwner: postOwner, postId: postId, userId: userId, rating: rating, comment: comment)
     }
     
     func uploadImage(uuidArray: [String], data: [Data]) async throws {

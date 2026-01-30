@@ -84,15 +84,16 @@ final class FireStore {
     }
     
     func addPost(images: [String], name: String, address: String, rating: Decimal, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) {
+        let postId = UUID().uuidString
         
         let newPost = Post(images: images, name: name, address: address, rating: rating, comment: comment, latitude: coords.lat, longitude: coords.long, /*ratings: [],*/ userID: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
         
-        let newRating = Rating(user: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
+        let newRating = Rating(userId: Firebase.shared.getCurrentUserID(), postId: postId, rating: rating, comment: comment)
         
         do {
             // adding post to posts collection
 //            let postRef = fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").document()
-            let postRef = fs.collection("posts").document()
+            let postRef = fs.collection("posts").document(postId)
             try postRef.setData(from: newPost) { error in
                 if let error = error {
                     print(error)
@@ -143,7 +144,8 @@ final class FireStore {
             }
             let ratings = documents.compactMap { documents -> RatingMan? in
                 let data = documents.data()
-                return RatingMan(userID: data["user"] as? String ?? "",
+                return RatingMan(userId: data["userId"] as? String ?? "",
+                                 postId: data["postId"] as? String ?? "",
                                  rating: Decimal.init(data["rating"] as! Double),
                                  comment: data["comment"] as? String ?? ""
                 )
@@ -181,10 +183,13 @@ final class FireStore {
     func addUser(uid: String, email: String, username: String, /*posts: [String]*/) {
         let newUser = User(uid: uid, email: email, username: username/*, posts: posts, ratedPosts: []*/)
         do {
-            try fs.collection("users").document(uid).setData(from: newUser) { error in
+            let userRef = fs.collection("users").document(uid)
+            try userRef.setData(from: newUser) { error in
                 if let error = error {
                     print(error)
                 } else {
+                    // test this
+                    userRef.updateData(["createdAt": FieldValue.serverTimestamp()])
                     print("user added")
                 }
             }
@@ -193,8 +198,8 @@ final class FireStore {
         }
     }
         
-    func addRatingToPost(postOwner: String, postID: String, userID: String, rating: Decimal, comment: String) async {
-        let newRating = Rating(user: userID, rating: rating, comment: comment)
+    func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
+        let newRating = Rating(userId: userId, postId: postId, rating: rating, comment: comment)
         do {
 //            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document(Firebase.shared.getCurrentUserID())
             
@@ -209,7 +214,8 @@ final class FireStore {
                 print("Document does not exist, adding rating")
                 let ratingRef = fs.collection("ratings").document()
                 try ratingRef.setData(from: newRating)
-                self.addPostToRated(postID: postID)
+                try await ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
+//                self.addPostToRated(postID: postId)
             }
             
         } catch {

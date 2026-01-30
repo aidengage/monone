@@ -97,6 +97,7 @@ struct AddPostView: View {
                         // try catch is for async func
                         Task {
                             do {
+                                // need to make it so if the photos arent uploaded to firebase then the photo uuids shouldnt be added to the post
                                 try await Firebase.shared.uploadImage(uuidArray: imageUUIDs, data: imageData)
                             } catch {
                                 print("upload failed: \(error)")

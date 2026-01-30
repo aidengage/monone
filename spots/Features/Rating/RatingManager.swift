@@ -6,24 +6,29 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import FirebaseFirestore
 
 // codable rating obejct to send to firebase db
 struct Rating: Codable {
-    var user: String?
+    var userId: String?
+    var postId: String?
     var rating: Decimal?
     var comment: String?
 }
 
 // basic rating and comment for now
 class RatingMan: Identifiable {
-    let userID: String
+    let userId: String
+    let postId: String
     let rating: Decimal
     let comment: String
     
     // need to add things like photos and attaching song
     
-    init (userID: String, rating: Decimal, comment: String) {
-        self.userID = userID
+    init (userId: String, postId: String, rating: Decimal, comment: String) {
+        self.userId = userId
+        self.postId = postId
         self.rating = rating
         self.comment = comment
     }

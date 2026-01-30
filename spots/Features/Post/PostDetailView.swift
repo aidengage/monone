@@ -222,7 +222,7 @@ struct UserRatings: View {
             VStack {
                 Text("user ratings go here...")
                 ForEach(ratingsArray) { rating in
-                    CommentCard(rating: rating.rating, user: rating.userID, comment: rating.comment)
+                    CommentCard(rating: rating.rating, user: rating.userId, comment: rating.comment)
                 }
             }
         }
