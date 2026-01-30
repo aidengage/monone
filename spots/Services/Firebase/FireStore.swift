@@ -27,8 +27,7 @@ final class FireStore {
                     print("missing lat/long for post: \(documents.documentID)")
                     return nil
                 }
-//                let lat = data["latitude"] as! Double
-//                let long = data["longitude"] as! Double
+                
                 let coords = (lat, long)
                 
                 var ratingValue: Decimal
@@ -43,12 +42,9 @@ final class FireStore {
                 return PostMan(docId: documents.documentID,
                                userId: data["userId"] as? String ?? "",
                                title: data["name"] as? String ?? "",
-//                               comment: data["comment"] as? String ?? "",
                                images: data["images"] as? [String] ?? [],
-//                               coords: (data["latitude"] as? Double, data["longitude"] as? Double),
                                coords: coords,
                                address: data["address"] as? String ?? "",
-//                               rating: Decimal.init(data["avgRating"] as! Double),
                                rating: ratingValue,
                                selectedActivity: data["selectedActivity"] as? String ?? ""
                 )
@@ -58,7 +54,6 @@ final class FireStore {
     }
     
     func getUserPosts(completion: @escaping ([PostMan]) -> Void) {
-//        fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").getDocuments { (querySnapshot, error) in
         fs.collection("posts")
             .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID()).getDocuments() { (querySnapshot, error) in
                 
@@ -92,7 +87,6 @@ final class FireStore {
         
         do {
             // adding post to posts collection
-//            let postRef = fs.collection("users").document(Firebase.shared.getCurrentUserID()).collection("posts").document()
             let postRef = fs.collection("posts").document(postId)
             try postRef.setData(from: newPost) { error in
                 if let error = error {
@@ -203,13 +197,10 @@ final class FireStore {
     func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
         let newRating = Rating(userId: userId, postId: postId, rating: rating, comment: comment)
         do {
-//            let ratingRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings").document(Firebase.shared.getCurrentUserID())
-            
-//            let snapshot = try await ratingRef.getDocument() //{ (document, error) in
             let snapshot = try await fs.collection("ratings")
                 .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
                 .getDocuments()
-            //                if let document = document, document.exists {
+    
             if !snapshot.isEmpty {
                 print("Document exists")
             } else {
@@ -217,7 +208,6 @@ final class FireStore {
                 let ratingRef = fs.collection("ratings").document()
                 try ratingRef.setData(from: newRating)
                 try await ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
-//                self.addPostToRated(postID: postId)
             }
             
         } catch {

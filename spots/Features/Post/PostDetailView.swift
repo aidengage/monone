@@ -21,27 +21,23 @@ struct PostDetailView: View {
                     if !post.images.isEmpty {
                         PhotoCard(imageUUIDs: post.images)
                     }
-//                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(post.userId)
-                            Text(post.title)
-                                .font(.system(size: 32, weight: .bold))
-                                .foregroundColor(.primary)
+                    VStack(alignment: .leading) {
+                        Text(post.userId)
+                        Text(post.title)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 10)
+                    
+                    StarRatingViewStatic(rating: avgRating, numStars: 5)
+                    .task {
+                        do {
+                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.docId)
+                        } catch {
+                            print("error fetching avg rating in post detail view: \(error)")
                         }
-                        .padding(.horizontal, 10)
-    //                    .padding(.top, 20)
-                        
-                        StarRatingViewStatic(rating: avgRating, numStars: 5)
-                        .task {
-                            do {
-                                avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.docId)
-                            } catch {
-                                print("error fetching avg rating in post detail view: \(error)")
-                            }
-                        }
-//                    StarRatingViewStatic(rating: Firebase.shared.getPostAverageRatings(postOwner: post.userId, postID: post.docId), numStars: 5)
-                        .padding(.horizontal, 20)
-//                    }
+                    }
+                    .padding(.horizontal, 20)
                     
                     
                     // info cards to represent address, description, and coords

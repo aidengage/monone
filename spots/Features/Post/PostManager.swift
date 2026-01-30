@@ -21,7 +21,6 @@ struct Post: Codable {
     var comment: String?
     var latitude: Double?
     var longitude: Double?
-//    var ratings: [String?]
     var userId: String?
     var selectedActivity: String?
 }
@@ -30,25 +29,21 @@ class PostMan: Identifiable {
     let docId: String
     let userId: String
     let title: String
-//    let comment: String
     let images: [String]
     let coords: (Double, Double)
     let address: String
     let rating: Decimal
-//    let ratings: [Rating]
     let selectedActivity: String
     
     // initializes a post manager object
-    init(docId: String, userId: String, title: String, /*comment: String,*/ images: [String], coords: (Double, Double), address: String, rating: Decimal, selectedActivity: String) {
+    init(docId: String, userId: String, title: String, images: [String], coords: (Double, Double), address: String, rating: Decimal, selectedActivity: String) {
         self.docId = docId
         self.userId = userId
         self.title = title
-//        self.comment = comment
         self.images = images
         self.coords = coords
         self.address = address
         self.rating = rating
-//        self.ratings = []
         self.selectedActivity = selectedActivity
     }
     
