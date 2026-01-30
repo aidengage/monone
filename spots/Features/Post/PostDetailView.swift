@@ -34,7 +34,7 @@ struct PostDetailView: View {
                         StarRatingViewStatic(rating: avgRating, numStars: 5)
                         .task {
                             do {
-                                avgRating = try await Firebase.shared.getPostAverageRatings(postOwner: post.userId, postID: post.docId)
+                                avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.docId)
                             } catch {
                                 print("error fetching avg rating in post detail view: \(error)")
                             }

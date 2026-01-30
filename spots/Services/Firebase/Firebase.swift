@@ -42,8 +42,8 @@ final class Firebase {
         return store.getUserPosts(completion: completion)
     }
     
-    func addPost(images: [String], name: String, address: String, rating: Decimal, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) {
-        store.addPost(images: images, name: name, address: address, rating: rating, comment: comment, coords: (lat: coords.lat, long: coords.long), selectedActivity: selectedActivity)
+    func addPost(images: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
+        await store.addPost(images: images, name: name, address: address, rating: rating, ratingCount: ratingCount, comment: comment, coords: (lat: coords.lat, long: coords.long), selectedActivity: selectedActivity)
     }
     
     func addPostIDToUser(postID: String) {
@@ -54,8 +54,8 @@ final class Firebase {
         store.getPostRatings(postOwner: postOwner, postId: postId, completion: completion)
     }
     
-    func getPostAverageRatings(postOwner: String, postID: String) async throws -> Decimal {
-        return try await store.getPostAverageRatings(postOwner: postOwner, postID: postID)
+    func getPostAverageRatings(postId: String) async throws -> Decimal {
+        return try await store.getPostAverageRatings(postId: postId)
     }
     
     func addUser(uid: String, email: String, username: String, posts: [String]) {

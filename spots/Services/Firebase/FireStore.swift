@@ -83,10 +83,10 @@ final class FireStore {
         }
     }
     
-    func addPost(images: [String], name: String, address: String, rating: Decimal, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) {
+    func addPost(images: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
         let postId = UUID().uuidString
         
-        let newPost = Post(images: images, name: name, address: address, rating: rating, comment: comment, latitude: coords.lat, longitude: coords.long, /*ratings: [],*/ userID: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
+        let newPost = Post(images: images, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, /*ratings: [],*/ userId: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
         
         let newRating = Rating(userId: Firebase.shared.getCurrentUserID(), postId: postId, rating: rating, comment: comment)
         
@@ -108,14 +108,19 @@ final class FireStore {
             let ratingRef = fs.collection("ratings").document()
 //                .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
 //            let ratingRef = postRef.collection("ratings").document(Firebase.shared.getCurrentUserID())
+            
             try ratingRef.setData(from: newRating) { error in
+                
                 if let error = error {
                     print(error)
                 } else {
                     ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
+//                    postRef.updateData(["avgRating": avgRating])
                     print("rating added??")
                 }
             }
+            let avgRating = try await getPostAverageRatings(postId: postId)
+            try await postRef.updateData(["avgRating": avgRating])
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }
@@ -156,27 +161,30 @@ final class FireStore {
         }
     }
     
-    func getPostAverageRatings(postOwner: String, postID: String) async throws -> Decimal {
+    func getPostAverageRatings(postId: String) async throws -> Decimal {
 //        print("owner: \(postOwner), post: \(postID)")
 //        let ratingsRef = fs.collection("users").document(postOwner).collection("posts").document(postID).collection("ratings")
-        let querySnapshot = try await fs.collection("ratings")
-            .whereField("postId", isEqualTo: postID)
+        let queryRating = try await fs.collection("ratings")
+            .whereField("postId", isEqualTo: postId)
             .getDocuments()
 //        let querySnapshot = try await ratingsRef.getDocuments()
+//        let postRef = fs.collection("posts").document(postId)
         
-        guard !querySnapshot.documents.isEmpty else {
+        guard !queryRating.documents.isEmpty else {
             print("empty rating docs")
             return 0.0
         }
         
-        let sum = querySnapshot.documents.reduce(Decimal(0.0)) { partialResult, document in
+        let sum = queryRating.documents.reduce(Decimal(0.0)) { partialResult, document in
             if let rating = document.data()["rating"] as? Double {
                 return partialResult + Decimal(rating)
             }
             return partialResult
         }
         
-        let avgRating = sum / Decimal(querySnapshot.documents.count)
+        let avgRating = sum / Decimal(queryRating.documents.count)
+        
+//        try await postRef.updateData(["avgRating": avgRating])
 //        print("avgRating: \(avgRating)")
         return avgRating
         

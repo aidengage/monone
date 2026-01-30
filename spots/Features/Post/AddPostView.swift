@@ -25,6 +25,7 @@ struct AddPostView: View {
     @State var address: String = ""
     @State var imageURL: String = ""
     @State var rating: Decimal = 0.0
+    @State var ratingCount: Int = 0
     
     @State var imageData: [Data] = []
     @State var imageUUIDs: [String] = []
@@ -88,9 +89,13 @@ struct AddPostView: View {
                     if title.isEmpty || address.isEmpty || comment.isEmpty || /*rating == 0.0 ||*/ centerLat == 0.0 || centerLong == 0.0 || imageData == [] {
                         print("add every value to post")
                     } else {
+                        ratingCount += 1
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
-                        Firebase.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, comment: comment, coords: (lat: centerLat, long: centerLong), selectedActivity: selectedActivty)
+                        Task {
+                            await Firebase.shared.addPost(images: imageUUIDs, name: title, address: address, rating: rating, ratingCount: ratingCount, comment: comment, coords: (lat: centerLat, long: centerLong), selectedActivity: selectedActivty)
+                        }
+                        
                         
                         // need to unwrap optional Data type imageData before passing as param
                         // this can be put into seperate upload() function at bottom but later

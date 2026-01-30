@@ -17,12 +17,12 @@ struct Post: Codable {
     var images: [String?]
     var name: String?
     var address: String?
-    var rating: Decimal?
+    var ratingCount: Int?
     var comment: String?
     var latitude: Double?
     var longitude: Double?
 //    var ratings: [String?]
-    var userID: String?
+    var userId: String?
     var selectedActivity: String?
 }
 
