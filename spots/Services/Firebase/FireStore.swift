@@ -99,6 +99,7 @@ final class FireStore {
                     print(error)
                 } else {
 //                    self.addPostIDToUser(postID: postRef.documentID)
+                    postRef.updateData(["createdAt": FieldValue.serverTimestamp()])
                     print("doc added")
                 }
             }
@@ -111,6 +112,7 @@ final class FireStore {
                 if let error = error {
                     print(error)
                 } else {
+                    ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
                     print("rating added??")
                 }
             }
