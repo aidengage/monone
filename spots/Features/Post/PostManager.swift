@@ -13,20 +13,23 @@ import MapKit
 // still need to rework database for users/posts
 
 // codable user obejct to send to firebase database
-struct Post: Codable {
-    var images: [String?]
-    var name: String?
-    var address: String?
-    var ratingCount: Int?
-    var comment: String?
-    var latitude: Double?
-    var longitude: Double?
-    var userId: String?
-    var selectedActivity: String?
+struct Post: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let images: [String]
+    let name: String
+    let address: String
+    let ratingCount: Int
+    let latitude: Double
+    let longitude: Double
+    let avgRating: Decimal
+    let selectedActivity: String
+//    let createdAt: Date?
+//    let updatedAt: Date?
 }
 
-class PostMan: Identifiable {
-    let docId: String
+struct PostMan: Identifiable {
+    let id: String
     let userId: String
     let title: String
     let images: [String]
@@ -35,9 +38,20 @@ class PostMan: Identifiable {
     let rating: Decimal
     let selectedActivity: String
     
+    init(from post: Post) {
+        self.id = post.id
+        self.userId = post.userId
+        self.title = post.name
+        self.images = post.images
+        self.coords = (post.latitude, post.longitude)
+        self.address = post.address
+        self.rating = post.avgRating
+        self.selectedActivity = post.selectedActivity
+    }
+    
     // initializes a post manager object
     init(docId: String, userId: String, title: String, images: [String], coords: (Double, Double), address: String, rating: Decimal, selectedActivity: String) {
-        self.docId = docId
+        self.id = docId
         self.userId = userId
         self.title = title
         self.images = images

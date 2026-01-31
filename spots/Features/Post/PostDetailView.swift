@@ -32,7 +32,7 @@ struct PostDetailView: View {
                     StarRatingViewStatic(rating: avgRating, numStars: 5)
                     .task {
                         do {
-                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.docId)
+                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.id)
                         } catch {
                             print("error fetching avg rating in post detail view: \(error)")
                         }
@@ -93,10 +93,10 @@ struct PostDetailView: View {
                     
                     RateSpotView(post: post)
                     
-                    if !post.docId.isEmpty {
+                    if !post.id.isEmpty {
                         Text("comments go here")
 //                        CommentCard(postID: post.docId, postOwner: post.userId)
-                        UserRatings(postId: post.docId, postOwner: post.userId)
+                        UserRatings(postId: post.id, postOwner: post.userId)
                     }
                 }
                 .padding(.bottom, 30)
@@ -211,7 +211,7 @@ struct PhotoCard: View {
 struct UserRatings: View {
     let postId: String
     let postOwner: String
-    @State var ratingsArray: [RatingMan] = []
+    @State var ratingsArray: [Rating] = []
     
     var body: some View {
         ScrollView(.vertical) {

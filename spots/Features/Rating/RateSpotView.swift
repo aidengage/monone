@@ -18,7 +18,7 @@ struct RateSpotView: View {
                 Button(action: {
                     Task {
                         if Firebase.shared.getCurrentUserID() != "" {
-                            await Firebase.shared.addRatingToPost(postOwner: post.userId, postId: post.docId, userId: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
+                            await Firebase.shared.addRatingToPost(postOwner: post.userId, postId: post.id, userId: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
                         } else {
                             print("please login")
                         }

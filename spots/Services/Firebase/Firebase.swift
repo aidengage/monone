@@ -50,7 +50,7 @@ final class Firebase {
         store.addPostIDToUser(postID: postID)
     }
     
-    func getPostRatings(postOwner: String, postId: String, completion: @escaping ([RatingMan]) -> Void) {
+    func getPostRatings(postOwner: String, postId: String, completion: @escaping ([Rating]) -> Void) {
         store.getPostRatings(postOwner: postOwner, postId: postId, completion: completion)
     }
     

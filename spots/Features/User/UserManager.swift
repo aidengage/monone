@@ -9,30 +9,24 @@ import FirebaseCore
 import FirebaseFirestore
 
 // codable user obejct to send to firebase database
-struct User: Codable {
-    var uid: String?
-    var email: String?
-    var username: String?
-//    @ServerTimestamp var createdAt: Timestamp?
-//    var posts: [String?]
-//    var ratedPosts: [String?]
+struct User: Codable, Identifiable {
+    let id: String
+    let email: String
+    let username: String
+    let pfpUrl: String?
 }
 
 // not used yet but will be when we get user accounts
-class UserMan: Identifiable {
-    let userID: String
+struct UserMan {
+    let userId: String
     let email: String
     let username: String
-//    let createdAt: Timestamp
-//    let posts: [Post]
-//    let ratedPosts: [String]
+    let pfpUrl: String
     
-    init(userID: String, email: String, username: String/*, posts: [Post]*/) {
-        self.userID = userID
+    init(userId: String, email: String, username: String, pfpUrl: String) {
+        self.userId = userId
         self.email = email
         self.username = username
-//        self.createdAt = serverTimestamp()
-//        self.posts = posts
-//        self.ratedPosts = []
+        self.pfpUrl = pfpUrl
     }
 }

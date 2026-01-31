@@ -10,15 +10,16 @@ import FirebaseCore
 import FirebaseFirestore
 
 // codable rating obejct to send to firebase db
-struct Rating: Codable {
-    var userId: String?
-    var postId: String?
-    var rating: Decimal?
-    var comment: String?
+struct Rating: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let postId: String
+    let rating: Decimal
+    let comment: String
 }
 
 // basic rating and comment for now
-class RatingMan: Identifiable {
+struct RatingMan {
     let userId: String
     let postId: String
     let rating: Decimal

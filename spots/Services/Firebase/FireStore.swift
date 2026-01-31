@@ -81,9 +81,9 @@ final class FireStore {
     func addPost(images: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
         let postId = UUID().uuidString
         
-        let newPost = Post(images: images, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, /*ratings: [],*/ userId: Firebase.shared.getCurrentUserID(), selectedActivity: selectedActivity)
+        let newPost = Post(id: postId, userId: Firebase.shared.getCurrentUserID(), images: images, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, avgRating: rating, selectedActivity: selectedActivity)
         
-        let newRating = Rating(userId: Firebase.shared.getCurrentUserID(), postId: postId, rating: rating, comment: comment)
+        let newRating = Rating(id: UUID().uuidString, userId: Firebase.shared.getCurrentUserID(), postId: postId, rating: rating, comment: comment)
         
         do {
             // adding post to posts collection
@@ -99,7 +99,7 @@ final class FireStore {
             }
             
             // adding rating to ratings collection
-            let ratingRef = fs.collection("ratings").document()
+            let ratingRef = fs.collection("ratings").document(newRating.id)
             
             try ratingRef.setData(from: newRating) { error in
                 
@@ -111,7 +111,7 @@ final class FireStore {
                 }
             }
             let avgRating = try await getPostAverageRatings(postId: postId)
-            try await postRef.updateData(["avgRating": avgRating])
+//            try await postRef.updateData(["avgRating": avgRating])
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }
@@ -129,7 +129,7 @@ final class FireStore {
         userRef.updateData(["ratedPosts": FieldValue.arrayUnion([postID])])
     }
     
-    func getPostRatings(postOwner: String, postId: String, completion: @escaping ([RatingMan]) -> Void) {
+    func getPostRatings(postOwner: String, postId: String, completion: @escaping ([Rating]) -> Void) {
 
         fs.collection("ratings")
             .whereField("postId", isEqualTo: postId)
@@ -140,9 +140,10 @@ final class FireStore {
                 completion([])
                 return
             }
-            let ratings = documents.compactMap { documents -> RatingMan? in
+            let ratings = documents.compactMap { documents -> Rating? in
                 let data = documents.data()
-                return RatingMan(userId: data["userId"] as? String ?? "",
+                return Rating(id: documents.documentID,
+                                 userId: data["userId"] as? String ?? "",
                                  postId: data["postId"] as? String ?? "",
                                  rating: Decimal.init(data["rating"] as! Double),
                                  comment: data["comment"] as? String ?? ""
@@ -177,7 +178,7 @@ final class FireStore {
     }
         
     func addUser(uid: String, email: String, username: String) {
-        let newUser = User(uid: uid, email: email, username: username)
+        let newUser = User(id: uid, email: email, username: username, pfpUrl: "")
         do {
             let userRef = fs.collection("users").document(uid)
             try userRef.setData(from: newUser) { error in
@@ -195,7 +196,7 @@ final class FireStore {
     }
         
     func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
-        let newRating = Rating(userId: userId, postId: postId, rating: rating, comment: comment)
+        let newRating = Rating(id: UUID().uuidString, userId: userId, postId: postId, rating: rating, comment: comment)
         do {
             let snapshot = try await fs.collection("ratings")
                 .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
@@ -205,9 +206,13 @@ final class FireStore {
                 print("Document exists")
             } else {
                 print("Document does not exist, adding rating")
-                let ratingRef = fs.collection("ratings").document()
+                let ratingRef = fs.collection("ratings").document(newRating.id)
                 try ratingRef.setData(from: newRating)
                 try await ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
+                let postRef = fs.collection("posts").document(postId)
+//                    .whereField("postId", isEqualTo: postId)
+                try await postRef.updateData(["avgRating": Firebase.shared.getPostAverageRatings(postId: postId)])
+//                    .updateData(["avgRating": Firebase.shared.getPostAverageRatings(postId: postId)])
             }
             
         } catch {
