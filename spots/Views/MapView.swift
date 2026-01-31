@@ -9,6 +9,12 @@ import SwiftUI
 import MapKit
 import Combine
 
+struct MapView: View {
+    var body: some View {
+        
+    }
+}
+
 struct MainMapView: View {
     @State private var hasValidLocation = false
     @State private var hasCenteredOnUser = false
