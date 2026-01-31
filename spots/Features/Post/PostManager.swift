@@ -67,3 +67,7 @@ struct PostMan: Identifiable {
             .tint(.red)
     }
 }
+
+extension Firebase {
+    
+}
