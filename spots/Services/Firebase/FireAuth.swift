@@ -10,26 +10,26 @@ import FirebaseCore
 import FirebaseAuth
 
 final class FireAuth {
-    func getCurrentUserID() -> String {
-        let currentUser = Auth.auth().currentUser
-        let userID = currentUser?.uid ?? ""
-        return userID
-    }
+//    func getCurrentUserID() -> String {
+//        let currentUser = Auth.auth().currentUser
+//        let userID = currentUser?.uid ?? ""
+//        return userID
+//    }
     
-    func logout() {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("Error signing out: \(error.localizedDescription)")
-        }
-    }
+//    func logout() {
+//        do {
+//            try Auth.auth().signOut()
+//        } catch {
+//            print("Error signing out: \(error.localizedDescription)")
+//        }
+//    }
     
-    func getCurrentUser() -> FirebaseAuth.User? {
-        if Auth.auth().currentUser != nil {
-            return Auth.auth().currentUser
-        } else {
-            print("no current user")
-            return nil
-        }
-    }
+//    func getCurrentUser() -> FirebaseAuth.User? {
+//        if Auth.auth().currentUser != nil {
+//            return Auth.auth().currentUser
+//        } else {
+//            print("no current user")
+//            return nil
+//        }
+//    }
 }
