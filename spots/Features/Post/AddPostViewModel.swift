@@ -21,8 +21,6 @@ extension AddPostView {
         var imageData: [Data] = []
         var imageUUIDs: [String] = []
         var selectedActivty: String = "Smoke"
-        
-        
     }
     
     // all for reverse geocoding to get the nearest address to the coordinates

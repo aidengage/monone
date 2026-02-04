@@ -63,8 +63,10 @@ struct MapView: View {
                     }
                     // when map camera changes, update center coords with new center
                     .onMapCameraChange { mapCameraUpdateContext in
-                        viewModel.centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
-                        viewModel.centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                        viewModel.update(centerLat: mapCameraUpdateContext.camera.centerCoordinate.latitude)
+                        viewModel.update(centerLong: mapCameraUpdateContext.camera.centerCoordinate.longitude)
+//                        viewModel.centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+//                        viewModel.centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
                         print("\(viewModel.centerLat): \(viewModel.centerLong)")
                     }
                     

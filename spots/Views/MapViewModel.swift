@@ -37,6 +37,13 @@ extension MapView {
             )
         )
         
+        func update(centerLat: Double) {
+            self.centerLat = centerLat
+        }
+        
+        func update(centerLong: Double) {
+            self.centerLong = centerLong
+        }
         
         func cameraZoomOnPost(post: PostMan) {
             let targetLocation = CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)
