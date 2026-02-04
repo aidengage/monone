@@ -10,32 +10,33 @@ import MapKit
 import Combine
 
 extension MapView {
-    @Observable
-    class ViewModel {
-        @State private var hasValidLocation = false
-        @State private var hasCenteredOnUser = false
-        @State private var observersSetUp = false
+    @Observable class ViewModel {
+        var hasValidLocation = false
+        var hasCenteredOnUser = false
+        var observersSetUp = false
         
-        @State private var posts: [PostMan] = []
-        @State var selectedPost: PostMan? = nil
+        var posts: [PostMan] = []
+        var selectedPost: PostMan? = nil
         
-        @State var coordinates: (lat: Double, lon: Double) = (0,0)
-        @State var centerLat: Double
-        @State var centerLong: Double
+        var coordinates: (lat: Double, lon: Double) = (0,0)
+        var centerLat: Double = 0
+        var centerLong: Double = 0
         
-        @StateObject var deviceLocationService = DeviceLocationService.shared
-        @State var tokens: Set<AnyCancellable> = []
+        var deviceLocationService = DeviceLocationService.shared
+        var tokens: Set<AnyCancellable> = []
         
-        @Binding var path: NavigationPath
+        var path: NavigationPath = .init()
         
-        @State private var cameraPosition: MapCameraPosition = .region(
+        var cameraPosition: MapCameraPosition = .region(
             MKCoordinateRegion(
                 center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
                 span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
             )
         )
         
-        init() {}
+//        init() {
+//            
+//        }
         
         func cameraZoomOnPost(post: PostMan) {
             let targetLocation = CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)
@@ -64,14 +65,14 @@ extension MapView {
                     self.hasValidLocation = true
                     
                     // Center map on user's location the first time we get it
-                    if !hasCenteredOnUser {
-                        cameraPosition = .region(
+                    if !self.hasCenteredOnUser {
+                        self.cameraPosition = .region(
                             MKCoordinateRegion(
                                 center: coordinates,
                                 span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
                             )
                         )
-                        hasCenteredOnUser = true
+                        self.hasCenteredOnUser = true
                     }
                     
                 }
