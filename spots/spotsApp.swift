@@ -25,7 +25,7 @@ struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            ContentView(centerLat: 0.0, centerLong: 0.0)
+            ContentView()
         }
     }
 }
