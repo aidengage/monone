@@ -25,7 +25,10 @@ extension MapView {
         var deviceLocationService = DeviceLocationService.shared
         var tokens: Set<AnyCancellable> = []
         
-        var path: NavigationPath = .init()
+        // path was binding, probably need to make mutator?
+        // also change .init() to NavigationPath()?
+        // works rn so dont want to break it
+        var path: NavigationPath = NavigationPath()
         
         var cameraPosition: MapCameraPosition = .region(
             MKCoordinateRegion(
