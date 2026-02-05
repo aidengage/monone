@@ -15,8 +15,8 @@ extension MapView {
         var hasCenteredOnUser = false
         var observersSetUp = false
         
-        var posts: [PostMan] = []
-        var selectedPost: PostMan? = nil
+//        var posts: [PostMan] = []
+//        var selectedPost: PostMan? = nil
         
         var listenedToPosts: [Post] = []
         var listenedToSelectedPost: Post? = nil
