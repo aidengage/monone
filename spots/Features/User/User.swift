@@ -34,7 +34,7 @@ struct UserMan {
 
 extension Firebase {
     func getCurrentUserID() -> String {
-        let currentUser = Firebase.shared.getAuth().currentUser
+        let currentUser = getAuth().currentUser
         let userID = currentUser?.uid ?? ""
         return userID
     }
@@ -59,7 +59,7 @@ extension Firebase {
     func addUser(uid: String, email: String, username: String) {
         let newUser = User(id: uid, email: email, username: username, pfpUrl: "")
         do {
-            let userRef = Firebase.shared.getStore().collection("users").document(uid)
+            let userRef = getStore().collection("users").document(uid)
             try userRef.setData(from: newUser) { error in
                 if let error = error {
                     print(error)

@@ -85,7 +85,7 @@ struct PostMan: Identifiable {
 
 extension Firebase {
     func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
-        Firebase.shared.getStore().collection("posts").getDocuments { (querySnapshot, error) in
+        getStore().collection("posts").getDocuments { (querySnapshot, error) in
             guard let documents = querySnapshot?.documents else {
                 completion([])
                 return
@@ -127,7 +127,7 @@ extension Firebase {
     
     func getUserPosts(completion: @escaping ([PostMan]) -> Void) {
         Firebase.shared.getStore().collection("posts")
-            .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID()).getDocuments() { (querySnapshot, error) in
+            .whereField("userId", isEqualTo: getCurrentUserID()).getDocuments() { (querySnapshot, error) in
                 
             guard let documents = querySnapshot?.documents else {
                 completion([])
@@ -153,13 +153,13 @@ extension Firebase {
     func addPost(images: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
         let postId = UUID().uuidString
         
-        let newPost = Post(id: postId, userId: Firebase.shared.getCurrentUserID(), images: images, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, avgRating: rating, selectedActivity: selectedActivity)
+        let newPost = Post(id: postId, userId: getCurrentUserID(), images: images, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, avgRating: rating, selectedActivity: selectedActivity)
         
-        let newRating = Rating(id: UUID().uuidString, userId: Firebase.shared.getCurrentUserID(), postId: postId, rating: rating, comment: comment)
+        let newRating = Rating(id: UUID().uuidString, userId: getCurrentUserID(), postId: postId, rating: rating, comment: comment)
         
         do {
             // adding post to posts collection
-            let postRef = Firebase.shared.getStore().collection("posts").document(postId)
+            let postRef = getStore().collection("posts").document(postId)
             try postRef.setData(from: newPost) { error in
                 if let error = error {
                     print(error)
@@ -171,7 +171,7 @@ extension Firebase {
             }
             
             // adding rating to ratings collection
-            let ratingRef = Firebase.shared.getStore().collection("ratings").document(newRating.id)
+            let ratingRef = getStore().collection("ratings").document(newRating.id)
             
             try ratingRef.setData(from: newRating) { error in
                 

@@ -38,7 +38,7 @@ struct RatingMan {
 extension Firebase {
     func getPostRatings(postOwner: String, postId: String, completion: @escaping ([Rating]) -> Void) {
 
-        Firebase.shared.getStore().collection("ratings")
+        getStore().collection("ratings")
             .whereField("postId", isEqualTo: postId)
             .getDocuments { (querySnapshot, error) in
                 
@@ -62,7 +62,7 @@ extension Firebase {
     
     func getPostAverageRatings(postId: String) async throws -> Decimal {
 
-        let queryRating = try await Firebase.shared.getStore().collection("ratings")
+        let queryRating = try await getStore().collection("ratings")
             .whereField("postId", isEqualTo: postId)
             .getDocuments()
         
@@ -87,20 +87,20 @@ extension Firebase {
     func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
         let newRating = Rating(id: UUID().uuidString, userId: userId, postId: postId, rating: rating, comment: comment)
         do {
-            let snapshot = try await Firebase.shared.getStore().collection("ratings")
-                .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
+            let snapshot = try await getStore().collection("ratings")
+                .whereField("userId", isEqualTo: getCurrentUserID())
                 .getDocuments()
     
             if !snapshot.isEmpty {
                 print("Document exists")
             } else {
                 print("Document does not exist, adding rating")
-                let ratingRef = Firebase.shared.getStore().collection("ratings").document(newRating.id)
+                let ratingRef = getStore().collection("ratings").document(newRating.id)
                 try ratingRef.setData(from: newRating)
                 try await ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
-                let postRef = Firebase.shared.getStore().collection("posts").document(postId)
+                let postRef = getStore().collection("posts").document(postId)
 //                    .whereField("postId", isEqualTo: postId)
-                try await postRef.updateData(["avgRating": Firebase.shared.getPostAverageRatings(postId: postId)])
+                try await postRef.updateData(["avgRating": getPostAverageRatings(postId: postId)])
 //                    .updateData(["avgRating": Firebase.shared.getPostAverageRatings(postId: postId)])
             }
             
