@@ -18,6 +18,9 @@ extension MapView {
         var posts: [PostMan] = []
         var selectedPost: PostMan? = nil
         
+        var listenedToPosts: [Post] = []
+        var listenedToSelectedPost: Post? = nil
+        
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
         var centerLong: Double = 0
@@ -45,14 +48,14 @@ extension MapView {
             self.centerLong = centerLong
         }
         
-        func cameraZoomOnPost(post: PostMan) {
-            let targetLocation = CLLocationCoordinate2D(latitude: post.coords.0, longitude: post.coords.1)
+        func cameraZoomOnPost(post: Post) {
+            let targetLocation = CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)
             let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
             let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
     //        cameraPosition = .region(region)
             
             // hardcoded offset camera zoom that barely works
-            let offsetCenter = CLLocationCoordinate2D(latitude: post.coords.0 - 0.005, longitude: post.coords.1)
+            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.005, longitude: post.longitude)
             let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
             cameraPosition = .region(offsetRegion)
     //        return postView

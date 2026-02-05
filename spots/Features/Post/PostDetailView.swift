@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct PostDetailView: View {
-    let post: PostMan
+//    let post: PostMan
+    let listenedPost: Post
     @State private var avgRating: Decimal = 0.0
     
     var body: some View {
@@ -18,12 +19,15 @@ struct PostDetailView: View {
                 VStack {
                     // Title Section
                     // photo card view should display all photos horizontally
-                    if !post.images.isEmpty {
-                        PhotoCard(imageUUIDs: post.images)
+                    if !listenedPost.images.isEmpty {
+//                        PhotoCard(imageUUIDs: post.images)
+                        PhotoCard(imageUUIDs: listenedPost.images)
                     }
                     VStack(alignment: .leading) {
-                        Text(post.userId)
-                        Text(post.title)
+//                        Text(post.userId)
+                        Text(listenedPost.userId)
+//                        Text(post.title)
+                        Text(listenedPost.name)
                             .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.primary)
                     }
@@ -32,7 +36,8 @@ struct PostDetailView: View {
                     StarRatingViewStatic(rating: avgRating, numStars: 5)
                     .task {
                         do {
-                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.id)
+//                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.id)
+                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: listenedPost.id)
                         } catch {
                             print("error fetching avg rating in post detail view: \(error)")
                         }
@@ -47,11 +52,13 @@ struct PostDetailView: View {
                     
                     
                     
-                    if !post.address.isEmpty {
+//                    if !post.address.isEmpty {
+                    if !listenedPost.address.isEmpty {
                         InfoCard(
                             icon: "mappin.circle.fill",
                             title: "Address",
-                            content: post.address,
+//                            content: post.address,
+                            content: listenedPost.address,
                             iconColor: .red
                         )
                     }
@@ -77,26 +84,32 @@ struct PostDetailView: View {
                     InfoCard(
                         icon: "location.circle.fill",
                         title: "Location",
-                        content: String(format: "Lat: %.6f\nLon: %.6f", post.coords.0, post.coords.1),
+//                        content: String(format: "Lat: %.6f\nLon: %.6f", post.coords.0, post.coords.1),
+                        content: String(format: "Lat: %.6f\nLon: %.6f", listenedPost.latitude, listenedPost.longitude),
                         iconColor: .green
                     )
                     
-                    if !post.selectedActivity.isEmpty{
+//                    if !post.selectedActivity.isEmpty{
+                    if !listenedPost.selectedActivity.isEmpty{
                         InfoCard(
                             icon: "leaf",
                             title: "Type",
-                            content: post.selectedActivity,
+//                            content: post.selectedActivity,
+                            content: listenedPost.selectedActivity,
                             iconColor: .green
                         )
                     }
                     
                     
-                    RateSpotView(post: post)
+//                    RateSpotView(post: post)
+                    RateSpotView(listenedPost: listenedPost)
                     
-                    if !post.id.isEmpty {
+//                    if !post.id.isEmpty {
+                    if !listenedPost.id.isEmpty {
                         Text("comments go here")
 //                        CommentCard(postID: post.docId, postOwner: post.userId)
-                        UserRatings(postId: post.id, postOwner: post.userId)
+//                        UserRatings(postId: post.id, postOwner: post.userId)
+                        UserRatings(postId: listenedPost.id, postOwner: listenedPost.userId)
                     }
                 }
                 .padding(.bottom, 30)

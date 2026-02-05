@@ -11,12 +11,18 @@ import FirebaseStorage
 import FirebaseAuth
 import FirebaseFirestore
 
+@Observable
 final class Firebase {
     static let shared = Firebase()
     
     private let store = Firestore.firestore()
     private let auth = Auth.auth()
     private let storage = FireStorage()
+    
+    var posts: [Post] = []
+    var postListener: ListenerRegistration?
+    
+    private init() {}
     
     func getStore() -> Firestore {
         return store

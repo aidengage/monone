@@ -28,6 +28,19 @@ struct Post: Codable, Identifiable {
     let selectedActivity: String
 //    let createdAt: Date?
 //    let updatedAt: Date?
+    
+//    enum CodingKeys: String, CodingKey {
+//        case id
+//        case userId
+//        case images
+//        case name
+//        case address
+//        case ratingCount
+//        case latitude
+//        case longitude
+//        case avgRating
+//        case selectedActivity
+//    }
 }
 
 struct PostMan: Identifiable {
@@ -169,10 +182,54 @@ extension Firebase {
                     print("rating added??")
                 }
             }
-            let avgRating = try await getPostAverageRatings(postId: postId)
+//            let avgRating = try await getPostAverageRatings(postId: postId)
 //            try await postRef.updateData(["avgRating": avgRating])
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }
+    }
+    
+    func startPostListener() {
+        stopPostListener()
+        
+        postListener = getStore().collection("posts").addSnapshotListener { [weak self] (snapshot, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error getting documents: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("No posts found")
+                self.posts = []
+                return
+            }
+            
+            print("inside postlistener: \(documents.count)")
+            
+//            if let firstDoc = documents.first {
+//                print("doc id: \(firstDoc.documentID)")
+//                print("First document data: \(firstDoc.data())")
+//            }
+            
+            self.posts = documents.compactMap { document in
+                do {
+                    let post = try document.data(as: Post.self)
+                    print(post)
+//                    self.posts.append(post)
+                    return post
+                } catch {
+                    print("Error decoding document \(document.documentID): \(error)")
+                    return nil
+                }
+            }
+        }
+        print("post class listerner count: \(self.posts.count)")
+    }
+    
+    func stopPostListener() {
+        postListener?.remove()
+        postListener = nil
     }
 }
