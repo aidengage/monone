@@ -52,18 +52,22 @@ extension Firebase {
                 }
             }
             
-            // adding rating to ratings collection
-            let ratingRef = getStore().collection("ratings").document(newRating.id)
-            
-            try ratingRef.setData(from: newRating) { error in
+            // basically checks if the user actively rated the spot on creation or not
+            if newRating.comment != "" {
+                // adding rating to ratings collection
+                let ratingRef = getStore().collection("ratings").document(newRating.id)
                 
-                if let error = error {
-                    print(error)
-                } else {
-                    ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
-                    print("rating added??")
+                try ratingRef.setData(from: newRating) { error in
+                    
+                    if let error = error {
+                        print("error adding rating: \(error)")
+                    } else {
+                        ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
+                        print("rating added??")
+                    }
                 }
             }
+            
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }
@@ -76,7 +80,7 @@ extension Firebase {
             guard let self = self else { return }
             
             if let error = error {
-                print("Error getting documents: \(error)")
+                print("Error getting posts: \(error)")
                 return
             }
             

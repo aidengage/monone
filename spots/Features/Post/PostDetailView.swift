@@ -81,6 +81,12 @@ struct PostDetailView: View {
                 .padding(.bottom, 30)
             }
         }
+        .onAppear {
+            Firebase.shared.startRatingListener()
+        }
+        .onDisappear {
+            Firebase.shared.stopRatingListener()
+        }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
     }

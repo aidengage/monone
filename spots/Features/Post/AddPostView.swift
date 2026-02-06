@@ -88,10 +88,13 @@ struct AddPostView: View {
                     }
                 
                 Button(action: {
-                    if viewModel.title.isEmpty || viewModel.address.isEmpty || viewModel.comment.isEmpty || /*rating == 0.0 ||*/ viewModel.centerLat == 0.0 || viewModel.centerLong == 0.0 || viewModel.imageData == [] {
+                    if viewModel.title.isEmpty || viewModel.address.isEmpty || /*viewModel.comment.isEmpty ||*/ /*rating == 0.0 ||*/ viewModel.centerLat == 0.0 || viewModel.centerLong == 0.0 || viewModel.imageData == [] {
                         print("add every value to post")
                     } else {
-                        viewModel.ratingCount += 1
+                        if viewModel.comment != "" {
+                            viewModel.ratingCount += 1
+                        }
+                        
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
                         Task {
@@ -132,37 +135,4 @@ struct AddPostView: View {
             }
         }
     }
-    
-//    // all for reverse geocoding to get the nearest address to the coordinates
-//    // saving place information in place object/struct
-//    struct Place {
-//        let lat: Double
-//        let long: Double
-//        let name: String?
-//        let address: String
-//        
-//        init(from mapItem: MKMapItem) {
-//            self.lat = mapItem.location.coordinate.latitude
-//            self.long = mapItem.location.coordinate.longitude
-//            self.name = mapItem.name
-//            // changed fullAddress to shortAddress temporarily to avoid double names
-//            // need to work on how this shows up, want to show the actual address from the full address and the name specifically
-//            self.address = mapItem.address?.shortAddress ?? "Unknown Address"
-//        }
-//    }
-//    
-//    struct ReverseGeocoding {
-//        // gets address from coordinates
-//        func nearestAddress(location: CLLocation) async throws -> Place? {
-//            if let request = MKReverseGeocodingRequest(location: location) {
-//                let mapItems = try await request.mapItems
-//                return mapItems.first.map(Place.init)
-//            }
-//            return nil
-//        }
-//    }
-    
-//    #Preview {
-//        AddPostView()
-//    }
 }

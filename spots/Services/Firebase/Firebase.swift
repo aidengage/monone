@@ -22,6 +22,9 @@ final class Firebase {
     var posts: [Post] = []
     var postListener: ListenerRegistration?
     
+    var ratings: [Rating] = []
+    var ratingListener: ListenerRegistration?
+    
     private init() {}
     
     func getStore() -> Firestore {

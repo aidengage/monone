@@ -72,9 +72,11 @@ extension Firebase {
         do {
             let snapshot = try await getStore().collection("ratings")
                 .whereField("userId", isEqualTo: getCurrentUserID())
+                .whereField("postId", isEqualTo: postId)
                 .getDocuments()
     
             if !snapshot.isEmpty {
+//                print(snapshot)
                 print("Document exists")
             } else {
                 print("Document does not exist, adding rating")
@@ -91,5 +93,39 @@ extension Firebase {
             print("error creating doc: \(error.localizedDescription)")
         }
         
+    }
+    
+    func startRatingListener() {
+        stopRatingListener()
+        
+        ratingListener = getStore().collection("ratings").addSnapshotListener { [weak self] (snapshot, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("error getting ratings: \(error.localizedDescription)")
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("No ratings found")
+                self.ratings = []
+                return
+            }
+            
+            self.ratings = documents.compactMap { document in
+                do {
+                    let rating = try document.data(as: Rating.self)
+                    return rating
+                } catch {
+                    print("error decoding rating \(document.documentID): \(error.localizedDescription)")
+                    return nil
+                }
+            }
+        }
+        print("rating count in post: \(self.ratings.count)")
+    }
+    
+    func stopRatingListener() {
+        ratingListener?.remove()
+        ratingListener = nil
     }
 }
