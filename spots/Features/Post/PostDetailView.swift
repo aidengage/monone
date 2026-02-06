@@ -71,7 +71,7 @@ struct PostDetailView: View {
                     }
                     
                     
-                    RateSpotView(listenedPost: post)
+                    RateSpotView(post: post)
                     
                     if !post.id.isEmpty {
                         Text("comments go here")
