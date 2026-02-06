@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: Post
+    @Environment(\.dismiss) private var dismiss
     @State private var avgRating: Decimal = 0.0
     
     var body: some View {
@@ -28,6 +29,18 @@ struct PostDetailView: View {
                             .foregroundColor(.primary)
                     }
                     .padding(.horizontal, 10)
+                    
+                    if post.userId == Firebase.shared.getCurrentUserID() {
+                        Button(action: {
+                            Task {
+                                await Firebase.shared.deletePostBatch(postId: post.id)
+                            }
+                            dismiss()
+                        }) {
+                            Label("delete post", systemImage: "trash")
+                        }
+                        .buttonStyle(.glassProminent)
+                    }
                     
                     StarRatingViewStatic(rating: avgRating, numStars: 5)
                     .task {

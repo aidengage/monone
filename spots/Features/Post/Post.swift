@@ -73,6 +73,30 @@ extension Firebase {
         }
     }
     
+    func deletePost(postId: String) async {
+        do {
+            let batch = getStore().batch()
+            batch.deleteDocument(getStore().collection("posts").document(postId))
+            try await batch.commit()
+        } catch {
+            print("error deleting post: \(error.localizedDescription)")
+        }
+    }
+    
+    func deletePostBatch(postId: String) async {
+        await deleteRatingsOfPost(postId: postId/*, userId: getCurrentUserID()*/)
+        await deletePost(postId: postId)
+        
+//        getStore().collection("posts").document(postId).delete() { error in
+//            if let error = error {
+//                print("error deleting post: \(error)")
+//            } else {
+//                print("deleted post!")
+//            }
+//        }
+        
+    }
+    
     func startPostListener() {
         stopPostListener()
         

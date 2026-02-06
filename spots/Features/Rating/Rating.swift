@@ -95,6 +95,31 @@ extension Firebase {
         
     }
     
+    func deleteRatingsOfPost(postId: String/*, userId: String*/) async {
+        do {
+            let query = try await getStore().collection("ratings")
+                .whereField("postId", isEqualTo: postId)
+//                .whereField("userId", isEqualTo: userId)
+                .getDocuments()
+            
+            guard !query.documents.isEmpty else {
+                print("no ratings found")
+                return
+            }
+            
+            let batch = getStore().batch()
+            
+            for ratings in query.documents {
+                batch.deleteDocument(ratings.reference)
+            }
+            
+            try await batch.commit()
+            print("successfully deleted \(query.documents.count) ratings associated with post...")
+        } catch {
+            print("error deleting ratings: \(error.localizedDescription)")
+        }
+    }
+    
     func startRatingListener() {
         stopRatingListener()
         
