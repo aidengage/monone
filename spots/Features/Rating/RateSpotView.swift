@@ -7,8 +7,7 @@
 import SwiftUI
 
 struct RateSpotView: View {
-//    let post: PostMan
-    let listenedPost: Post
+    let post: Post
     @State var rating: Decimal = 0
     @State var comment: String = ""
     
@@ -19,7 +18,7 @@ struct RateSpotView: View {
                 Button(action: {
                     Task {
                         if Firebase.shared.getCurrentUserID() != "" {
-                            await Firebase.shared.addRatingToPost(postOwner: listenedPost.userId, postId: listenedPost.id, userId: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
+                            await Firebase.shared.addRatingToPost(postOwner: post.userId, postId: post.id, userId: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
                         } else {
                             print("please login")
                         }
