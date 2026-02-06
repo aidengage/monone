@@ -17,21 +17,6 @@ struct User: Codable, Identifiable {
     let pfpUrl: String?
 }
 
-// not used yet but will be when we get user accounts
-//struct UserMan {
-//    let userId: String
-//    let email: String
-//    let username: String
-//    let pfpUrl: String
-//    
-//    init(userId: String, email: String, username: String, pfpUrl: String) {
-//        self.userId = userId
-//        self.email = email
-//        self.username = username
-//        self.pfpUrl = pfpUrl
-//    }
-//}
-
 extension Firebase {
     func getCurrentUserID() -> String {
         let currentUser = getAuth().currentUser

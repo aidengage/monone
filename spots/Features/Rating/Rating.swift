@@ -18,23 +18,6 @@ struct Rating: Codable, Identifiable {
     let comment: String
 }
 
-// basic rating and comment for now
-//struct RatingMan {
-//    let userId: String
-//    let postId: String
-//    let rating: Decimal
-//    let comment: String
-//    
-//    // need to add things like photos and attaching song
-//    
-//    init (userId: String, postId: String, rating: Decimal, comment: String) {
-//        self.userId = userId
-//        self.postId = postId
-//        self.rating = rating
-//        self.comment = comment
-//    }
-//}
-
 extension Firebase {
     func getPostRatings(postOwner: String, postId: String, completion: @escaping ([Rating]) -> Void) {
 

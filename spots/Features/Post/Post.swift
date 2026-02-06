@@ -28,128 +28,11 @@ struct Post: Codable, Identifiable {
     let selectedActivity: String
 //    let createdAt: Date?
 //    let updatedAt: Date?
-    
-//    enum CodingKeys: String, CodingKey {
-//        case id
-//        case userId
-//        case images
-//        case name
-//        case address
-//        case ratingCount
-//        case latitude
-//        case longitude
-//        case avgRating
-//        case selectedActivity
-//    }
 }
 
-//struct PostMan: Identifiable {
-//    let id: String
-//    let userId: String
-//    let title: String
-//    let images: [String]
-//    let coords: (Double, Double)
-//    let address: String
-//    let rating: Decimal
-//    let selectedActivity: String
-//    
-//    init(from post: Post) {
-//        self.id = post.id
-//        self.userId = post.userId
-//        self.title = post.name
-//        self.images = post.images
-//        self.coords = (post.latitude, post.longitude)
-//        self.address = post.address
-//        self.rating = post.avgRating
-//        self.selectedActivity = post.selectedActivity
-//    }
-//    
-//    // initializes a post manager object
-//    init(docId: String, userId: String, title: String, images: [String], coords: (Double, Double), address: String, rating: Decimal, selectedActivity: String) {
-//        self.id = docId
-//        self.userId = userId
-//        self.title = title
-//        self.images = images
-//        self.coords = coords
-//        self.address = address
-//        self.rating = rating
-//        self.selectedActivity = selectedActivity
-//    }
-//    
-//    // creates marker at post coords
-//    func createMarkerForPost() -> some MapContent {
-//        return Marker(title, coordinate: CLLocationCoordinate2D(latitude: coords.0, longitude: coords.1))
-//            .tint(.red)
-//    }
-//}
 
 extension Firebase {
-//    func getAllPosts(completion: @escaping ([PostMan]) -> Void) {
-//        getStore().collection("posts").getDocuments { (querySnapshot, error) in
-//            guard let documents = querySnapshot?.documents else {
-//                completion([])
-//                return
-//            }
-//            
-//            let posts = documents.compactMap { documents -> PostMan? in
-//                let data = documents.data()
-//                
-//                guard let lat = data["latitude"] as? Double,
-//                      let long = data["longitude"] as? Double else {
-//                    print("missing lat/long for post: \(documents.documentID)")
-//                    return nil
-//                }
-//                
-//                let coords = (lat, long)
-//                
-//                var ratingValue: Decimal
-//                if let avgRating = data["averageRating"] as? Double {
-//                    ratingValue = Decimal(avgRating)
-//                } else if let avgRating = data["avgRating"] as? Double {
-//                    ratingValue = Decimal(avgRating)
-//                } else {
-//                    ratingValue = 0
-//                }
-//                
-//                return PostMan(docId: documents.documentID,
-//                               userId: data["userId"] as? String ?? "",
-//                               title: data["name"] as? String ?? "",
-//                               images: data["images"] as? [String] ?? [],
-//                               coords: coords,
-//                               address: data["address"] as? String ?? "",
-//                               rating: ratingValue,
-//                               selectedActivity: data["selectedActivity"] as? String ?? ""
-//                )
-//            }
-//            completion(posts)
-//        }
-//    }
-    
-//    func getUserPosts(completion: @escaping ([PostMan]) -> Void) {
-//        Firebase.shared.getStore().collection("posts")
-//            .whereField("userId", isEqualTo: getCurrentUserID()).getDocuments() { (querySnapshot, error) in
-//                
-//            guard let documents = querySnapshot?.documents else {
-//                completion([])
-//                return
-//            }
-//            let posts = documents.compactMap { documents -> PostMan? in
-//                let data = documents.data()
-//                return PostMan(docId: documents.documentID,
-//                               userId: data["userID"] as? String ?? "",
-//                               title: data["name"] as? String ?? "",
-////                               comment: data["comment"] as? String ?? "",
-//                               images: data["images"] as? [String] ?? [],
-//                               coords: (data["latitude"] as! Double, data["longitude"] as! Double),
-//                               address: data["address"] as? String ?? "",
-//                               rating: Decimal.init(data["rating"] as! Double),
-//                               selectedActivity: data["selectedActivity"] as? String ?? ""
-//                )
-//            }
-//            completion(posts)
-//        }
-//    }
-    
+
     func addPost(images: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
         let postId = UUID().uuidString
         
@@ -164,7 +47,6 @@ extension Firebase {
                 if let error = error {
                     print(error)
                 } else {
-//                    self.addPostIDToUser(postID: postRef.documentID)
                     postRef.updateData(["createdAt": FieldValue.serverTimestamp()])
                     print("doc added")
                 }
@@ -182,8 +64,6 @@ extension Firebase {
                     print("rating added??")
                 }
             }
-//            let avgRating = try await getPostAverageRatings(postId: postId)
-//            try await postRef.updateData(["avgRating": avgRating])
         } catch {
             print("error creating doc: \(error.localizedDescription)")
         }
@@ -208,16 +88,10 @@ extension Firebase {
             
             print("inside postlistener: \(documents.count)")
             
-//            if let firstDoc = documents.first {
-//                print("doc id: \(firstDoc.documentID)")
-//                print("First document data: \(firstDoc.data())")
-//            }
-            
             self.posts = documents.compactMap { document in
                 do {
                     let post = try document.data(as: Post.self)
-                    print(post)
-//                    self.posts.append(post)
+//                    print(post)
                     return post
                 } catch {
                     print("Error decoding document \(document.documentID): \(error)")

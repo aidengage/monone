@@ -15,9 +15,6 @@ extension MapView {
         var hasCenteredOnUser = false
         var observersSetUp = false
         
-//        var posts: [PostMan] = []
-//        var selectedPost: PostMan? = nil
-        
         var listenedToPosts: [Post] = []
         var listenedToSelectedPost: Post? = nil
         
@@ -28,9 +25,6 @@ extension MapView {
         var deviceLocationService = DeviceLocationService.shared
         var tokens: Set<AnyCancellable> = []
         
-        // path was binding, probably need to make mutator?
-        // also change .init() to NavigationPath()?
-        // works rn so dont want to break it
         var path: NavigationPath = NavigationPath()
         
         var cameraPosition: MapCameraPosition = .region(

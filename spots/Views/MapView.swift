@@ -31,8 +31,7 @@ struct MapView: View {
                             }
                         }
                         // looping through posts array and displaying them all on map with a clickable marker
-//                        ForEach(viewModel.posts.filter { $0.coords.0 != 0.0 && $0.coords.1 != 0.0 }) { post in
-                        ForEach(/*viewModel.listenedToPosts*/Firebase.shared.posts.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
+                        ForEach(Firebase.shared.posts.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
                             Annotation(post.name, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)) {
                                 Image(systemName: "mappin.circle.fill")
                                     .foregroundColor(.red)
@@ -49,13 +48,9 @@ struct MapView: View {
                     }
                     // loads posts when the map appears
                     .onAppear {
+                        // starts post listener
                         Firebase.shared.startPostListener()
-//                        Firebase.shared.getAllPosts { loadedPosts in
-//                            DispatchQueue.main.async {
-//                                viewModel.posts = loadedPosts
-//                            }
-//                        }
-                        print("mapview posts count: \(viewModel.listenedToPosts.count)")
+                        
                         // Set up location observers only once
                         if !viewModel.observersSetUp {
                             viewModel.observeCoordinateUpdates()
@@ -66,14 +61,13 @@ struct MapView: View {
                         viewModel.deviceLocationService.requestLocationUpdates()
                     }
                     .onDisappear {
+                        // stops post listener
                         Firebase.shared.stopPostListener()
                     }
                     // when map camera changes, update center coords with new center
                     .onMapCameraChange { mapCameraUpdateContext in
                         viewModel.update(centerLat: mapCameraUpdateContext.camera.centerCoordinate.latitude)
                         viewModel.update(centerLong: mapCameraUpdateContext.camera.centerCoordinate.longitude)
-//                        viewModel.centerLat = mapCameraUpdateContext.camera.centerCoordinate.latitude
-//                        viewModel.centerLong = mapCameraUpdateContext.camera.centerCoordinate.longitude
                         print("\(viewModel.centerLat): \(viewModel.centerLong)")
                     }
                     
@@ -105,7 +99,7 @@ struct MapView: View {
         .sheet(item: $viewModel.listenedToSelectedPost, onDismiss: {
             // camera zoom back out needs to be implemented
         }) { post in
-            PostDetailView(listenedPost: post)
+            PostDetailView(post: post)
                 .presentationDetents([.fraction(0.75)])
                 .task {
                     withAnimation(.easeInOut(duration: 0.7)) {
