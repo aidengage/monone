@@ -86,6 +86,7 @@ extension Firebase {
                 let postRef = getStore().collection("posts").document(postId)
 //                    .whereField("postId", isEqualTo: postId)
                 try await postRef.updateData(["avgRating": getPostAverageRatings(postId: postId)])
+                try await postRef.updateData(["ratingCount": FieldValue.increment(Int64(1))])
 //                    .updateData(["avgRating": Firebase.shared.getPostAverageRatings(postId: postId)])
             }
             
@@ -95,7 +96,7 @@ extension Firebase {
         
     }
     
-    func deleteRatingsOfPost(postId: String/*, userId: String*/) async {
+    func deleteRatingsOfPost(postId: String) async {
         do {
             let query = try await getStore().collection("ratings")
                 .whereField("postId", isEqualTo: postId)
@@ -120,10 +121,52 @@ extension Firebase {
         }
     }
     
-    func startRatingListener() {
+    func removeRatingFromPost(postId: String) async {
+        do {
+            let query = try await getStore().collection("ratings")
+                .whereField("postId", isEqualTo: postId)
+                .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
+                .getDocuments()
+            
+            let batch = getStore().batch()
+            
+            for rating in query.documents {
+                batch.deleteDocument(rating.reference)
+            }
+            
+            let postRef = getStore().collection("posts").document(postId)
+//            var ratingCountBeforeDel = -1
+//            postRef.getDocument { (document, error) in
+//                if let error = error {
+//                    print("error getting rating count with this error: \(error.localizedDescription)")
+//                    return
+//                }
+//                
+//                if let document = document, document.exists {
+//                    let data = document.data()
+//                    ratingCountBeforeDel = (data?["ratingCount"] as? Int) ?? 0
+//                    print("rating count found: \(ratingCountBeforeDel)")
+//                } else {
+//                    print("couldnt get rating count (value is -1 (default before check))")
+//                }
+//            }
+//            if ratingCountBeforeDel > 0 {
+//                batch.updateData(["ratingCount": ratingCountBeforeDel - 1], forDocument: postRef)
+//            }
+            batch.updateData(["ratingCount": FieldValue.increment(Int64(-1))], forDocument: postRef)
+            try await batch.commit()
+            print("successfully removed your rating from post...")
+        } catch {
+            print("error removing your rating from post: \(error.localizedDescription)")
+        }
+    }
+    
+    func startRatingListener(postId: String) {
         stopRatingListener()
         
-        ratingListener = getStore().collection("ratings").addSnapshotListener { [weak self] (snapshot, error) in
+        ratingListener = getStore().collection("ratings")
+            .whereField("postId", isEqualTo: postId)
+            .addSnapshotListener { [weak self] (snapshot, error) in
             guard let self = self else { return }
             
             if let error = error {

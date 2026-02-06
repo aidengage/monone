@@ -84,7 +84,7 @@ extension Firebase {
     }
     
     func deletePostBatch(postId: String) async {
-        await deleteRatingsOfPost(postId: postId/*, userId: getCurrentUserID()*/)
+        await deleteRatingsOfPost(postId: postId)
         await deletePost(postId: postId)
         
 //        getStore().collection("posts").document(postId).delete() { error in
@@ -114,7 +114,7 @@ extension Firebase {
                 return
             }
             
-            print("inside postlistener: \(documents.count)")
+//            print("inside postlistener: \(documents.count)")
             
             self.posts = documents.compactMap { document in
                 do {

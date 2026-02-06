@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: Post
+    // let ratings: [Rating]
     @Environment(\.dismiss) private var dismiss
     @State private var avgRating: Decimal = 0.0
     
@@ -88,14 +89,14 @@ struct PostDetailView: View {
                     
                     if !post.id.isEmpty {
                         Text("comments go here")
-                        UserRatings(postId: post.id, postOwner: post.userId)
+                        RatingCards(postId: post.id, postOwner: post.userId)
                     }
                 }
                 .padding(.bottom, 30)
             }
         }
         .onAppear {
-            Firebase.shared.startRatingListener()
+            Firebase.shared.startRatingListener(postId: post.id) // by post id
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
@@ -202,7 +203,7 @@ struct PhotoCard: View {
         
 }
 
-struct UserRatings: View {
+struct RatingCards: View {
     let postId: String
     let postOwner: String
     @State var ratingsArray: [Rating] = []
@@ -212,7 +213,8 @@ struct UserRatings: View {
             VStack {
                 Text("user ratings go here...")
                 ForEach(ratingsArray) { rating in
-                    CommentCard(rating: rating.rating, user: rating.userId, comment: rating.comment)
+//                    CommentCard(rating: rating.rating, user: rating.userId, comment: rating.comment)
+                    CommentCard(rating: rating)
                 }
             }
         }
@@ -227,16 +229,24 @@ struct UserRatings: View {
 }
 
 struct CommentCard: View {
-
-    var rating: Decimal
-    var user: String
-    var comment: String
+    var rating: Rating
+//    var rating: Decimal
+//    var user: String
+//    var comment: String
     
     var body: some View {
         VStack {
-            Text(user)
-            StarRatingViewStatic(rating: rating, numStars: 5)
-            Text(comment)
+            Text(rating.userId)
+            Button(action: {
+                Task {
+                    try await Firebase.shared.removeRatingFromPost(postId: rating.postId)
+                }
+            }) {
+                Label("delete rating", systemImage: "trash")
+            }
+            .buttonStyle(.glassProminent)
+            StarRatingViewStatic(rating: rating.rating, numStars: 5)
+            Text(rating.comment)
         }
         .padding(20)
         .background(Color(.systemBackground))
