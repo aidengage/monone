@@ -91,9 +91,9 @@ struct AddPostView: View {
                     if viewModel.title.isEmpty || viewModel.address.isEmpty || /*viewModel.comment.isEmpty ||*/ /*rating == 0.0 ||*/ viewModel.centerLat == 0.0 || viewModel.centerLong == 0.0 || viewModel.imageData == [] {
                         print("add every value to post")
                     } else {
-                        if viewModel.comment != "" {
-                            viewModel.ratingCount += 1
-                        }
+//                        if viewModel.comment != "" {
+//                            viewModel.ratingCount += 1
+//                        }
                         
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class

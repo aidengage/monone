@@ -97,6 +97,7 @@ struct PostDetailView: View {
         }
         .onAppear {
             Firebase.shared.startRatingListener(postId: post.id) // by post id
+            // also start single post listener?
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
@@ -212,7 +213,7 @@ struct RatingCards: View {
         ScrollView(.vertical) {
             VStack {
                 Text("user ratings go here...")
-                ForEach(ratingsArray) { rating in
+                ForEach(Firebase.shared.ratings) { rating in
 //                    CommentCard(rating: rating.rating, user: rating.userId, comment: rating.comment)
                     CommentCard(rating: rating)
                 }
@@ -237,14 +238,16 @@ struct CommentCard: View {
     var body: some View {
         VStack {
             Text(rating.userId)
-            Button(action: {
-                Task {
-                    try await Firebase.shared.removeRatingFromPost(postId: rating.postId)
+            if rating.userId == Firebase.shared.getCurrentUserID() {
+                Button(action: {
+                    Task {
+                        await Firebase.shared.removeRatingFromPost(postId: rating.postId)
+                    }
+                }) {
+                    Label("delete rating", systemImage: "trash")
                 }
-            }) {
-                Label("delete rating", systemImage: "trash")
+                .buttonStyle(.glassProminent)
             }
-            .buttonStyle(.glassProminent)
             StarRatingViewStatic(rating: rating.rating, numStars: 5)
             Text(rating.comment)
         }

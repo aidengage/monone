@@ -15,7 +15,7 @@ extension MapView {
         var hasCenteredOnUser = false
         var observersSetUp = false
         
-        var listenedToPosts: [Post] = []
+//        var listenedToPosts: [Post] = []
         var listenedToSelectedPost: Post? = nil
         
         var coordinates: (lat: Double, lon: Double) = (0,0)

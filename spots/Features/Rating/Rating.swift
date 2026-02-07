@@ -67,6 +67,18 @@ extension Firebase {
         
     }
     
+    func updateAvgRating(postId: String) async {
+        do {
+            let avgRating = try await getPostAverageRatings(postId: postId)
+            let postRef = getStore().collection("posts").document(postId)
+            try await postRef.updateData(["avgRating": avgRating])
+        } catch {
+            print("error handling average rating: \(error)")
+        }
+        
+        
+    }
+    
     func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
         let newRating = Rating(id: UUID().uuidString, userId: userId, postId: postId, rating: rating, comment: comment)
         do {
@@ -85,7 +97,9 @@ extension Firebase {
                 try await ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
                 let postRef = getStore().collection("posts").document(postId)
 //                    .whereField("postId", isEqualTo: postId)
-                try await postRef.updateData(["avgRating": getPostAverageRatings(postId: postId)])
+//                try await postRef.updateData(["avgRating": getPostAverageRatings(postId: postId)])
+                await updateAvgRating(postId: postId)
+                
                 try await postRef.updateData(["ratingCount": FieldValue.increment(Int64(1))])
 //                    .updateData(["avgRating": Firebase.shared.getPostAverageRatings(postId: postId)])
             }
@@ -155,6 +169,7 @@ extension Firebase {
 //            }
             batch.updateData(["ratingCount": FieldValue.increment(Int64(-1))], forDocument: postRef)
             try await batch.commit()
+            await updateAvgRating(postId: postId)
             print("successfully removed your rating from post...")
         } catch {
             print("error removing your rating from post: \(error.localizedDescription)")
