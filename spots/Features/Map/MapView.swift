@@ -95,7 +95,7 @@ struct MapView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
-                    ProfileButton()
+                    ProfileButton(profileToggle: viewModel.profileToggle)
                 }
             }
         }

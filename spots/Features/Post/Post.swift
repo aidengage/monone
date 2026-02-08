@@ -168,6 +168,35 @@ extension Firebase {
             }
         }
     }
+    
+    func startUserPostListener(userId: String) {
+        stopPostListener()
+        
+        postListener = getStore().collection("posts").whereField("userId", isEqualTo: userId).addSnapshotListener { [weak self] (snapshot, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error getting posts: \(error)")
+                return
+            }
+                
+            guard let documents = snapshot?.documents else {
+                print("no user posts found")
+                self.posts = []
+                return
+            }
+                
+            self.posts = documents.compactMap { document in
+                do {
+                    let post = try document.data(as: Post.self)
+                    return post
+                } catch {
+                    print("error finding user (\(userId) documents: \(error)")
+                    return nil
+                }
+            }
+        }
+    }
 
     
     func startPostListener() {
@@ -200,7 +229,7 @@ extension Firebase {
                 }
             }
         }
-        print("post class listerner count: \(self.posts.count)")
+//        print("post class listerner count: \(self.posts.count)")
     }
     
     func stopPostListener() {

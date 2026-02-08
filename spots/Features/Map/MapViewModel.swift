@@ -23,6 +23,7 @@ extension MapView {
 //        var post: Post = Post()
         
         var selectedPost: Post?
+        var profileToggle: Bool = false
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
