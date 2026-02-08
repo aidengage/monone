@@ -28,6 +28,32 @@ struct Post: Codable, Identifiable {
     let selectedActivity: String
 //    let createdAt: Date?
 //    let updatedAt: Date?
+    
+    init(id: String, userId: String, images: [String], name: String, address: String, ratingCount: Int, latitude: Double, longitude: Double, avgRating: Decimal, selectedActivity: String) {
+        self.id = id
+        self.userId = userId
+        self.images = images
+        self.name = name
+        self.address = address
+        self.ratingCount = ratingCount
+        self.latitude = latitude
+        self.longitude = longitude
+        self.avgRating = avgRating
+        self.selectedActivity = selectedActivity
+    }
+    
+    init() {
+        self.id = "Post ID loading..."
+        self.userId = "User ID loading..."
+        self.images = []
+        self.name = "Name loading..."
+        self.address = "Address loading..."
+        self.ratingCount = 0
+        self.latitude = 0
+        self.longitude = 0
+        self.avgRating = 0
+        self.selectedActivity = "Activity loading..."
+    }
 }
 
 
@@ -86,16 +112,63 @@ extension Firebase {
     func deletePostBatch(postId: String) async {
         await deleteRatingsOfPost(postId: postId)
         await deletePost(postId: postId)
-        
-//        getStore().collection("posts").document(postId).delete() { error in
+    }
+    
+//    func startPostListenerById(postId: String) {
+//        Firebase.shared.stopPostListener()
+//        
+//        postListener = Firebase.shared.getStore().collection("posts")
+//            .whereField("postId", isEqualTo: postId)
+//            .addSnapshotListener { [weak self] (snapshot, error) in
+//            guard let self = self else { return }
+//            
 //            if let error = error {
-//                print("error deleting post: \(error)")
-//            } else {
-//                print("deleted post!")
+//                print("Error getting post: \(error.localizedDescription)")
+//                return
+//            }
+//            
+//            guard let documents = snapshot?.documents else {
+//                print("No post found")
+//                self.posts = []
+//                return
+//            }
+//            
+//            self.posts = documents.compactMap { document in
+//                do {
+//                    let post = try document.data(as: Post.self)
+////                    print(post)
+//                    return post
+//                } catch {
+//                    print("Error decoding document \(document.documentID): \(error)")
+//                    return nil
+//                }
 //            }
 //        }
-        
+//    }
+    func startPostListenerById(postId: String) {
+        Firebase.shared.stopPostListener()
+
+        Firebase.shared.postListener = Firebase.shared.getStore().collection("posts").document(postId).addSnapshotListener { [weak self] (snapshot, error) in
+            guard let self = self else { return }
+
+            if let error = error {
+                print("Error getting post: \(error.localizedDescription)")
+                return
+            }
+
+            guard let document = snapshot else {
+                print("No post found")
+                return
+            }
+
+            do {
+                self.post = try document.data(as: Post.self)
+            } catch {
+                print("error decoding post: \(error.localizedDescription)")
+            }
+        }
     }
+
     
     func startPostListener() {
         stopPostListener()

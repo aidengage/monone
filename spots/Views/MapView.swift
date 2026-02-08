@@ -41,7 +41,8 @@ struct MapView: View {
                                     .onTapGesture {
                                         // once user taps, state of selectedPost changes
 //                                        viewModel.selectedPost = post
-                                        viewModel.listenedToSelectedPost = post
+                                        viewModel.selectedPost = post
+//                                        viewModel.startPostListenerById(postId: post.id)
                                     }
                             }
                         }
@@ -96,16 +97,19 @@ struct MapView: View {
         }
    
         }
-        .sheet(item: $viewModel.listenedToSelectedPost, onDismiss: {
+        .sheet(item: $viewModel.selectedPost, onDismiss: {
             // camera zoom back out needs to be implemented
         }) { post in
-            PostDetailView(post: post)
+            PostDetailView(post: post /*, ratings: Firebase.shared.ratings*/)
                 .presentationDetents([.fraction(0.75)])
                 .task {
                     withAnimation(.easeInOut(duration: 0.7)) {
-                        viewModel.cameraZoomOnPost(post: viewModel.listenedToSelectedPost!)
+                        viewModel.cameraZoomOnPost(post: post/*viewModel.selectedPost!*/)
                     }
                 }
         }
+//        .onAppear() {
+//            viewModel.startRatingListener(postId: viewModel.post.id)
+//        }
     }
 }

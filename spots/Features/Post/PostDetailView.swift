@@ -9,9 +9,11 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: Post
-    // let ratings: [Rating]
+//    var ratings: [Rating] = []
+//     let ratings: [Rating]
+//    @State var viewModel = ViewModel()
     @Environment(\.dismiss) private var dismiss
-    @State private var avgRating: Decimal = 0.0
+//    @State private var avgRating: Decimal = 0.0
     
     var body: some View {
         ScrollView {
@@ -43,14 +45,14 @@ struct PostDetailView: View {
                         .buttonStyle(.glassProminent)
                     }
                     
-                    StarRatingViewStatic(rating: avgRating, numStars: 5)
-                    .task {
-                        do {
-                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.id)
-                        } catch {
-                            print("error fetching avg rating in post detail view: \(error)")
-                        }
-                    }
+                    StarRatingViewStatic(rating: Firebase.shared.post.avgRating/*avgRating*/, numStars: 5)
+//                    .task {
+//                        do {
+//                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.id)
+//                        } catch {
+//                            print("error fetching avg rating in post detail view: \(error)")
+//                        }
+//                    }
                     .padding(.horizontal, 20)
                     
                     
@@ -89,22 +91,27 @@ struct PostDetailView: View {
                     
                     if !post.id.isEmpty {
                         Text("comments go here")
-                        RatingCards(postId: post.id, postOwner: post.userId)
+                        RatingCards(ratings: Firebase.shared.ratings)
                     }
                 }
                 .padding(.bottom, 30)
             }
         }
         .onAppear {
-            Firebase.shared.startRatingListener(postId: post.id) // by post id
+//            Firebase.shared.startRatingListener(postId: post.id) // by post id
             // also start single post listener?
+            Firebase.shared.startPostListenerById(postId: post.id)
+            Firebase.shared.startRatingListener(postId: post.id)
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
+            Firebase.shared.stopPostListener()
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
     }
+    
+    
 }
 
 // info card template used for each individual aspect of the post
@@ -205,27 +212,28 @@ struct PhotoCard: View {
 }
 
 struct RatingCards: View {
-    let postId: String
-    let postOwner: String
-    @State var ratingsArray: [Rating] = []
+//    let postId: String
+//    let postOwner: String
+    var ratings: [Rating]
+//    @State var ratingsArray: [Rating] = []
     
     var body: some View {
         ScrollView(.vertical) {
             VStack {
                 Text("user ratings go here...")
-                ForEach(Firebase.shared.ratings) { rating in
+                ForEach(ratings) { rating in
 //                    CommentCard(rating: rating.rating, user: rating.userId, comment: rating.comment)
                     CommentCard(rating: rating)
                 }
             }
         }
-        .onAppear() {
-            Firebase.shared.getPostRatings(postOwner: postOwner, postId: postId) { loadedRatings in
-                DispatchQueue.main.async {
-                    self.ratingsArray = loadedRatings
-                }
-            }
-        }
+//        .onAppear() {
+//            Firebase.shared.getPostRatings(postOwner: postOwner, postId: postId) { loadedRatings in
+//                DispatchQueue.main.async {
+//                    self.ratingsArray = loadedRatings
+//                }
+//            }
+//        }
     }
 }
 

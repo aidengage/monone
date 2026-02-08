@@ -149,25 +149,9 @@ extension Firebase {
             }
             
             let postRef = getStore().collection("posts").document(postId)
-//            var ratingCountBeforeDel = -1
-//            postRef.getDocument { (document, error) in
-//                if let error = error {
-//                    print("error getting rating count with this error: \(error.localizedDescription)")
-//                    return
-//                }
-//                
-//                if let document = document, document.exists {
-//                    let data = document.data()
-//                    ratingCountBeforeDel = (data?["ratingCount"] as? Int) ?? 0
-//                    print("rating count found: \(ratingCountBeforeDel)")
-//                } else {
-//                    print("couldnt get rating count (value is -1 (default before check))")
-//                }
-//            }
-//            if ratingCountBeforeDel > 0 {
-//                batch.updateData(["ratingCount": ratingCountBeforeDel - 1], forDocument: postRef)
-//            }
+            
             batch.updateData(["ratingCount": FieldValue.increment(Int64(-1))], forDocument: postRef)
+            
             try await batch.commit()
             await updateAvgRating(postId: postId)
             print("successfully removed your rating from post...")
@@ -197,6 +181,7 @@ extension Firebase {
             self.ratings = documents.compactMap { document in
                 do {
                     let rating = try document.data(as: Rating.self)
+//                    print(rating)
                     return rating
                 } catch {
                     print("error decoding rating \(document.documentID): \(error.localizedDescription)")
