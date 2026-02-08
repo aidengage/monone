@@ -83,8 +83,7 @@ struct MapView: View {
         .toolbar {
             // creates a toolbar to logout of account
             ToolbarItem(placement: .navigationBarTrailing) {
-                let currentUser = Firebase.shared.getCurrentUser()
-                if currentUser != nil {
+                if Firebase.shared.getCurrentUser() != nil {
                     Button(action: {
                         Firebase.shared.logout()
                     }) {
@@ -92,6 +91,11 @@ struct MapView: View {
                     }
                 } else {
                     //change button visibility to false
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if Firebase.shared.getCurrentUser() != nil {
+                    ProfileButton()
                 }
             }
         }
