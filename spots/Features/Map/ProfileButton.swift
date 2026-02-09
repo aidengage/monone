@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct ProfileButton: View {
-    @State var profileToggle: Bool
+    @Binding var profileToggle: Bool
     var body: some View {
         Button(action: {
             if !profileToggle {
                 profileToggle = true
 //                profileToggle = false
+                print("profile button clicked, starting user post listener")
                 Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
             } else {
                 profileToggle = false
 //                profileToggle = true
+                print("profile button clicked, starting post listener")
                 Firebase.shared.startPostListener()
             }
         }) {

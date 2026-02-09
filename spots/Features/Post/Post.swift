@@ -170,6 +170,7 @@ extension Firebase {
                 startPostListener()
             }
         }
+//        print("starting single post listener")
     }
     
     func startUserPostListener(userId: String) {
@@ -199,6 +200,7 @@ extension Firebase {
                 }
             }
         }
+//        print("starting user post listener")
     }
 
     
@@ -224,7 +226,6 @@ extension Firebase {
             self.posts = documents.compactMap { document in
                 do {
                     let post = try document.data(as: Post.self)
-//                    print(post)
                     return post
                 } catch {
                     print("Error decoding document \(document.documentID): \(error)")
@@ -232,6 +233,7 @@ extension Firebase {
                 }
             }
         }
+//        print("starting post listener")
 //        print("post class listerner count: \(self.posts.count)")
     }
     

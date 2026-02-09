@@ -50,7 +50,16 @@ struct MapView: View {
                     // loads posts when the map appears
                     .onAppear {
                         // starts post listener
-                        Firebase.shared.startPostListener()
+                        print("map appeared, starting post listener")
+                        print("profile toggle: \(viewModel.profileToggle)")
+//                        Firebase.shared.startPostListener()
+                        
+                        if !viewModel.profileToggle {
+                            Firebase.shared.startPostListener()
+                        } else {
+                            Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                        }
+                        
                         
                         // Set up location observers only once
                         if !viewModel.observersSetUp {
@@ -95,7 +104,7 @@ struct MapView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
-                    ProfileButton(profileToggle: viewModel.profileToggle)
+                    ProfileButton(profileToggle: $viewModel.profileToggle)
                 }
             }
         }
@@ -103,6 +112,11 @@ struct MapView: View {
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             // camera zoom back out needs to be implemented
+//            if !viewModel.profileToggle {
+//                Firebase.shared.startPostListener()
+//            } else {
+//                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+//            }
         }) { post in
             PostDetailView(post: post /*, ratings: Firebase.shared.ratings*/)
                 .presentationDetents([.fraction(0.75)])
