@@ -104,6 +104,7 @@ extension Firebase {
             let batch = getStore().batch()
             batch.deleteDocument(getStore().collection("posts").document(postId))
             try await batch.commit()
+//            startPostListener()
         } catch {
             print("error deleting post: \(error.localizedDescription)")
         }
@@ -164,7 +165,9 @@ extension Firebase {
             do {
                 self.post = try document.data(as: Post.self)
             } catch {
-                print("error decoding post: \(error.localizedDescription)")
+                print("error decoding post (\(postId)): \(error.localizedDescription)")
+                print("because it was deleted")
+                startPostListener()
             }
         }
     }
