@@ -17,7 +17,7 @@ final class Firebase {
     
     private let store = Firestore.firestore()
     private let auth = Auth.auth()
-    private let storage = FireStorage()
+    let storage = FireStorage()
     
     var posts: [Post] = []
     var postListener: ListenerRegistration?
@@ -26,6 +26,28 @@ final class Firebase {
     var ratingListener: ListenerRegistration?
     
     private init() {}
+    
+    enum ImageFormat {
+        case jpeg(compressionQuality: CGFloat)
+        case png
+        case heic
+        
+        var fileExtension: String {
+            switch self {
+            case .jpeg: return ".jpg"
+            case .png: return ".png"
+            case .heic: return ".heic"
+            }
+        }
+        
+        var mimeType: String {
+            switch self {
+            case .jpeg: return "image/jpeg"
+            case .png: return "image/png"
+            case .heic: return "image/heic"
+            }
+        }
+    }
     
     func getStore() -> Firestore {
         return store

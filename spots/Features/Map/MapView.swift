@@ -98,6 +98,7 @@ struct MapView: View {
                     }) {
                         Label("Logout", systemImage: "arrow.right.square")
                     }
+                    .buttonStyle(.glassProminent)
                 } else {
                     //change button visibility to false
                 }
@@ -105,6 +106,11 @@ struct MapView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
                     ProfileButton(profileToggle: $viewModel.profileToggle)
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if Firebase.shared.getCurrentUser() != nil {
+                    FeedbackButton(path: $viewModel.path)
                 }
             }
         }
