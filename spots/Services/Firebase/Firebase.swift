@@ -24,6 +24,8 @@ final class Firebase {
     var post: Post = Post() // broke
     var ratings: [Rating] = []
     var ratingListener: ListenerRegistration?
+    var feedbacks: [Feedback] = []
+    var feedbackListener: ListenerRegistration?
     
     private init() {}
     

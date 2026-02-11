@@ -24,7 +24,7 @@ struct Feedback: Codable, Identifiable {
     let appBuild: String
     
     let feedbackType: FeedbackType
-//    let status: FeedbackStatus
+    let status: FeedbackStatus
 }
 
 enum FeedbackType: String, Codable {
@@ -37,12 +37,56 @@ enum FeedbackType: String, Codable {
 
 enum FeedbackStatus: String, Codable {
     case open = "open"
-    case resolved = "resolved"
+    case resolved = "closed"
     case archived = "archived"
     case duplicate = "duplicate"
 }
 
 extension Firebase {
+    
+    func startFeedbackListener(userId: String) {
+        Firebase.shared.stopFeedbackListener()
+        
+        if getCurrentUser() != nil {
+            
+            Firebase.shared.feedbackListener = Firebase.shared.getStore().collection("feedback")
+                .whereField("userId", isEqualTo: userId)
+                .addSnapshotListener { [weak self] (snapshot, error) in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("Error getting feedback: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let documents = snapshot?.documents else {
+                    print("No feedbacks found")
+                    self.feedbacks = []
+                    return
+                }
+                
+                self.feedbacks = documents.compactMap { document in
+                    do {
+                        let feedback = try document.data(as: Feedback.self)
+                        return feedback
+                    } catch {
+                        print("Error decoding feedback \(document.documentID): \(error)")
+                        return nil
+                    }
+                }
+            }
+            
+            //        print("starting user feedback listener")
+        } else {
+            print("           need to sign in")
+        }
+
+    }
+    
+    func stopFeedbackListener() {
+        feedbackListener?.remove()
+        feedbackListener = nil
+    }
     
     func submitFeedback(message: String, feedbackType: FeedbackType, screenshots: [UIImage]) async throws {
         let deviceModel = UIDevice.current.model + " (\(UIDevice.current.systemName) \(UIDevice.current.systemVersion))"
@@ -80,7 +124,7 @@ extension Firebase {
             appVersion: appVersion,
             appBuild: appBuild,
             feedbackType: feedbackType,
-//            status: .open
+            status: .open
         )
         
         try feedbackRef.setData(from: newFeedback) { error in

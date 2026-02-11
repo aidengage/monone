@@ -27,7 +27,7 @@ struct FeedbackButton: View {
         .buttonStyle(.glassProminent)
         .tint(.orange)
         .navigationDestination(isPresented: $showFeedback) {
-            FeedbackView()
+            FeedbackForm(path: $path)
         }
     }
 }

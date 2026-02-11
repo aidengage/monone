@@ -1,137 +1,18 @@
-////
-////  FeedbackForm.swift
-////  spots
-////
-////  Created by Aiden Gage on 2/8/26.
-////
 //
-//import SwiftUI
-//import PhotosUI
+//  FeedbackForm.swift
+//  spots
 //
-//struct FeedbackForm: View {
-//    @Environment(\.dismiss) var dismiss
-//    @State var message: String = ""
-//    @State var feedbackType: FeedbackType = .general
-//    
-//    @State private var selectedPhotos: [PhotosPickerItem] = []
-//    @State private var selectedImages: [UIImage] = []
-//    @State private var showImagePicker = false
-//    
-//    private let maxCharacters = 1000
-//    
-//    var body: some View {
-//        VStack {
-//            Form {
-//                // feedback type
-//                Section {
-//                    Picker("Type", selection: $feedbackType) {
-//                        ForEach([FeedbackType.bug, .feature, .improvement, .general], id: \.self) { type in
-//                            Label {
-//                                Text(type.displayName)
-//                            } icon: {
-//                                Image(systemName: type.iconName)
-//                                    .foregroundColor(type.color)
-//                            }
-////                            .tag(type)
-//                        }
-//                    }
-//                    .pickerStyle(.menu)
-//                } header: {
-//                    Text("What type of feedback is this?")
-//                } footer: {
-//                    Text(feedbackType.description)
-//                }
-//                
-//                // message section
-//                Section {
-//                    ZStack(alignment: .topLeading) {
-//                        if message.isEmpty {
-//                            Text("Describe your feedback in detail...")
-//                                .foregroundColor(.secondary)
-//                                .padding(.top, 8)
-//                                .padding(.leading, 4)
-//                        }
-//                        
-//                        TextEditor(text: $message)
-//                            .frame(minHeight: 150)
-//                            .onChange(of: message) { newValue in
-//                                if newValue.count > maxCharacters {
-//                                    message = String(newValue.prefix(maxCharacters))
-//                                }
-//                            }
-//                    }
-//                    
-//                    HStack {
-//                        Spacer()
-//                        Text("\(message.count)/\(maxCharacters)")
-//                            .font(.caption)
-//                            .foregroundColor(message.count > maxCharacters - 50 ? .orange : .secondary)
-//                    }
-//                } header: {
-//                    Text("Message")
-//                } footer: {
-//                    Text("Please be as specific as possible. Include steps to reproduce if reporting a bug.")
-//                }
-//                
-//                // photo picker
-//                Section {
-//                    PhotosPicker(
-//                        selection: $selectedPhotos,
-//                        maxSelectionCount: 3,
-//                        matching: .images
-//                    ) {
-//                        Label("Add Screenshots", systemImage: "photo.on.rectangle.angled")
-//                    }
-////                    .onChange(of: selectedPhotos) { newItems in
-////                        Task {
-////                            await loadImages(from: newItems)
-////                        }
-////                    }
-//                    
-//                    if !selectedImages.isEmpty {
-//                        ScrollView(.horizontal, showsIndicators: false) {
-//                            HStack(spacing: 12) {
-//                                ForEach(selectedImages.indices, id: \.self) { index in
-//                                    ZStack(alignment: .topTrailing) {
-//                                        Image(uiImage: selectedImages[index])
-//                                            .resizable()
-//                                            .scaledToFill()
-//                                            .frame(width: 100, height: 100)
-//                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-//                                        
-////                                        Button {
-////                                            removeImage(at: index)
-////                                        } label: {
-////                                            Image(systemName: "xmark.circle.fill")
-////                                                .foregroundColor(.white)
-////                                                .background(Color.black.opacity(0.6))
-////                                                .clipShape(Circle())
-////                                        }
-////                                        .padding(4)
-//                                    }
-//                                }
-//                            }
-//                            .padding(.vertical, 4)
-//                        }
-//                    }
-//                } header: {
-//                    Text("Screenshots (Optional)")
-//                } footer: {
-//                    Text("You can attach up to 3 screenshots to help us understand the issue.")
-//                }
-//            }
-//            
-//        }
-//    }
-//}
+//  Created by Aiden Gage on 2/8/26.
+//
 
 import SwiftUI
 import PhotosUI
 
-struct FeedbackView: View {
+struct FeedbackForm: View {
     @Environment(\.dismiss) var dismiss
     
-    
+    @Binding var path: NavigationPath
+    @State var isFeedbackSheet: Bool = false
     
     @State private var feedbackType: FeedbackType = .general
     @State private var message = ""
@@ -231,6 +112,17 @@ struct FeedbackView: View {
 //                    }
 //                }
 //            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+//                    Button(action: {
+//                        FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
+                        FeedbackViewButton(path: $path)
+//                    isFeedbackSheet.toggle()
+//                    }) {
+//                        Label("feedbacks", systemImage: "bubble.right")
+//                    }
+                }
+            }
             .alert("Thank You!", isPresented: $showSuccess) {
                 Button("OK") {
                     dismiss()
@@ -238,6 +130,18 @@ struct FeedbackView: View {
             } message: {
                 Text("Your feedback has been submitted.")
             }
+        }
+        
+        .onAppear {
+            if Firebase.shared.getCurrentUser() != nil {
+                // start feedback listener
+                Firebase.shared.startFeedbackListener(userId: Firebase.shared.getCurrentUserID())
+            } else {
+                // dont
+            }
+        }
+        .onDisappear {
+            Firebase.shared.stopFeedbackListener()
         }
     }
     
