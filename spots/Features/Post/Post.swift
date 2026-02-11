@@ -101,13 +101,14 @@ extension Firebase {
     }
     
     func deletePost(postId: String) async {
+        // should be able to make this delete multiple by changing to an array of post ids and adding each to a batch
         do {
             let batch = getStore().batch()
             batch.deleteDocument(getStore().collection("posts").document(postId))
             try await batch.commit()
 //            startPostListener()
         } catch {
-            print("deleting post: \(error.localizedDescription)")
+            print(" deleting post: \(error.localizedDescription)")
         }
     }
     
@@ -127,7 +128,7 @@ extension Firebase {
                 try await imageRef.delete()
             }
         } catch {
-            print("deleting images: \(error.localizedDescription)")
+            print(" deleting images: \(error.localizedDescription)")
         }
         
     }

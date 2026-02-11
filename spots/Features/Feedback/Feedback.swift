@@ -146,7 +146,25 @@ extension Firebase {
         return try await uploadFeedbackScreenshot(screenshot: image, path: path, format: format)
     }
     
-    func deleteScreenshotByUrl(feedbackId: String) async {
+    func deleteFeedbackBatch(feedbackId: String) async {
+        await deleteFeedback(feedbackId: feedbackId)
+        await deleteScreenshots(feedbackId: feedbackId)
+    }
+    
+    func deleteFeedback(feedbackId: String) async {
+        do {
+//            let feedbackRef = try await getStore().collection("feedback").document(feedbackId).getDocument()
+            let batch = getStore().batch()
+            batch.deleteDocument(getStore().collection("feedback").document(feedbackId))
+            try await batch.commit()
+            
+            
+        } catch {
+            print(" deleting feedback: ")
+        }
+    }
+    
+    func deleteScreenshots(feedbackId: String) async {
         do {
             let scUrls: [String] = try await getStore().collection("feedback").document(feedbackId).getDocument()["screenshotUrls"] as? [String] ?? []
             for url in scUrls {

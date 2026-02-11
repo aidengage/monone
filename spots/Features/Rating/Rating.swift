@@ -131,7 +131,7 @@ extension Firebase {
             try await batch.commit()
             print("successfully deleted \(query.documents.count) ratings associated with post...")
         } catch {
-            print("error deleting ratings: \(error.localizedDescription)")
+            print(" deleting ratings: \(error.localizedDescription)")
         }
     }
     
