@@ -218,18 +218,19 @@ struct FeedbackView: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
+                    .buttonStyle(.glassProminent)
                     .disabled(message.isEmpty || isSubmitting)
                 }
             }
             .navigationTitle("Feedback")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    Button("Cancel") {
+//                        dismiss()
+//                    }
+//                }
+//            }
             .alert("Thank You!", isPresented: $showSuccess) {
                 Button("OK") {
                     dismiss()
