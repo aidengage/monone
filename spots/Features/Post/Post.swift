@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 import FirebaseCore
 import FirebaseFirestore
+import FirebaseStorage
 
 // post manager service/class file to represent a post obejct
 // need to change image to something like an array of [images] to link them to posts
@@ -95,7 +96,7 @@ extension Firebase {
             }
             
         } catch {
-            print("error creating doc: \(error.localizedDescription)")
+            print("creating doc: \(error.localizedDescription)")
         }
     }
     
@@ -106,13 +107,30 @@ extension Firebase {
             try await batch.commit()
 //            startPostListener()
         } catch {
-            print("error deleting post: \(error.localizedDescription)")
+            print("deleting post: \(error.localizedDescription)")
         }
     }
     
     func deletePostBatch(postId: String) async {
         await deleteRatingsOfPost(postId: postId)
+        await deleteImagesByUUID(postId: postId)
         await deletePost(postId: postId)
+    }
+    
+    func deleteImagesByUUID(postId: String) async {
+        do {
+            let imageUUIDs: [String] = try await getStore().collection("posts").document(postId).getDocument()["images"] as? [String] ?? []
+    //        let imageUUIDs: [String] = postDoc["images"] as? [String] ?? []
+            
+            for uuid in imageUUIDs {
+                let imagePath = "\(uuid)"
+                let imageRef = storage.storage.reference().child(imagePath)
+                try await imageRef.delete()
+            }
+        } catch {
+            print("deleting images: \(error.localizedDescription)")
+        }
+        
     }
     
 //    func startPostListenerById(postId: String) {

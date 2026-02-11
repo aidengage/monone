@@ -10,7 +10,7 @@ import FirebaseCore
 import FirebaseStorage
 
 final class FireStorage {
-    private let storage: Storage
+    let storage: Storage
     
     init() {
         let app = FirebaseApp.app()!
