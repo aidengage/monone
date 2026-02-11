@@ -133,7 +133,7 @@ extension Firebase {
     }
     
     func smartFormat(image: UIImage, path: String) async throws -> String {
-        var hasAlpha = image.cgImage?.alphaInfo != CGImageAlphaInfo.none
+        let hasAlpha = image.cgImage?.alphaInfo != CGImageAlphaInfo.none
         let format: ImageFormat
         
         if hasAlpha {
@@ -144,5 +144,16 @@ extension Firebase {
         print("smart format is: \(format)")
         
         return try await uploadFeedbackScreenshot(screenshot: image, path: path, format: format)
+    }
+    
+    func deleteScreenshotByUrl(feedbackId: String) async {
+        do {
+            let scUrls: [String] = try await getStore().collection("feedback").document(feedbackId).getDocument()["screenshotUrls"] as? [String] ?? []
+            for url in scUrls {
+                try await storage.storage.reference(forURL: url).delete()
+            }
+        } catch {
+            
+        }
     }
 }

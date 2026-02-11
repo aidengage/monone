@@ -123,8 +123,7 @@ extension Firebase {
     //        let imageUUIDs: [String] = postDoc["images"] as? [String] ?? []
             
             for uuid in imageUUIDs {
-                let imagePath = "\(uuid)"
-                let imageRef = storage.storage.reference().child(imagePath)
+                let imageRef = storage.storage.reference().child(uuid)
                 try await imageRef.delete()
             }
         } catch {
