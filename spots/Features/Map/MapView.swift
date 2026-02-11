@@ -119,13 +119,13 @@ struct MapView: View {
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             // camera zoom back out needs to be implemented
-            print("post detail view dismissed")
+//            print("post detail view dismissed")
             if !viewModel.profileToggle {
                 Firebase.shared.startPostListener()
-                print("  trying to start post listener")
+//                print("  trying to start post listener")
             } else {
                 Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
-                print("  trying to start user post listener")
+//                print("  trying to start user post listener")
             }
         }) { post in
             PostDetailView(post: post /*viewModel.selectedPost!*/ /*, ratings: Firebase.shared.ratings*/)
