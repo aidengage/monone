@@ -185,7 +185,7 @@ extension Firebase {
             } catch {
                 print("error decoding post (\(postId)): \(error.localizedDescription)")
                 print("because it was deleted")
-                startPostListener()
+//                startPostListener()
             }
         }
 //        print("starting single post listener")
