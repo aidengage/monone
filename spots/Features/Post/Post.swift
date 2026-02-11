@@ -106,7 +106,6 @@ extension Firebase {
             let batch = getStore().batch()
             batch.deleteDocument(getStore().collection("posts").document(postId))
             try await batch.commit()
-//            startPostListener()
         } catch {
             print(" deleting post: \(error.localizedDescription)")
         }
@@ -133,37 +132,6 @@ extension Firebase {
         
     }
     
-//    func startPostListenerById(postId: String) {
-//        Firebase.shared.stopPostListener()
-//        
-//        postListener = Firebase.shared.getStore().collection("posts")
-//            .whereField("postId", isEqualTo: postId)
-//            .addSnapshotListener { [weak self] (snapshot, error) in
-//            guard let self = self else { return }
-//            
-//            if let error = error {
-//                print("Error getting post: \(error.localizedDescription)")
-//                return
-//            }
-//            
-//            guard let documents = snapshot?.documents else {
-//                print("No post found")
-//                self.posts = []
-//                return
-//            }
-//            
-//            self.posts = documents.compactMap { document in
-//                do {
-//                    let post = try document.data(as: Post.self)
-////                    print(post)
-//                    return post
-//                } catch {
-//                    print("Error decoding document \(document.documentID): \(error)")
-//                    return nil
-//                }
-//            }
-//        }
-//    }
     func startPostListenerById(postId: String) {
         Firebase.shared.stopPostListener()
 
@@ -185,7 +153,6 @@ extension Firebase {
             } catch {
                 print("error decoding post (\(postId)): \(error.localizedDescription)")
                 print("because it was deleted")
-//                startPostListener()
             }
         }
 //        print("starting single post listener")

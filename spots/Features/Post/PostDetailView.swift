@@ -45,14 +45,7 @@ struct PostDetailView: View {
                         .buttonStyle(.glassProminent)
                     }
                     
-                    StarRatingViewStatic(rating: Firebase.shared.post.avgRating/*avgRating*/, numStars: 5)
-//                    .task {
-//                        do {
-//                            avgRating = try await Firebase.shared.getPostAverageRatings(postId: post.id)
-//                        } catch {
-//                            print("error fetching avg rating in post detail view: \(error)")
-//                        }
-//                    }
+                    StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0/*avgRating*/, numStars: 5)
                     .padding(.horizontal, 20)
                     
                     
@@ -105,7 +98,7 @@ struct PostDetailView: View {
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
-            Firebase.shared.stopPostListener()
+//            Firebase.shared.stopPostListener()
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)

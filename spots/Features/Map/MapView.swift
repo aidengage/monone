@@ -73,6 +73,7 @@ struct MapView: View {
                     .onDisappear {
                         // stops post listener
                         Firebase.shared.stopPostListener()
+                        print("map disappeared, stopping post listener")
                     }
                     // when map camera changes, update center coords with new center
                     .onMapCameraChange { mapCameraUpdateContext in
@@ -118,22 +119,22 @@ struct MapView: View {
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             // camera zoom back out needs to be implemented
-//            if !viewModel.profileToggle {
-//                Firebase.shared.startPostListener()
-//            } else {
-//                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
-//            }
+            print("post detail view dismissed")
+            if !viewModel.profileToggle {
+                Firebase.shared.startPostListener()
+                print("  trying to start post listener")
+            } else {
+                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                print("  trying to start user post listener")
+            }
         }) { post in
-            PostDetailView(post: post /*, ratings: Firebase.shared.ratings*/)
+            PostDetailView(post: post /*viewModel.selectedPost!*/ /*, ratings: Firebase.shared.ratings*/)
                 .presentationDetents([.fraction(0.75)])
                 .task {
                     withAnimation(.easeInOut(duration: 0.7)) {
-                        viewModel.cameraZoomOnPost(post: post/*viewModel.selectedPost!*/)
+                        viewModel.cameraZoomOnPost(post: post /*viewModel.selectedPost!*/)
                     }
                 }
         }
-//        .onAppear() {
-//            viewModel.startRatingListener(postId: viewModel.post.id)
-//        }
     }
 }
