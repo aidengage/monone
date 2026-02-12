@@ -91,6 +91,7 @@ extension Firebase {
                         print("error adding rating: \(error)")
                     } else {
                         ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
+                        postRef.updateData(["ratingCount": FieldValue.increment(Int64(1))])
                         print("rating added??")
                     }
                 }
