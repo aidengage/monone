@@ -15,9 +15,15 @@ struct FeedbackView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                VStack {
+                VStack(spacing: 10) {
                     ForEach(feedback) { feedback in
                         FeedbackCardPreview(type: feedback.feedbackType, status: feedback.status, feedbackId: feedback.id)
+                            .padding(10)
+                            .background(Color(.systemBackground))
+                        // background color should vary depending on the status of the report ^^
+                            .cornerRadius(14)
+                            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+//                            .padding(.horizontal, 20)
                     }
                 }
             }
