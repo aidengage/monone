@@ -14,7 +14,7 @@ struct PostDetailView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            VStack {
                
                 VStack {
                     // Title Section
@@ -84,7 +84,6 @@ struct PostDetailView: View {
                         RatingCards(ratings: Firebase.shared.ratings)
                     }
                 }
-                .padding(.bottom, 30)
             }
         }
         .onAppear {
@@ -95,8 +94,6 @@ struct PostDetailView: View {
         .onDisappear {
             Firebase.shared.stopRatingListener()
         }
-        .background(Color(.systemGroupedBackground))
-        .navigationBarTitleDisplayMode(.inline)
     }
     
     
@@ -149,39 +146,30 @@ struct PhotoCard: View {
     
     var body: some View {
         ScrollView(.horizontal) {
-                HStack(alignment: .top, spacing: 16) {
-                    ForEach(urls, id: \.self) { url in
-                        AsyncImage(url: URL(string: url)) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxHeight: 300)
-                        } placeholder: {
-                            ProgressView()
-                                .scaleEffect(1.5)
+            HStack(alignment: .top, spacing: 16) {
+                ForEach(urls, id: \.self) { url in
+                    AsyncImage(url: URL(string: url)) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 300)
+                    } placeholder: {
+                        ProgressView()
+                            .scaleEffect(1.5)
 //                            Image(systemName: "photo")
-                        }
-                        
-                        
                     }
-//                    VStack {
-//                        PhotoSelector(data: $data, imageUUIDs: $newImageUUIDs)
-//                    }
-                    
                 }
-                .frame(height: 300)
-                
-            
-            
+            }
+            .frame(height: 300)
         }
 //        .onAppear(){
 //            Task {
 //                getAsyncImageURLs()
 //            }
 //        }
-        .background(Color(.systemBackground))
+//        .background(Color(.systemBackground))
 //        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+//        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
 //        .padding(.horizontal, 20)
     }
     
