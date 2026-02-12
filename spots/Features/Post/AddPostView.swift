@@ -17,21 +17,8 @@ struct AddPostView: View {
     
     @State private var viewModel = ViewModel()
     
-    // need to be able to send the uuid of each photo when uploading them and saving them in the post object
-    
     @Environment(\.dismiss) private var dismiss
-//    @State var centerLat: Double
-//    @State var centerLong: Double
-//    @State var title: String = ""
-//    @State var comment: String = ""
-//    @State var address: String = ""
-//    @State var imageURL: String = ""
-//    @State var rating: Decimal = 0.0
-//    @State var ratingCount: Int = 0
-//    
-//    @State var imageData: [Data] = []
-//    @State var imageUUIDs: [String] = []
-//    @State var selectedActivty: String = "Smoke"
+
     let activityType = ["Smoke", "Photography", "Date"]
     
     
@@ -91,10 +78,6 @@ struct AddPostView: View {
                     if viewModel.title.isEmpty || viewModel.address.isEmpty || /*viewModel.comment.isEmpty ||*/ /*rating == 0.0 ||*/ viewModel.centerLat == 0.0 || viewModel.centerLong == 0.0 || viewModel.imageData == [] {
                         print("add every value to post")
                     } else {
-//                        if viewModel.comment != "" {
-//                            viewModel.ratingCount += 1
-//                        }
-                        
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
                         Task {

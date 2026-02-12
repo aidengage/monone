@@ -9,11 +9,8 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: Post
-//    var ratings: [Rating] = []
-//     let ratings: [Rating]
-//    @State var viewModel = ViewModel()
+
     @Environment(\.dismiss) private var dismiss
-//    @State private var avgRating: Decimal = 0.0
     
     var body: some View {
         ScrollView {
@@ -91,14 +88,12 @@ struct PostDetailView: View {
             }
         }
         .onAppear {
-//            Firebase.shared.startRatingListener(postId: post.id) // by post id
             // also start single post listener?
             Firebase.shared.startPostListenerById(postId: post.id)
             Firebase.shared.startRatingListener(postId: post.id)
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
-//            Firebase.shared.stopPostListener()
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)

@@ -13,7 +13,7 @@ struct FeedbackView: View {
     let feedback: [Feedback]
     
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack {
                     ForEach(feedback) { feedback in
@@ -21,6 +21,7 @@ struct FeedbackView: View {
                     }
                 }
             }
+            .presentationDetents([.fraction(0.9)])
 //            Text("FeedbackView")
         }
         .navigationTitle("Feedback posts!!11!!!")
@@ -58,5 +59,35 @@ struct FeedbackInfoView: View {
     
     var body: some View {
         
+    }
+}
+
+struct FeedbackViewButton: View {
+    
+    @Binding var path: NavigationPath
+    @State var showFeedbackList: Bool = false
+    
+    var body: some View {
+        Button(action: {
+            if !showFeedbackList {
+                showFeedbackList = true
+//                print(showFeedbackList)
+//                path.append(showFeedbackList)
+            } else {
+                showFeedbackList = false
+//                print(showFeedbackList)
+            }
+            
+        }) {
+            Label("feedback", systemImage: "bubble.right")
+        }
+        .buttonStyle(.glassProminent)
+        .tint(.purple)
+//        .navigationDestination(isPresented: $showFeedbackList) {
+//            FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
+//        }
+        .sheet(isPresented: $showFeedbackList) {
+            FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
+        }
     }
 }

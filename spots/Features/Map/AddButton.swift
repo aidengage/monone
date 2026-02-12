@@ -19,34 +19,38 @@ struct AddButton: View {
     @Binding var centerLong: Double
     
     var body: some View {
-        Button(action: {
-            let currentUser = Firebase.shared.getCurrentUser()
-            print("Current user: \(currentUser?.email ?? "nil")")
-            print("User ID: \(currentUser?.uid ?? "nil")")
+        NavigationStack(path: $path) {
             
-            // when logged in, showAddPost is true, appends to path stack with variable
-            if currentUser != nil {
-                showAddPost = true
-                path.append(showAddPost)
-            } else {
-                showLogin = true
-                path.append(showLogin)
+            
+            Button(action: {
+                let currentUser = Firebase.shared.getCurrentUser()
+                print("Current user: \(currentUser?.email ?? "nil")")
+                print("User ID: \(currentUser?.uid ?? "nil")")
+                
+                // when logged in, showAddPost is true, appends to path stack with variable
+                if currentUser != nil {
+                    showAddPost = true
+                    path.append(showAddPost)
+                } else {
+                    showLogin = true
+                    path.append(showLogin)
+                }
+            }) {
+                Image(systemName: "plus")
+                    .font(.largeTitle)
+                    .padding(10)
             }
-        }) {
-            Image(systemName: "plus")
-                .font(.largeTitle)
-                .padding(10)
-        }
-        .buttonStyle(.glass(.clear))
-        .buttonBorderShape(.circle)
-        .padding(.leading, 30)
-        
-        // navigation logic for login and addpost, sending center coords with the navigation
-        .navigationDestination(isPresented: $showAddPost) {
-            AddPostView(centerLat: centerLat, centerLong: centerLong)
-        }
-        .navigationDestination(isPresented: $showLogin) {
-            LoginView()
+            .buttonStyle(.glass(.clear))
+            .buttonBorderShape(.circle)
+            .padding(.leading, 30)
+            
+            // navigation logic for login and addpost, sending center coords with the navigation
+            .navigationDestination(isPresented: $showAddPost) {
+                AddPostView(centerLat: centerLat, centerLong: centerLong)
+            }
+            .navigationDestination(isPresented: $showLogin) {
+                LoginView()
+            }
         }
     }
 }

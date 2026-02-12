@@ -22,7 +22,7 @@ struct FeedbackForm: View {
     @State private var showSuccess = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $path) {
             Form {
                 // Feedback Type
                 Section("Type") {
