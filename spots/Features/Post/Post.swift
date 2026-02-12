@@ -60,10 +60,11 @@ struct Post: Codable, Identifiable {
 
 extension Firebase {
 
-    func addPost(images: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
+    func addPost(images: [UIImage], imagesUUIDs: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
         let postId = UUID().uuidString
+        var imageURLs: [String] = []
         
-        let newPost = Post(id: postId, userId: getCurrentUserID(), images: images, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, avgRating: rating, selectedActivity: selectedActivity)
+        let newPost = Post(id: postId, userId: getCurrentUserID(), images: imageURLs, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, avgRating: rating, selectedActivity: selectedActivity)
         
         let newRating = Rating(id: UUID().uuidString, userId: getCurrentUserID(), postId: postId, rating: rating, comment: comment)
         
@@ -95,6 +96,14 @@ extension Firebase {
                 }
             }
             
+            for (index, image) in images.enumerated() {
+                let path = "posts/\(Firebase.shared.getCurrentUserID())/\(postId)/user_photo_\(index)"
+                let url = try await smartFormat(image: image, path: path)
+                imageURLs.append(url)
+            }
+            
+            try await getStore().collection("posts").document(postId).updateData(["images": imageURLs])
+            
         } catch {
             print("creating doc: \(error.localizedDescription)")
         }
@@ -113,7 +122,8 @@ extension Firebase {
     
     func deletePostBatch(postId: String) async {
         await deleteRatingsOfPost(postId: postId)
-        await deleteImagesByUUID(postId: postId)
+//        await deleteImagesByUUID(postId: postId)
+        await deletePostImages(postId: postId)
         await deletePost(postId: postId)
     }
     
@@ -130,6 +140,18 @@ extension Firebase {
             print(" deleting images: \(error.localizedDescription)")
         }
         
+    }
+    
+    func deletePostImages(postId: String) async {
+        do {
+            let imgUrls: [String] = try await getStore().collection("posts").document(postId).getDocument()["images"] as? [String] ?? []
+            for url in imgUrls {
+//                print(" deleting image: \(url)")
+                try await storage.storage.reference(forURL: url).delete()
+            }
+        } catch {
+            print(" error deleting images: \(error.localizedDescription)")
+        }
     }
     
     func startPostListenerById(postId: String) {

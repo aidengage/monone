@@ -165,7 +165,7 @@ extension Firebase {
             return "shit broke"
         }
         
-        let storageRef = getStorage().reference().child(path)
+        let storageRef = getStorage().reference().child(path + format.fileExtension)
         let metadata = StorageMetadata()
         metadata.contentType = contentType
         

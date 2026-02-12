@@ -14,13 +14,14 @@ extension AddPostView {
         var title: String = ""
         var comment: String = ""
         var address: String = ""
-        var imageURL: String = ""
         var rating: Decimal = 0.0
         var ratingCount: Int = 0
+        var selectedActivty: String = "Smoke"
         
+        var imageURLs: [String] = []
         var imageData: [Data] = []
         var imageUUIDs: [String] = []
-        var selectedActivty: String = "Smoke"
+        var images: [UIImage] = []
     }
     
     // all for reverse geocoding to get the nearest address to the coordinates

@@ -60,7 +60,7 @@ struct AddPostView: View {
                     }
                     // custom photo picker logic in AddPostView and FirebaseManager
                     Section(header: Text("Image Upload")) {
-                        PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs)
+                        PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images)
                     }
                     
                     // autofilled coordinates based on where the pin is
@@ -81,21 +81,27 @@ struct AddPostView: View {
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
                         Task {
-                            await Firebase.shared.addPost(images: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivty)
+                            await Firebase.shared.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivty)
                         }
                         
                         
                         // need to unwrap optional Data type imageData before passing as param
                         // this can be put into seperate upload() function at bottom but later
                         // try catch is for async func
-                        Task {
-                            do {
-                                // need to make it so if the photos arent uploaded to firebase then the photo uuids shouldnt be added to the post
-                                try await Firebase.shared.uploadImage(uuidArray: viewModel.imageUUIDs, data: viewModel.imageData)
-                            } catch {
-                                print("upload failed: \(error)")
-                            }
-                        }
+                        
+//                        Task {
+//                            do {
+//                                // need to make it so if the photos arent uploaded to firebase then the photo uuids shouldnt be added to the post
+////                                try await Firebase.shared.uploadImage(uuidArray: viewModel.imageUUIDs, data: viewModel.imageData)
+//                                
+////                                for (index, image) in viewModel.images.enumerated() {
+////                                    let path = "posts/\(Firebase.shared.getCurrentUserID())/\(postid)/photo_\(index)"
+////                                }
+//                                
+//                            } catch {
+//                                print("upload failed: \(error)")
+//                            }
+//                        }
                         dismiss()
                     }
                 }) {

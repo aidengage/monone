@@ -20,7 +20,7 @@ struct PostDetailView: View {
                     // Title Section
                     // photo card view should display all photos horizontally
                     if !post.images.isEmpty {
-                        PhotoCard(imageUUIDs: post.images)
+                        PhotoCard(urls: post.images)
                     }
                     VStack(alignment: .leading) {
                         Text(post.userId)
@@ -140,9 +140,9 @@ struct InfoCard: View {
 }
 
 struct PhotoCard: View {
-    let imageUUIDs: [String]
+//    let imageUUIDs: [String]
     @State var images: [UIImage] = []
-    @State var urls: [URL] = []
+    @State var urls: [String]
     
     @State var data: [Data] = []
     @State var newImageUUIDs: [String] = []
@@ -151,7 +151,7 @@ struct PhotoCard: View {
         ScrollView(.horizontal) {
                 HStack(alignment: .top, spacing: 16) {
                     ForEach(urls, id: \.self) { url in
-                        AsyncImage(url: url) { image in
+                        AsyncImage(url: URL(string: url)) { image in
                             image
                                 .resizable()
                                 .scaledToFit()
@@ -174,28 +174,28 @@ struct PhotoCard: View {
             
             
         }
-        .onAppear(){
-            Task {
-                getAsyncImageURLs()
-            }
-        }
+//        .onAppear(){
+//            Task {
+//                getAsyncImageURLs()
+//            }
+//        }
         .background(Color(.systemBackground))
 //        .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
 //        .padding(.horizontal, 20)
     }
     
-    func getAsyncImageURLs() {
-        urls = Firebase.shared.getImageURLs(uuids: imageUUIDs)
-    }
+//    func getAsyncImageURLs() {
+//        urls = Firebase.shared.getImageURLs(uuids: imageUUIDs)
+//    }
     
-    func getImages() async {
-        do {
-            images = try await Firebase.shared.getImagesByUUID(uuids: imageUUIDs)
-        } catch {
-            print("error loading uuid images")
-        }
-    }
+//    func getImages() async {
+//        do {
+//            images = try await Firebase.shared.getImagesByUUID(uuids: imageUUIDs)
+//        } catch {
+//            print("error loading uuid images")
+//        }
+//    }
         
 }
 
