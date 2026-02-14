@@ -7,7 +7,22 @@
 import SwiftUI
 import MapKit
 
+extension View {
+    func hideKeyboard() {
+        let resign = #selector(UIResponder.resignFirstResponder)
+        UIApplication.shared.sendAction(resign, to: nil, from: nil, for: nil)
+    }
+}
+
 extension AddPostView {
+    enum KeyboardField {
+        case title
+        case comment
+        case address
+        case latitude
+        case longitude
+    }
+    
     @Observable class ViewModel {
         var centerLat: Double = 0
         var centerLong: Double = 0

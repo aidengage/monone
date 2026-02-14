@@ -18,6 +18,8 @@ struct AddPostView: View {
     @State private var viewModel = ViewModel()
     
     @Environment(\.dismiss) private var dismiss
+    
+    @FocusState private var focusedField: KeyboardField?
 
     let activityType = ["Smoke", "Photography", "Date"]
     
@@ -41,11 +43,21 @@ struct AddPostView: View {
                 // title, description, and address for where pin is
                 Section(header: Text("Add a new post")) {
                     TextField("Title", text: $viewModel.title)
-                    TextField("Description/Comment", text: $viewModel.comment)
+                        .focused($focusedField, equals: .title)
+                        .textContentType(.name)
+                        .submitLabel(.next)
                     TextField("Address", text: $viewModel.address)
-                    
-                    
+                        .focused($focusedField, equals: .address)
+                        .textContentType(.fullStreetAddress)
+                        .submitLabel(.next)
                 }
+                
+                Section(header: Text("Write your comment!")) {
+                    TextEditor(text: $viewModel.comment)
+                        .focused($focusedField, equals: .comment)
+                        .submitLabel(.join)
+                }
+                
                 Section(header: Text("Activity Type")) {
                     Picker("Activity", selection: $viewModel.selectedActivty) {
                         ForEach(activityType, id: \.self) {
@@ -84,24 +96,6 @@ struct AddPostView: View {
                             await Firebase.shared.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivty)
                         }
                         
-                        
-                        // need to unwrap optional Data type imageData before passing as param
-                        // this can be put into seperate upload() function at bottom but later
-                        // try catch is for async func
-                        
-//                        Task {
-//                            do {
-//                                // need to make it so if the photos arent uploaded to firebase then the photo uuids shouldnt be added to the post
-////                                try await Firebase.shared.uploadImage(uuidArray: viewModel.imageUUIDs, data: viewModel.imageData)
-//                                
-////                                for (index, image) in viewModel.images.enumerated() {
-////                                    let path = "posts/\(Firebase.shared.getCurrentUserID())/\(postid)/photo_\(index)"
-////                                }
-//                                
-//                            } catch {
-//                                print("upload failed: \(error)")
-//                            }
-//                        }
                         dismiss()
                     }
                 }) {
@@ -110,6 +104,19 @@ struct AddPostView: View {
                 .buttonStyle(.glassProminent)
             }
             .navigationTitle("Add Post")
+            
+//            .onsubmit {
+//                switch focusedField {
+//                case .title:
+//                    focusedField = .address
+//                case: .address:
+//                    focusedField = .comment
+//                case: .comment:
+//                    focusedField = nil
+//                default:
+//                    print("adding post to db !!")
+//                }
+//            }
             
             // task to use coords and receive its address if there is one
             // also sets the name if available
@@ -122,6 +129,9 @@ struct AddPostView: View {
                     print("reverse geocoding failed: \(error)")
                 }
             }
+        }
+        .onTapGesture {
+            hideKeyboard()
         }
     }
 }
