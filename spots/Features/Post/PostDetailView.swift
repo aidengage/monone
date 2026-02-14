@@ -9,13 +9,13 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: Post
-
+    
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ScrollView {
             VStack {
-               
+                
                 VStack {
                     // Title Section
                     // photo card view should display all photos horizontally
@@ -42,8 +42,8 @@ struct PostDetailView: View {
                         .buttonStyle(.glassProminent)
                     }
                     
-                    StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0/*avgRating*/, numStars: 5)
-                    .padding(.horizontal, 20)
+                    StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0, numStars: 5)
+                        .padding(.horizontal, 20)
                     
                     
                     // info cards to represent address, description, and coords
@@ -95,8 +95,6 @@ struct PostDetailView: View {
             Firebase.shared.stopRatingListener()
         }
     }
-    
-    
 }
 
 // info card template used for each individual aspect of the post
@@ -137,12 +135,7 @@ struct InfoCard: View {
 }
 
 struct PhotoCard: View {
-//    let imageUUIDs: [String]
-    @State var images: [UIImage] = []
     @State var urls: [String]
-    
-    @State var data: [Data] = []
-    @State var newImageUUIDs: [String] = []
     
     var body: some View {
         ScrollView(.horizontal) {
@@ -156,68 +149,31 @@ struct PhotoCard: View {
                     } placeholder: {
                         ProgressView()
                             .scaleEffect(1.5)
-//                            Image(systemName: "photo")
                     }
                 }
             }
             .frame(height: 300)
         }
-//        .onAppear(){
-//            Task {
-//                getAsyncImageURLs()
-//            }
-//        }
-//        .background(Color(.systemBackground))
-//        .cornerRadius(16)
-//        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-//        .padding(.horizontal, 20)
     }
-    
-//    func getAsyncImageURLs() {
-//        urls = Firebase.shared.getImageURLs(uuids: imageUUIDs)
-//    }
-    
-//    func getImages() async {
-//        do {
-//            images = try await Firebase.shared.getImagesByUUID(uuids: imageUUIDs)
-//        } catch {
-//            print("error loading uuid images")
-//        }
-//    }
-        
 }
 
 struct RatingCards: View {
-//    let postId: String
-//    let postOwner: String
     var ratings: [Rating]
-//    @State var ratingsArray: [Rating] = []
     
     var body: some View {
         ScrollView(.vertical) {
             VStack {
                 Text("user ratings go here...")
                 ForEach(ratings) { rating in
-//                    CommentCard(rating: rating.rating, user: rating.userId, comment: rating.comment)
                     CommentCard(rating: rating)
                 }
             }
         }
-//        .onAppear() {
-//            Firebase.shared.getPostRatings(postOwner: postOwner, postId: postId) { loadedRatings in
-//                DispatchQueue.main.async {
-//                    self.ratingsArray = loadedRatings
-//                }
-//            }
-//        }
     }
 }
 
 struct CommentCard: View {
     var rating: Rating
-//    var rating: Decimal
-//    var user: String
-//    var comment: String
     
     var body: some View {
         VStack {
@@ -241,7 +197,4 @@ struct CommentCard: View {
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .padding(.horizontal, 20)
     }
-    
-    
-
 }
