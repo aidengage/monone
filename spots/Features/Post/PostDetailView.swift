@@ -12,19 +12,12 @@ struct PostDetailView: View {
     
     @Environment(\.dismiss) private var dismiss
     
+    @State private var displayView: DisplayPost = .main
+    
     enum DisplayPost {
         case main
         case raw
     }
-    
-    @State private var displayView: DisplayPost = .main
-    
-    
-//    init(post: Post) {
-////        self.post = post
-////        self._activity = State(initialValue: Post.ActivityType(rawValue: post.selectedActivity) ?? .unknown)
-//        self._activity = State(initialValue: Post.ActivityType.from(post.selectedActivity))
-//    }
     
     var body: some View {
         ScrollView {
@@ -92,22 +85,6 @@ struct PostDetailView: View {
                         if !post.selectedActivity.isEmpty{
                             if post.userId == Firebase.shared.getCurrentUserID() {
                                 EditActivityCard(post: post)
-//                                HStack {
-//                                    Image(systemName: "leaf.fill")
-//                                        .tint(Color.orange)
-//                                    Text("Activity Type")
-//                                        .font(.headline)
-//                                        .foregroundColor(.primary)
-//                                    Picker("Type", selection: $activity) {
-//                                        ForEach(Post.ActivityType.allCases) { type in
-//                                            Text(type.displayActivity).tag(type)
-//                                        }
-//                                    }
-//                                }
-//                                .padding()
-//                                .background(Color(.systemBackground))
-//                                .cornerRadius(16)
-//                                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                             } else {
                                 InfoCard(
                                     icon: "leaf",
@@ -144,11 +121,6 @@ struct PostDetailView: View {
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
-            
-//            Task {
-//                await Firebase.shared.updatePostActivity(postId: post.id, newActivity: activity)
-//            }
-            
         }
     }
 }
