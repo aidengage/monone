@@ -28,6 +28,7 @@ extension AddPostView {
         case date
         case photography
         case trainStation
+        case unknown
         
         var id: Self { self }
         
@@ -37,6 +38,7 @@ extension AddPostView {
                 case .date: return "Date"
                 case .photography: return "Photography"
                 case .trainStation: return "Train Station"
+                case .unknown: return "Unknown"
             }
         }
     }

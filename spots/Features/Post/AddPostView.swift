@@ -50,13 +50,9 @@ struct AddPostView: View {
             
             Section(header: Text("Activity Type")) {
                 Picker("Activity", selection: $viewModel.selectedActivity) {
-//                    ForEach(ActivityType.allCases, id: \.self) {
-//                        Text($0.rawValue).tag(ActivityType.$0)
-//                    }
-                    Text("Smoke").tag(ActivityType.smoke)
-                    Text("Photography").tag(ActivityType.photography)
-                    Text("Date").tag(ActivityType.date)
-                    Text("Train Station").tag(ActivityType.trainStation)
+                    ForEach(ActivityType.allCases) { type in
+                        Text(type.displayActivity).tag(type)
+                    }
                 }
             }
                 
@@ -67,7 +63,6 @@ struct AddPostView: View {
             // custom photo picker logic in AddPostView and FirebaseManager
             Section(header: Text("Image Upload")) {
                 PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images)
-//                            .contentShape(Rectangle())
             }
             
             // autofilled coordinates based on where the pin is
