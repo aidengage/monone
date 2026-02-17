@@ -99,7 +99,7 @@ struct AddPostView: View {
         .onAppear {
             addTapGestureToDismissKeyboard()
         }
-        .scrollDismissesKeyboard(.immediately)
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Add Post")
         // task to use coords and receive its address if there is one
         // also sets the name if available
