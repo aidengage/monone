@@ -86,6 +86,9 @@ struct PostDetailView: View {
                 }
             }
         }
+//        .introspectScrollView { scrollView in
+//                        scrollView.alwaysBounceVertical = false
+//                    }
         .onAppear {
             // also start single post listener?
             Firebase.shared.startPostListenerById(postId: post.id)

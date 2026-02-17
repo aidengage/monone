@@ -37,8 +37,7 @@ struct FeedbackForm: View {
                 
                 // Message
                 Section("Message") {
-                    TextEditor(text: $message)
-                        .frame(minHeight: 150)
+                    TextField("write your feedback here", text: $message, axis: .vertical)
                 }
                 
                 // Screenshots
