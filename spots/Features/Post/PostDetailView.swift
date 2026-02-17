@@ -141,14 +141,17 @@ struct DebugPostView: View {
                         HStack {
                             ForEach(post.images.indices, id: \.self) { index in
                                 VStack {
-                                    AsyncImage(url: URL(string: post.images[index])) { image in
-                                        image
-                                            .resizable()
-                                            .scaledToFill()
-                                    } placeholder: {
-                                        Rectangle()
-                                            .overlay(ProgressView())
-                                    }
+                                    KFImage(URL(string: post.images[index]))
+                                        .resizable()
+                                        .scaledToFill()
+//                                    AsyncImage(url: URL(string: post.images[index])) { image in
+//                                        image
+//                                            .resizable()
+//                                            .scaledToFill()
+//                                    } placeholder: {
+//                                        Rectangle()
+//                                            .overlay(ProgressView())
+//                                    }
                                     .frame(width: 80, height: 80)
                                     .clipShape(RoundedRectangle(cornerRadius: 4))
                                     
