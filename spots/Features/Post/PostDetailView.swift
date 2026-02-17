@@ -281,9 +281,12 @@ struct PhotoCard: View {
             HStack(alignment: .top, spacing: 16) {
                 ForEach(urls, id: \.self) { url in
                     KFImage(URL(string: url))
+                        .loadTransition(.opacity, animation: .easeInOut(duration: 0.2)) // doesnt work but want it to work
                         .resizable()
                         .scaledToFit()
                         .frame(maxHeight: 300)
+//                        .placeholder(placeholderImage)
+//                        .lowDataModeSource(.network(lowResolutionURL))
 //                    AsyncImage(url: URL(string: url)) { image in
 //                        image
 //                            .resizable()
