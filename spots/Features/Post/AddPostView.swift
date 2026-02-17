@@ -20,9 +20,6 @@ struct AddPostView: View {
     @Environment(\.dismiss) private var dismiss
     
     @FocusState private var focusedField: KeyboardField?
-
-    let activityType = ["Smoke", "Photography", "Date"]
-    
     
     init(centerLat: Double, centerLong: Double) {
         // state variables received from contentview
@@ -52,10 +49,14 @@ struct AddPostView: View {
             }
             
             Section(header: Text("Activity Type")) {
-                Picker("Activity", selection: $viewModel.selectedActivty) {
-                    ForEach(activityType, id: \.self) {
-                        Text($0)
-                    }
+                Picker("Activity", selection: $viewModel.selectedActivity) {
+//                    ForEach(ActivityType.allCases, id: \.self) {
+//                        Text($0.rawValue).tag(ActivityType.$0)
+//                    }
+                    Text("Smoke").tag(ActivityType.smoke)
+                    Text("Photography").tag(ActivityType.photography)
+                    Text("Date").tag(ActivityType.date)
+                    Text("Train Station").tag(ActivityType.trainStation)
                 }
             }
                 
@@ -86,7 +87,7 @@ struct AddPostView: View {
                     // add post
                     // uses the global shared firebasemanager object in the firebasemanager class
                     Task {
-                        await Firebase.shared.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivty)
+                        await Firebase.shared.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivity.displayActivity)
                     }
                     
                     dismiss()

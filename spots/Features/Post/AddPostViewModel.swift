@@ -23,6 +23,24 @@ extension AddPostView {
         case longitude
     }
     
+    enum ActivityType: CaseIterable, Identifiable {
+        case smoke
+        case date
+        case photography
+        case trainStation
+        
+        var id: Self { self }
+        
+        var displayActivity: String {
+            switch self {
+                case .smoke: return "Smoke"
+                case .date: return "Date"
+                case .photography: return "Photography"
+                case .trainStation: return "Train Station"
+            }
+        }
+    }
+    
     @Observable class ViewModel {
         var centerLat: Double = 0
         var centerLong: Double = 0
@@ -31,7 +49,8 @@ extension AddPostView {
         var address: String = ""
         var rating: Decimal = 0.0
         var ratingCount: Int = 0
-        var selectedActivty: String = "Smoke"
+//        var selectedActivty: String = "Smoke"
+        var selectedActivity: ActivityType = .smoke
         
         var imageURLs: [String] = []
         var imageData: [Data] = []
