@@ -55,6 +55,26 @@ struct Post: Codable, Identifiable {
         self.avgRating = 0
         self.selectedActivity = "Activity loading..."
     }
+    
+    enum ActivityType: CaseIterable, Identifiable {
+        case smoke
+        case date
+        case photography
+        case trainStation
+        case unknown
+        
+        var id: Self { self }
+        
+        var displayActivity: String {
+            switch self {
+                case .smoke: return "Smoke"
+                case .date: return "Date"
+                case .photography: return "Photography"
+                case .trainStation: return "Train Station"
+                case .unknown: return "Unknown"
+            }
+        }
+    }
 }
 
 
@@ -110,6 +130,17 @@ extension Firebase {
         }
     }
     
+    func updatePostActivity(postId: String, newActivity: Post.ActivityType) async {
+        
+    }
+    
+    // delete post data funcitons
+    func deletePostBatch(postId: String) async {
+        await deleteRatingsOfPost(postId: postId)
+        await deletePostImages(postId: postId)
+        await deletePost(postId: postId)
+    }
+    
     func deletePost(postId: String) async {
         // should be able to make this delete multiple by changing to an array of post ids and adding each to a batch
         do {
@@ -121,17 +152,9 @@ extension Firebase {
         }
     }
     
-    func deletePostBatch(postId: String) async {
-        await deleteRatingsOfPost(postId: postId)
-//        await deleteImagesByUUID(postId: postId)
-        await deletePostImages(postId: postId)
-        await deletePost(postId: postId)
-    }
-    
     func deleteImagesByUUID(postId: String) async {
         do {
             let imageUUIDs: [String] = try await getStore().collection("posts").document(postId).getDocument()["images"] as? [String] ?? []
-    //        let imageUUIDs: [String] = postDoc["images"] as? [String] ?? []
             
             for uuid in imageUUIDs {
                 let imageRef = storage.storage.reference().child(uuid)
@@ -147,7 +170,6 @@ extension Firebase {
         do {
             let imgUrls: [String] = try await getStore().collection("posts").document(postId).getDocument()["images"] as? [String] ?? []
             for url in imgUrls {
-//                print(" deleting image: \(url)")
                 try await storage.storage.reference(forURL: url).delete()
             }
         } catch {
@@ -155,6 +177,8 @@ extension Firebase {
         }
     }
     
+    
+    // post listeners
     func startPostListenerById(postId: String) {
         Firebase.shared.stopPostListener()
 
