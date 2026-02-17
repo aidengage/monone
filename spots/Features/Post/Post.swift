@@ -152,7 +152,7 @@ extension Firebase {
     func updatePostActivity(postId: String, newActivity: Post.ActivityType) async {
         let postRef = getStore().collection("posts").document(postId)
         do {
-            try await postRef.updateData(["activity": newActivity.displayActivity])
+            try await postRef.updateData(["selectedActivity": newActivity.displayActivity])
             try await postRef.updateData(["updatedAt": FieldValue.serverTimestamp()])
         } catch {
             print("error updated activity: \(error.localizedDescription)")

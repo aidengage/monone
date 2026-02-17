@@ -90,17 +90,26 @@ struct PostDetailView: View {
                         )
                         
                         if !post.selectedActivity.isEmpty{
-                            InfoCard(
-                                icon: "leaf",
-                                title: "Type",
-                                content: post.selectedActivity,
-                                iconColor: .green
-                            )
-                            Picker("Type", selection: $activity) {
-                                ForEach(Post.ActivityType.allCases) { type in
-                                    Text(type.displayActivity).tag(type)
+                            if post.userId == Firebase.shared.getCurrentUserID() {
+                                Picker("Type", selection: $activity) {
+                                    ForEach(Post.ActivityType.allCases) { type in
+                                        Text(type.displayActivity).tag(type)
+                                    }
                                 }
+                                .padding(20)
+                                .background(Color(.systemBackground))
+                                .cornerRadius(16)
+                                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                                .padding(.horizontal, 20)
+                            } else {
+                                InfoCard(
+                                    icon: "leaf",
+                                    title: "Type",
+                                    content: post.selectedActivity,
+                                    iconColor: .green
+                                )
                             }
+                            
                         }
                         
                         
@@ -128,6 +137,11 @@ struct PostDetailView: View {
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
+            
+            Task {
+                await Firebase.shared.updatePostActivity(postId: post.id, newActivity: activity)
+            }
+            
         }
     }
 }
