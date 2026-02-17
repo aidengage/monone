@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct PostDetailView: View {
     let post: Post
@@ -279,15 +280,19 @@ struct PhotoCard: View {
         ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: 16) {
                 ForEach(urls, id: \.self) { url in
-                    AsyncImage(url: URL(string: url)) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 300)
-                    } placeholder: {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                    }
+                    KFImage(URL(string: url))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 300)
+//                    AsyncImage(url: URL(string: url)) { image in
+//                        image
+//                            .resizable()
+//                            .scaledToFit()
+//                            .frame(maxHeight: 300)
+//                    } placeholder: {
+//                        ProgressView()
+//                            .scaleEffect(1.5)
+//                    }
                 }
             }
             .frame(height: 300)
