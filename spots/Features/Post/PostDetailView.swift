@@ -12,78 +12,98 @@ struct PostDetailView: View {
     
     @Environment(\.dismiss) private var dismiss
     
+    enum DisplayPost {
+        case main
+        case raw
+    }
+    
+    @State private var displayView: DisplayPost = .main
+    
     var body: some View {
         ScrollView {
             VStack {
                 
-                VStack {
-                    // Title Section
-                    // photo card view should display all photos horizontally
-                    if !post.images.isEmpty {
-                        PhotoCard(urls: post.images)
-                    }
-                    VStack(alignment: .leading) {
-                        Text(post.userId)
-                        Text(post.name)
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundColor(.primary)
-                    }
-                    .padding(.horizontal, 10)
-                    
-                    if post.userId == Firebase.shared.getCurrentUserID() {
-                        Button(action: {
-                            Task {
-                                await Firebase.shared.deletePostBatch(postId: post.id)
-                            }
-                            dismiss()
-                        }) {
-                            Label("delete post", systemImage: "trash")
+                Picker("post view", selection: $displayView) {
+                    Text("Main").tag(DisplayPost.main)
+                    Text("Raw").tag(DisplayPost.raw)
+                }
+                .pickerStyle(.segmented)
+                .padding()
+                
+                if displayView == .main {
+                    VStack {
+                        // Title Section
+                        // photo card view should display all photos horizontally
+                        if !post.images.isEmpty {
+                            PhotoCard(urls: post.images)
                         }
-                        .buttonStyle(.glassProminent)
-                    }
-                    
-                    StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0, numStars: 5)
-                        .padding(.horizontal, 20)
-                    
-                    
-                    // info cards to represent address, description, and coords
-                    // need to add photos and name/title
-                    
-                    
-                    if !post.address.isEmpty {
+                        VStack(alignment: .leading) {
+                            Text(post.userId)
+                            Text(post.name)
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.primary)
+                        }
+                        .padding(.horizontal, 10)
+                        
+                        if post.userId == Firebase.shared.getCurrentUserID() {
+                            Button(action: {
+                                Task {
+                                    await Firebase.shared.deletePostBatch(postId: post.id)
+                                }
+                                dismiss()
+                            }) {
+                                Label("delete post", systemImage: "trash")
+                            }
+                            .buttonStyle(.glassProminent)
+                        }
+                        
+                        StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0, numStars: 5)
+                            .padding(.horizontal, 20)
+                        
+                        
+                        // info cards to represent address, description, and coords
+                        // need to add photos and name/title
+                        
+                        
+                        if !post.address.isEmpty {
+                            InfoCard(
+                                icon: "mappin.circle.fill",
+                                title: "Address",
+                                content: post.address,
+                                iconColor: .red
+                            )
+                        }
+                        
+                        // Coordinates Card
                         InfoCard(
-                            icon: "mappin.circle.fill",
-                            title: "Address",
-                            content: post.address,
-                            iconColor: .red
-                        )
-                    }
-                    
-                    // Coordinates Card
-                    InfoCard(
-                        icon: "location.circle.fill",
-                        title: "Location",
-                        content: String(format: "Lat: %.6f\nLon: %.6f", post.latitude, post.longitude),
-                        iconColor: .green
-                    )
-                    
-                    if !post.selectedActivity.isEmpty{
-                        InfoCard(
-                            icon: "leaf",
-                            title: "Type",
-                            content: post.selectedActivity,
+                            icon: "location.circle.fill",
+                            title: "Location",
+                            content: String(format: "Lat: %.6f\nLon: %.6f", post.latitude, post.longitude),
                             iconColor: .green
                         )
+                        
+                        if !post.selectedActivity.isEmpty{
+                            InfoCard(
+                                icon: "leaf",
+                                title: "Type",
+                                content: post.selectedActivity,
+                                iconColor: .green
+                            )
+                        }
+                        
+                        
+                        RateSpotView(post: post)
+                        
+                        if !post.id.isEmpty {
+                            Text("comments go here")
+                            RatingCards(ratings: Firebase.shared.ratings)
+                        }
                     }
-                    
-                    
-                    RateSpotView(post: post)
-                    
-                    if !post.id.isEmpty {
-                        Text("comments go here")
-                        RatingCards(ratings: Firebase.shared.ratings)
-                    }
+                } else {
+                    DebugPostView(post: post)
                 }
+                
+                
             }
         }
 //        .introspectScrollView { scrollView in
@@ -97,6 +117,157 @@ struct PostDetailView: View {
         .onDisappear {
             Firebase.shared.stopRatingListener()
         }
+    }
+}
+
+//struct DebugPostView: View {
+//    let post: Post
+//    
+//    let cols: [GridItem] = [
+//        GridItem(.flexible())
+//        
+//    ]
+//    
+//    var body: some View {
+//        ScrollView {
+//            LazyVGrid(columns: cols, spacing: 10) {
+//                Text("post id: \(post.id)")
+//                Text("owner id: \(post.userId)")
+//                Text("coords: \(post.latitude), \(post.longitude)")
+//                Text("name: \(post.name)")
+//                Text("address: \(post.address)")
+//                Text("average rating: \(post.avgRating)")
+//                Text("number of ratings: \(post.ratingCount)")
+//                Text("activity: \(post.selectedActivity)")
+//                Text("images")
+//                HStack {
+//                    ForEach(post.images, id: \.self) { url in
+//                        AsyncImage(url: URL(string: url)) { image in
+//                            image
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(maxHeight: 100)
+//                        } placeholder: {
+//                            ProgressView()
+//                                .scaleEffect(1.5)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
+struct DebugPostView: View {
+    let post: Post
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+//                HStack {
+//                    Text("🐛")
+//                        .font(.largeTitle)
+//                    VStack(alignment: .leading) {
+//                        Text("DEBUG")
+//                            .font(.caption)
+//                            .fontWeight(.black)
+//                            .foregroundColor(.green)
+//                        Text("Post Object Inspector")
+//                            .font(.caption)
+//                            .foregroundColor(.secondary)
+//                    }
+//                    Spacer()
+//                }
+//                .padding()
+//                .background(Color.black.opacity(0.05))
+                
+//                Divider()
+                
+                // Data rows
+                
+                
+//                Divider()
+                
+                // Images array
+//                VStack(alignment: .leading) {
+                    Text("images[\(post.images.count)]")
+                        .font(.system(.body, design: .monospaced))
+                        .fontWeight(.semibold)
+                        .padding(.horizontal)
+                    
+                    ScrollView/*(.horizontal, showsIndicators: false)*/ {
+                        HStack {
+                            ForEach(post.images.indices, id: \.self) { index in
+                                VStack {
+                                    AsyncImage(url: URL(string: post.images[index])) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                    } placeholder: {
+                                        Rectangle()
+//                                            .fill(Color.gray.opacity(0.2))
+                                            .overlay(ProgressView())
+                                    }
+                                    .frame(width: 80, height: 80)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    
+                                    Text("[\(index)]")
+                                        .font(.system(.caption2, design: .monospaced))
+//                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+//                }
+                .padding(.vertical)
+                
+//                Divider()
+//                .background(Color.gray.opacity(0.05))
+                Group {
+                    dataRow(key: "id", value: post.id)
+                    dataRow(key: "userId", value: post.userId)
+                    dataRow(key: "name", value: post.name)
+                    dataRow(key: "address", value: post.address)
+                    dataRow(key: "latitude", value: String(format: "%.6f", post.latitude))
+                    dataRow(key: "longitude", value: String(format: "%.6f", post.longitude))
+                    dataRow(key: "avgRating", value: "\(post.avgRating)")
+                    dataRow(key: "ratingCount", value: "\(post.ratingCount)")
+                    dataRow(key: "selectedActivity", value: post.selectedActivity)
+//                    dataRow(key: "imageUrls", value: "\(post.images)")
+                    VStack(alignment: .leading) {
+                        ForEach(post.images.indices, id: \.self) { index in
+                            //                        dataRow(key: "imageUrls", value: imageUrl)
+//                            Text("\(post.images.indices) : \(imageUrl)")
+                            dataRow(key: "image\(index+1)"/*String(index+1)*/, value:post.images[index])
+                        }
+                    }
+                }
+            }
+        }
+//        .background(Color(.systemGroupedBackground))
+    }
+    
+    private func dataRow(key: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text(key)
+                .font(.system(.body, design: .monospaced))
+                .foregroundColor(.blue)
+//                .frame(width: 120, alignment: .leading)
+            
+            Text(":")
+                .foregroundColor(.secondary)
+            
+            Text(value)
+                .font(.system(.body, design: .monospaced))
+                .foregroundColor(.primary)
+            
+            Spacer()
+        }
+        .padding(.horizontal, 4)
+        .padding(.vertical, 4)
+//        .background(Color.white.opacity(0.5))
     }
 }
 
