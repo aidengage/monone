@@ -142,8 +142,13 @@ struct DebugPostView: View {
                             ForEach(post.images.indices, id: \.self) { index in
                                 VStack {
                                     KFImage(URL(string: post.images[index]))
+                                        .placeholder {
+                                            Rectangle()
+                                                .overlay(ProgressView())
+                                        }
                                         .resizable()
                                         .scaledToFill()
+                                        
 //                                    AsyncImage(url: URL(string: post.images[index])) { image in
 //                                        image
 //                                            .resizable()
@@ -284,6 +289,10 @@ struct PhotoCard: View {
             HStack(alignment: .top, spacing: 16) {
                 ForEach(urls, id: \.self) { url in
                     KFImage(URL(string: url))
+                        .placeholder {
+                            Rectangle()
+                                .overlay(ProgressView())
+                        }
                         .loadTransition(.opacity, animation: .easeInOut(duration: 0.2)) // doesnt work but want it to work
                         .resizable()
                         .scaledToFit()
