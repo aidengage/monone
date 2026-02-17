@@ -56,7 +56,7 @@ struct Post: Codable, Identifiable {
         self.selectedActivity = "Activity loading..."
     }
     
-    enum ActivityType: CaseIterable, Identifiable {
+    enum ActivityType: String, CaseIterable, Identifiable, Codable {
         case smoke
         case date
         case photography
@@ -72,6 +72,25 @@ struct Post: Codable, Identifiable {
                 case .photography: return "Photography"
                 case .trainStation: return "Train Station"
                 case .unknown: return "Unknown"
+            }
+        }
+        
+        static func from(_ string: String) -> ActivityType {
+            // Try exact raw value match first
+            if let exact = ActivityType(rawValue: string) {
+                return exact
+            }
+            
+            // Try case-insensitive match
+            let lowercased = string.lowercased()
+            switch lowercased {
+            case "smoke": return .smoke
+            case "date": return .date
+            case "photography": return .photography
+            case "train station": return .trainStation
+            default:
+                print("Warning: Unknown activity type '\(string)'")
+                return .unknown
             }
         }
     }
@@ -131,7 +150,13 @@ extension Firebase {
     }
     
     func updatePostActivity(postId: String, newActivity: Post.ActivityType) async {
-        
+        let postRef = getStore().collection("posts").document(postId)
+        do {
+            try await postRef.updateData(["activity": newActivity.displayActivity])
+            try await postRef.updateData(["updatedAt": FieldValue.serverTimestamp()])
+        } catch {
+            print("error updated activity: \(error.localizedDescription)")
+        }
     }
     
     // delete post data funcitons

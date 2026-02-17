@@ -18,6 +18,13 @@ struct PostDetailView: View {
     }
     
     @State private var displayView: DisplayPost = .main
+    @State private var activity: Post.ActivityType
+    
+    init(post: Post) {
+        self.post = post
+//        self._activity = State(initialValue: Post.ActivityType(rawValue: post.selectedActivity) ?? .unknown)
+        self._activity = State(initialValue: Post.ActivityType.from(post.selectedActivity))
+    }
     
     var body: some View {
         ScrollView {
@@ -89,6 +96,11 @@ struct PostDetailView: View {
                                 content: post.selectedActivity,
                                 iconColor: .green
                             )
+                            Picker("Type", selection: $activity) {
+                                ForEach(Post.ActivityType.allCases) { type in
+                                    Text(type.displayActivity).tag(type)
+                                }
+                            }
                         }
                         
                         
