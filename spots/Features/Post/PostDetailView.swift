@@ -221,7 +221,7 @@ struct EditActivityCard: View {
     var body: some View {
         HStack {
             Image(systemName: "leaf.fill")
-                .tint(Color.orange)
+                .tint(Color.purple) // doesnt actually do anything
             Text("Activity Type")
                 .font(.headline)
                 .foregroundColor(.primary)
