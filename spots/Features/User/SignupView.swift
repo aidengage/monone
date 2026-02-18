@@ -61,7 +61,7 @@ struct SignupView: View {
                 } else {
                     // creates corresponding user in firebase db to link to
                     print("User created successfully")
-                    FirebaseManager.shared.addUser(uid: uid, email: email, username: username, posts: [])
+                    Firebase.shared.addUser(uid: uid, email: email, username: username)
                     dismiss()
                 }
             }

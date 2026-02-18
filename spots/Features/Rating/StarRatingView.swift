@@ -5,15 +5,101 @@
 //  Created by Aiden Gage on 1/16/26.
 //
 
-// current bug with the stars not lining up, it has to do with the geometry reader wrapper
-// in the star rating view (dynamic) and the rating star view, adding a geomedy reader to
-// the star image view solves this problem but then there is a bit of extra room at the
-// buttom margin and looks wrong, probably wont matter later when we make actual design 
-// choices when that happens come back here and add the geometry reader to the star image
-
-// need to make this move in incriments of .1 or something like that
-
 import SwiftUI
+
+public struct RateSpotView: View {
+    let post: Post
+    @State var rating: Decimal = 0
+    @State var comment: String = ""
+    
+    public var body: some View {
+        VStack( spacing: 16) {
+            HStack {
+                StarRatingViewDynamic(rating: $rating, numStars: 5)
+                Button(action: {
+                    Task {
+                        if Firebase.shared.getCurrentUserID() != "" {
+                            await Firebase.shared.addRatingToPost(postOwner: post.userId, postId: post.id, userId: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
+                        } else {
+                            print("please login")
+                        }
+                    }
+                    
+                    
+                }) {
+                    Label("Rate Spot!", systemImage: "heart.fill")
+                        .buttonStyle(.glassProminent)
+                }
+            }
+            TextField("Comment here...", text: $comment, axis: .vertical)
+        }
+        .padding(20)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 20)
+    }
+}
+
+public struct StarRatingViewDynamic: View {
+    @Binding var rating: Decimal
+    var numStars: Int = 5
+    var starColor: Color
+    var backgroundColor: Color
+    
+    public init(rating: Binding<Decimal>, numStars: Int, starColor: Color = .red, backgroundColor: Color = .gray) {
+        self._rating = rating
+        self.numStars = numStars
+        self.backgroundColor = backgroundColor
+        self.starColor = starColor
+    }
+    
+    public var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                BackgroundStars(numStars: numStars, color: backgroundColor)
+                ForegroundStars(numStars: numStars, rating: rating, color: starColor)
+            }
+            .gesture(DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    let totalWidth = CGFloat(geo.size.width)
+                    let x = min(max(value.location.x, 0), totalWidth)
+                    let percent = x / totalWidth
+                    let rawRating = Double(self.numStars) * percent
+                    let snappedRating = round(rawRating * 10) / 10
+                    
+//                    self.rating = Decimal(Double(self.numStars) * percent) as Decimal
+                    self.rating = Decimal(snappedRating)
+                }
+            )
+        }
+//        .frame(height: 50)
+        .aspectRatio(CGFloat(numStars), contentMode: .fit)
+    }
+}
+
+public struct StarRatingViewStatic: View {
+    var rating: Decimal
+    var numStars: Int = 5
+    var starColor: Color
+    var backgroundColor: Color
+    
+    public init(rating: Decimal, numStars: Int, starColor: Color = .red, backgroundColor: Color = .gray) {
+        self.rating = rating
+        self.numStars = numStars
+        self.backgroundColor = backgroundColor
+        self.starColor = starColor
+    }
+    
+    public var body: some View {
+        ZStack {
+            BackgroundStars(numStars: numStars, color: backgroundColor)
+            ForegroundStars(numStars: numStars, rating: rating, color: starColor)
+        }
+        .aspectRatio(CGFloat(numStars), contentMode: .fit)
+    }
+}
+
 
 struct RatingStar: View {
     var rating: CGFloat
@@ -51,69 +137,11 @@ struct RatingStar: View {
                         )
                     
                 )
-//                .resizable()
-                .scaledToFit()
+//                .aspectRatio(contentMode: .fit)
             
         }
     }
 }
-
-public struct StarRatingViewDynamic: View {
-    @Binding var rating: Decimal
-    var numStars: Int = 5
-    var starColor: Color
-    var backgroundColor: Color
-    
-    public init(rating: Binding<Decimal>, numStars: Int, starColor: Color = .red, backgroundColor: Color = .gray) {
-        self._rating = rating
-        self.numStars = numStars
-        self.backgroundColor = backgroundColor
-        self.starColor = starColor
-    }
-    
-    public var body: some View {
-        GeometryReader { geo in
-            ZStack {
-                BackgroundStars(numStars: numStars, color: backgroundColor)
-                ForegroundStars(numStars: numStars, rating: rating, color: starColor)
-            }
-            .gesture(DragGesture(minimumDistance: 0)
-                .onChanged { value in
-                    let totalWidth = CGFloat(geo.size.width)
-                    let x = min(max(value.location.x, 0), totalWidth)
-                    let percent = x / totalWidth
-                    
-                    self.rating = Decimal(Double(self.numStars) * percent) as Decimal
-                }
-            )
-        }
-//        .frame(height: 50)
-        .aspectRatio(CGFloat(numStars), contentMode: .fit)
-//        .scaledToFit()
-    }
-}
-
-public struct StarRatingViewStatic: View {
-    var rating: Decimal
-    var numStars: Int = 5
-    var starColor: Color
-    var backgroundColor: Color
-    
-    public init(rating: Decimal, numStars: Int, starColor: Color = .red, backgroundColor: Color = .gray) {
-        self.rating = rating
-        self.numStars = numStars
-        self.backgroundColor = backgroundColor
-        self.starColor = starColor
-    }
-    
-    public var body: some View {
-        ZStack {
-            BackgroundStars(numStars: numStars, color: backgroundColor)
-            ForegroundStars(numStars: numStars, rating: rating, color: starColor)
-        }
-    }
-}
-
 
 private struct BackgroundStars: View {
     var color: Color
@@ -128,8 +156,9 @@ private struct BackgroundStars: View {
         HStack {
             ForEach(0..<numStars) { index in
                 StarImage()
+                    .foregroundColor(color)
             }
-        }.foregroundColor(color)
+        }
     }
 }
 
@@ -155,11 +184,10 @@ private struct ForegroundStars: View {
 
 private struct StarImage: View {
     var body: some View {
-//        GeometryReader { geo in
+        GeometryReader { geo in
             Image(systemName: "star.fill")
                 .resizable()
-//                .aspectRatio(contentMode: .fill)
-                .scaledToFit()
-//        }
+                .aspectRatio(contentMode: .fit)
+        }
     }
 }

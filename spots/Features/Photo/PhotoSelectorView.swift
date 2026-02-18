@@ -12,6 +12,7 @@ struct PhotoSelector: View {
     @Binding var data: [Data]
     @Binding var imageUUIDs: [String]
     @State var selectedItem: [PhotosPickerItem] = []
+    @Binding var images: [UIImage]
 
     var body: some View {
         PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
@@ -38,7 +39,12 @@ struct PhotoSelector: View {
                         await MainActor.run {
                             // add uuid to own array
                             imageUUIDs.append(UUID().uuidString)
+//                            images.append(UIImage(data: imageData) ?? UIImage())
                             data.append(imageData)
+                            
+                            if let image = UIImage(data: imageData) {
+                                images.append(image)
+                            }
                         }
                     }
                 }
