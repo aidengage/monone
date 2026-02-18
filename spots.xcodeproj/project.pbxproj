@@ -7,24 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E73973DB2F44413A00CBA71E /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = E73973DA2F44413A00CBA71E /* Kingfisher */; };
 		E78614C72F04BF83004A7A6A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = E78614C62F04BF83004A7A6A /* FirebaseDatabase */; };
 		E78614C92F04BF83004A7A6A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E78614C82F04BF83004A7A6A /* FirebaseFirestore */; };
 		E78614CB2F04BF83004A7A6A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = E78614CA2F04BF83004A7A6A /* FirebaseStorage */; };
 		F81ADD382F0CA6160038FC23 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F81ADD372F0CA6160038FC23 /* FirebaseAuth */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		E74B16C22F4573150025CD27 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E7D9E0942EF88B150000CF01 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E7D9E09B2EF88B150000CF01;
-			remoteInfo = spots;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		E74B16BE2F4573150025CD27 /* spotsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = spotsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E7D9E09C2EF88B150000CF01 /* spots.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spots.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -39,11 +29,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E74B16BF2F4573150025CD27 /* spotsTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = spotsTests;
-			sourceTree = "<group>";
-		};
 		E7D9E09E2EF88B150000CF01 /* spots */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -55,13 +40,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		E74B16BB2F4573150025CD27 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E7D9E0992EF88B150000CF01 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -70,6 +48,7 @@
 				E78614C92F04BF83004A7A6A /* FirebaseFirestore in Frameworks */,
 				E78614CB2F04BF83004A7A6A /* FirebaseStorage in Frameworks */,
 				F81ADD382F0CA6160038FC23 /* FirebaseAuth in Frameworks */,
+				E73973DB2F44413A00CBA71E /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,7 +59,6 @@
 			isa = PBXGroup;
 			children = (
 				E7D9E09E2EF88B150000CF01 /* spots */,
-				E74B16BF2F4573150025CD27 /* spotsTests */,
 				F81ADD362F0CA6160038FC23 /* Frameworks */,
 				E7D9E09D2EF88B150000CF01 /* Products */,
 			);
@@ -90,7 +68,6 @@
 			isa = PBXGroup;
 			children = (
 				E7D9E09C2EF88B150000CF01 /* spots.app */,
-				E74B16BE2F4573150025CD27 /* spotsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -105,29 +82,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E74B16BD2F4573150025CD27 /* spotsTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E74B16C42F4573150025CD27 /* Build configuration list for PBXNativeTarget "spotsTests" */;
-			buildPhases = (
-				E74B16BA2F4573150025CD27 /* Sources */,
-				E74B16BB2F4573150025CD27 /* Frameworks */,
-				E74B16BC2F4573150025CD27 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				E74B16C32F4573150025CD27 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				E74B16BF2F4573150025CD27 /* spotsTests */,
-			);
-			name = spotsTests;
-			packageProductDependencies = (
-			);
-			productName = spotsTests;
-			productReference = E74B16BE2F4573150025CD27 /* spotsTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		E7D9E09B2EF88B150000CF01 /* spots */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E7D9E0A72EF88B150000CF01 /* Build configuration list for PBXNativeTarget "spots" */;
@@ -149,6 +103,7 @@
 				E78614C82F04BF83004A7A6A /* FirebaseFirestore */,
 				E78614CA2F04BF83004A7A6A /* FirebaseStorage */,
 				F81ADD372F0CA6160038FC23 /* FirebaseAuth */,
+				E73973DA2F44413A00CBA71E /* Kingfisher */,
 			);
 			productName = spots;
 			productReference = E7D9E09C2EF88B150000CF01 /* spots.app */;
@@ -164,10 +119,6 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
-					E74B16BD2F4573150025CD27 = {
-						CreatedOnToolsVersion = 26.1.1;
-						TestTargetID = E7D9E09B2EF88B150000CF01;
-					};
 					E7D9E09B2EF88B150000CF01 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -184,6 +135,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E78614C52F04BF83004A7A6A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E7D9E09D2EF88B150000CF01 /* Products */;
@@ -191,19 +143,11 @@
 			projectRoot = "";
 			targets = (
 				E7D9E09B2EF88B150000CF01 /* spots */,
-				E74B16BD2F4573150025CD27 /* spotsTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		E74B16BC2F4573150025CD27 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E7D9E09A2EF88B150000CF01 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -214,13 +158,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		E74B16BA2F4573150025CD27 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E7D9E0982EF88B150000CF01 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -230,57 +167,7 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		E74B16C32F4573150025CD27 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E7D9E09B2EF88B150000CF01 /* spots */;
-			targetProxy = E74B16C22F4573150025CD27 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		E74B16C52F4573150025CD27 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KCUWTK4GLZ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.monone.spotsTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/spots.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/spots";
-			};
-			name = Debug;
-		};
-		E74B16C62F4573150025CD27 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KCUWTK4GLZ;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.monone.spotsTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/spots.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/spots";
-			};
-			name = Release;
-		};
 		E7D9E0A52EF88B150000CF01 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -409,7 +296,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = KCUWTK4GLZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = spots/Info.plist;
@@ -417,14 +304,13 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.monone.spots;
+				PRODUCT_BUNDLE_IDENTIFIER = com.monone.spots.aiden;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -451,8 +337,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -473,15 +358,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E74B16C42F4573150025CD27 /* Build configuration list for PBXNativeTarget "spotsTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E74B16C52F4573150025CD27 /* Debug */,
-				E74B16C62F4573150025CD27 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		E7D9E0972EF88B150000CF01 /* Build configuration list for PBXProject "spots" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -503,6 +379,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.6.2;
+			};
+		};
 		E78614C52F04BF83004A7A6A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -514,6 +398,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E73973DA2F44413A00CBA71E /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		E78614C62F04BF83004A7A6A /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E78614C52F04BF83004A7A6A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
