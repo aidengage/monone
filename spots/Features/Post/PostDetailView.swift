@@ -219,23 +219,24 @@ struct EditActivityCard: View {
     }
     
     var body: some View {
-        HStack {
+        HStack/*(spacing: 20)*/ {
             Image(systemName: "leaf.fill")
                 .tint(Color.purple) // doesnt actually do anything
             Text("Activity Type")
                 .font(.headline)
                 .foregroundColor(.primary)
+            Spacer()
             Picker("Type", selection: $activity) {
                 ForEach(Post.ActivityType.allCases) { type in
                     Text(type.displayActivity).tag(type)
                 }
             }
         }
-        .padding()
+        .padding(20)
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        
+        .padding(.horizontal, 20)
         .onDisappear {
             Task {
                 await Firebase.shared.updatePostActivity(postId: postId, newActivity: activity)
