@@ -15,6 +15,17 @@ struct User: Codable, Identifiable {
     let email: String
     let username: String
     let pfpUrl: String?
+    
+    init(id: String, email: String, username: String, pfpUrl: String) {
+        self.id = id
+        self.email = email
+        self.username = username
+        self.pfpUrl = pfpUrl
+    }
+    
+//    init(user: FirebaseAuth.User?) {
+//        self.id =
+//    }
 }
 
 extension Firebase {
@@ -34,6 +45,7 @@ extension Firebase {
     
     func getCurrentUser() -> FirebaseAuth.User? {
         if Auth.auth().currentUser != nil {
+//            let user = User(user: Auth.auth().currentUser)
             return Auth.auth().currentUser
         } else {
             print("no current user")
@@ -41,8 +53,8 @@ extension Firebase {
         }
     }
     
-    func addUser(uid: String, email: String, username: String) {
-        let newUser = User(id: uid, email: email, username: username, pfpUrl: "")
+    func addUser(uid: String, email: String, username: String, pfpUrl: [String]) {
+        let newUser = User(id: uid, email: email, username: username, pfpUrl: pfpUrl[0])
         do {
             let userRef = getStore().collection("users").document(uid)
             try userRef.setData(from: newUser) { error in

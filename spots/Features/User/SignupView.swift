@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 import FirebaseAuth
 
 struct SignupView: View {
@@ -15,6 +16,8 @@ struct SignupView: View {
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
     @State private var error: String? = nil
+    @State private var selectedPhoto: [PhotosPickerItem] = []
+    @State private var selectedImage: [UIImage] = []
 
     var body: some View {
         
@@ -30,8 +33,49 @@ struct SignupView: View {
             Section(header: Text("Confirm Password")) {
                 TextField("Confirm Password", text: $confirmPassword)
             }
+            Section(header: Text("Upload a Profile Picture")) {
+                HStack {
+                    PhotosPicker(
+                        selection: $selectedPhoto,
+                        maxSelectionCount: 1,
+                        matching: .images
+                    ) {
+                        Label("Add pfp", systemImage: "photo")
+//                        Image("photo")
+                    }
+                    .onChange(of: selectedPhoto) {
+                        Task {
+                            await loadImage(items: selectedPhoto)
+                        }
+                    }
+                    Spacer()
+                    if !selectedImage.isEmpty {
+                        ForEach(selectedImage.indices, id: \.self) { index in
+                            ZStack(alignment: .topTrailing) {
+                                Image(uiImage: selectedImage[index])
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 80, height: 80)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                
+                                Button {
+                                    selectedImage.remove(at: index)
+                                    selectedPhoto.remove(at: index)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.white)
+                                        .background(Circle().fill(Color.black.opacity(0.6)))
+                                }
+                                .padding(4)
+                            }
+                        }
+                    }
+                }
+            }
             Button(action: {
-                signup(email: email, username: username, password: password)
+                Task {
+                    try await signup(email: email, username: username, password: password, photo: selectedImage)
+                }
             }) {
                 Text("Signup")
             }
@@ -41,29 +85,48 @@ struct SignupView: View {
     }
     
     // signup function to create account linked to button
-    func signup(email: String, username: String, password: String) {
-        if password != confirmPassword {
-            error = "Passwords do not match"
-        } else {
-            Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                
-                // unwrapping authresult to get user id from account creation
-                guard let user = authResult?.user else {
-                    self.error = "Could not create user"
-                    return
-                }
+    func signup(email: String, username: String, password: String, photo: [UIImage]) async throws {
+        do {
+            if password != confirmPassword {
+                error = "Passwords do not match"
+            } else {
+                let authResult = try await Auth.auth().createUser(withEmail: email, password: password) /*{ authResult, error in*/
                 
                 // setting user id
-                let uid = user.uid
+                let uid = authResult.user.uid
                 
+                var imageUrl: [String] = []
+                do {
+                    if !selectedImage.isEmpty {
+                        for photo in selectedImage {
+                            let path = "users/\(uid)"
+                            //                let url = try await uploadFeedbackScreenshot(screenshot: screenshot, path: path, format: .png)
+                            let url = try await Firebase.shared.smartFormat(image: photo, path: path)
+                            imageUrl.append(url)
+                        }
+                    }
+                } catch {
+                    print("error: \(error)")
+                }
                 if let error = error {
                     print(error)
                 } else {
                     // creates corresponding user in firebase db to link to
                     print("User created successfully")
-                    Firebase.shared.addUser(uid: uid, email: email, username: username)
+                    Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: imageUrl)
                     dismiss()
                 }
+            }
+        }
+    }
+    
+    private func loadImage(items: [PhotosPickerItem]) async {
+        selectedImage.removeAll()
+        
+        for item in items {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                selectedImage.append(image)
             }
         }
     }
