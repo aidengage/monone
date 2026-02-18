@@ -7,8 +7,6 @@
 
 import Testing
 
-@testable import spots
-
 struct spotsTests {
 
     @Test func example() async throws {
