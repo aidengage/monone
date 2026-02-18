@@ -6,11 +6,16 @@
 //
 
 import Testing
+import SwiftUI
+@testable import spots
 
 struct spotsTests {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    struct PostTests {
+        @Test func postName() {
+            let post = Post(id: UUID().uuidString, userId: UUID().uuidString, images: [], name: "Apple Park", address: "1 Apple Park Way, Cupertino, CA 95014", ratingCount: 0, latitude: 0, longitude: 0, avgRating: 0, selectedActivity: Post.ActivityType.photography.displayActivity)
+            #expect(post.name == "Apple Park")
+        }
     }
 
 }
