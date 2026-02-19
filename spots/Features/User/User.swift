@@ -53,8 +53,8 @@ extension Firebase {
         }
     }
     
-    func addUser(uid: String, email: String, username: String, pfpUrl: [String]) {
-        let newUser = User(id: uid, email: email, username: username, pfpUrl: pfpUrl[0])
+    func addUser(uid: String, email: String, username: String/*, pfpUrl: [String]*/) {
+        let newUser = User(id: uid, email: email, username: username, pfpUrl: "")
         do {
             let userRef = getStore().collection("users").document(uid)
             try userRef.setData(from: newUser) { error in

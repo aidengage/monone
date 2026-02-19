@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct SignupView: View {
     @Environment(\.dismiss)private var dismiss
@@ -74,49 +75,63 @@ struct SignupView: View {
             }
             Button(action: {
                 Task {
-                    try await signup(email: email, username: username, password: password, photo: selectedImage)
+                    await signup(email: email, username: username, password: password/*, photo: selectedImage*/)
+//                    try await uploadPfp(userId: uid, photo: selectedImage)
                 }
             }) {
                 Text("Signup")
             }
+            .buttonStyle(.glassProminent)
         }
         .navigationTitle("Sign Up")
 
     }
     
+    func uploadPfp(userId: String, photo: [UIImage]) async {
+        do {
+            var imageUrl: [String] = []
+            if !selectedImage.isEmpty {
+                for photo in selectedImage {
+                    let path = "users/\(userId)/\(userId)"
+                    //                let url = try await uploadFeedbackScreenshot(screenshot: screenshot, path: path, format: .png)
+                    let url = try await Firebase.shared.smartFormat(image: photo, path: path)
+                    imageUrl.append(url)
+                    try await Firebase.shared.getStore().collection("users").document(userId).updateData(["pfpUrl": imageUrl[0]])
+                }
+            }
+        } catch {
+            print("error: \(error.localizedDescription)")
+        }
+        
+    }
+    
     // signup function to create account linked to button
-    func signup(email: String, username: String, password: String, photo: [UIImage]) async throws {
+    func signup(email: String, username: String, password: String) async {
         do {
             if password != confirmPassword {
                 error = "Passwords do not match"
             } else {
-                let authResult = try await Auth.auth().createUser(withEmail: email, password: password) /*{ authResult, error in*/
+                let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
                 
                 // setting user id
                 let uid = authResult.user.uid
                 
-                var imageUrl: [String] = []
-                do {
-                    if !selectedImage.isEmpty {
-                        for photo in selectedImage {
-                            let path = "users/\(uid)"
-                            //                let url = try await uploadFeedbackScreenshot(screenshot: screenshot, path: path, format: .png)
-                            let url = try await Firebase.shared.smartFormat(image: photo, path: path)
-                            imageUrl.append(url)
-                        }
-                    }
-                } catch {
-                    print("error: \(error)")
-                }
                 if let error = error {
                     print(error)
                 } else {
                     // creates corresponding user in firebase db to link to
-                    print("User created successfully")
-                    Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: imageUrl)
+                    print("auth created, adding user and uploading pfp")
+                    
+                    Task {
+                        Firebase.shared.addUser(uid: uid, email: email, username: username/*, pfpUrl: imageUrl*/)
+                        await uploadPfp(userId: uid, photo: selectedImage)
+                    }
+                    
                     dismiss()
                 }
             }
+        } catch {
+            print("error : \(error.localizedDescription)")
         }
     }
     
