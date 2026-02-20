@@ -34,6 +34,8 @@ struct SignupView: View {
             Section(header: Text("Confirm Password")) {
                 TextField("Confirm Password", text: $confirmPassword)
             }
+            
+            // upload profile picture needs square crop
             Section(header: Text("Upload a Profile Picture")) {
                 HStack {
                     PhotosPicker(
@@ -42,7 +44,6 @@ struct SignupView: View {
                         matching: .images
                     ) {
                         Label("Add pfp", systemImage: "photo")
-//                        Image("photo")
                     }
                     .onChange(of: selectedPhoto) {
                         Task {
@@ -73,6 +74,7 @@ struct SignupView: View {
                     }
                 }
             }
+            
             Button(action: {
                 Task {
                     await signup(email: email, username: username, password: password/*, photo: selectedImage*/)
@@ -86,6 +88,8 @@ struct SignupView: View {
         .navigationTitle("Sign Up")
 
     }
+
+    
     
     func uploadPfp(userId: String, photo: [UIImage]) async {
         do {

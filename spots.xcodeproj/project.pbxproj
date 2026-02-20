@@ -8,8 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E73973DB2F44413A00CBA71E /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = E73973DA2F44413A00CBA71E /* Kingfisher */; };
-		E74B184C2F46F80D0025CD27 /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = E74B184B2F46F80D0025CD27 /* CropViewController */; };
-		E74B184E2F46F80D0025CD27 /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = E74B184D2F46F80D0025CD27 /* TOCropViewController */; };
+		E74B18512F4858700025CD27 /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = E74B18502F4858700025CD27 /* Mantis */; };
 		E78614C72F04BF83004A7A6A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = E78614C62F04BF83004A7A6A /* FirebaseDatabase */; };
 		E78614C92F04BF83004A7A6A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E78614C82F04BF83004A7A6A /* FirebaseFirestore */; };
 		E78614CB2F04BF83004A7A6A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = E78614CA2F04BF83004A7A6A /* FirebaseStorage */; };
@@ -71,11 +70,10 @@
 			files = (
 				E78614C72F04BF83004A7A6A /* FirebaseDatabase in Frameworks */,
 				E78614C92F04BF83004A7A6A /* FirebaseFirestore in Frameworks */,
-				E74B184E2F46F80D0025CD27 /* TOCropViewController in Frameworks */,
 				E78614CB2F04BF83004A7A6A /* FirebaseStorage in Frameworks */,
 				F81ADD382F0CA6160038FC23 /* FirebaseAuth in Frameworks */,
 				E73973DB2F44413A00CBA71E /* Kingfisher in Frameworks */,
-				E74B184C2F46F80D0025CD27 /* CropViewController in Frameworks */,
+				E74B18512F4858700025CD27 /* Mantis in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,8 +154,7 @@
 				E78614CA2F04BF83004A7A6A /* FirebaseStorage */,
 				F81ADD372F0CA6160038FC23 /* FirebaseAuth */,
 				E73973DA2F44413A00CBA71E /* Kingfisher */,
-				E74B184B2F46F80D0025CD27 /* CropViewController */,
-				E74B184D2F46F80D0025CD27 /* TOCropViewController */,
+				E74B18502F4858700025CD27 /* Mantis */,
 			);
 			productName = spots;
 			productReference = E7D9E09C2EF88B150000CF01 /* spots.app */;
@@ -194,7 +191,7 @@
 			packageReferences = (
 				E78614C52F04BF83004A7A6A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				E74B184A2F46F80D0025CD27 /* XCRemoteSwiftPackageReference "TOCropViewController" */,
+				E74B184F2F4858700025CD27 /* XCRemoteSwiftPackageReference "Mantis" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E7D9E09D2EF88B150000CF01 /* Products */;
@@ -521,12 +518,12 @@
 				minimumVersion = 8.6.2;
 			};
 		};
-		E74B184A2F46F80D0025CD27 /* XCRemoteSwiftPackageReference "TOCropViewController" */ = {
+		E74B184F2F4858700025CD27 /* XCRemoteSwiftPackageReference "Mantis" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/TimOliver/TOCropViewController";
+			repositoryURL = "https://github.com/guoyingtao/Mantis.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 3.1.1;
+				minimumVersion = 1.7.5;
 			};
 		};
 		E78614C52F04BF83004A7A6A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
@@ -545,15 +542,10 @@
 			package = E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
-		E74B184B2F46F80D0025CD27 /* CropViewController */ = {
+		E74B18502F4858700025CD27 /* Mantis */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E74B184A2F46F80D0025CD27 /* XCRemoteSwiftPackageReference "TOCropViewController" */;
-			productName = CropViewController;
-		};
-		E74B184D2F46F80D0025CD27 /* TOCropViewController */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E74B184A2F46F80D0025CD27 /* XCRemoteSwiftPackageReference "TOCropViewController" */;
-			productName = TOCropViewController;
+			package = E74B184F2F4858700025CD27 /* XCRemoteSwiftPackageReference "Mantis" */;
+			productName = Mantis;
 		};
 		E78614C62F04BF83004A7A6A /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;

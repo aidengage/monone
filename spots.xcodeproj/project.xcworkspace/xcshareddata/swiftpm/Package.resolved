@@ -1,5 +1,5 @@
 {
-  "originHash" : "5085ed80a585577a5d9c5abbd95fd7efd7248939c64ac9dc05bc1d7e50e843d0",
+  "originHash" : "ea7417cbc3481b28948a950d265f46504cd8761379ba4e7388baf7f003fa9373",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -110,6 +110,15 @@
       }
     },
     {
+      "identity" : "mantis",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/guoyingtao/Mantis.git",
+      "state" : {
+        "revision" : "d6880eb97267248f89e6cef2dd52785d50627639",
+        "version" : "1.9.0"
+      }
+    },
+    {
       "identity" : "nanopb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/nanopb.git",
@@ -134,15 +143,6 @@
       "state" : {
         "revision" : "c169a5744230951031770e27e475ff6eefe51f9d",
         "version" : "1.33.3"
-      }
-    },
-    {
-      "identity" : "tocropviewcontroller",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/TimOliver/TOCropViewController",
-      "state" : {
-        "revision" : "b73eb2d665a5ba8ea10cdf2682a0f7f0bbb550bb",
-        "version" : "3.1.1"
       }
     }
   ],
