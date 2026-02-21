@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import PhotosUI
+import Mantis
 
 // photo selector view, maybe move this to add post view??
 struct PhotoSelector: View {
@@ -53,3 +54,25 @@ struct PhotoSelector: View {
     }
 }
 
+struct ProfilePhotoSelectorView: View {
+    @Binding var image: UIImage?
+    @State private var selectedItem: PhotosPickerItem?
+    @State private var showCropper = false
+    @State private var imageToCrop: UIImage?
+    
+    var body: some View {
+        
+    }
+}
+
+struct MantisCropView: UIViewControllerRepresentable {
+    let image: UIImage
+    @Binding var croppedImage: UIImage?
+    @Environment(\.dismiss) var dismiss
+    
+    func makeUIViewController(context: Context) -> UIViewController {
+        
+    }
+    
+    
+}
