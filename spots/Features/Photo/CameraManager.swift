@@ -8,6 +8,10 @@
 import SwiftUI
 import AVFoundation
 
-struct CameraManager {
-    let defaultCamera = try deviceLookup.defaultCamera
+class CameraManager: NSObject {
+    private let captureSession = AVCaptureSession()
+    private let deviceInput: AVCaptureDeviceInput?
+    private let videoOutput: AVCaptureVideoDataOutput?
+    private let systemPreferredCamera = AVCaptureDevice.default(for: .video)
+    private let sessionQueue = DispatchQueue(label: "video.preview.session")
 }
