@@ -18,7 +18,8 @@ struct SignupView: View {
     @State private var confirmPassword: String = ""
     @State private var error: String? = nil
     @State private var selectedPhoto: [PhotosPickerItem] = []
-    @State private var selectedImage: [UIImage] = []
+//    @State private var selectedImage: [UIImage] = []
+    @State private var profileImage: UIImage?
 
     var body: some View {
         
@@ -37,42 +38,43 @@ struct SignupView: View {
             
             // upload profile picture needs square crop
             Section(header: Text("Upload a Profile Picture")) {
-                HStack {
-                    PhotosPicker(
-                        selection: $selectedPhoto,
-                        maxSelectionCount: 1,
-                        matching: .images
-                    ) {
-                        Label("Add pfp", systemImage: "photo")
-                    }
-                    .onChange(of: selectedPhoto) {
-                        Task {
-                            await loadImage(items: selectedPhoto)
-                        }
-                    }
-                    Spacer()
-                    if !selectedImage.isEmpty {
-                        ForEach(selectedImage.indices, id: \.self) { index in
-                            ZStack(alignment: .topTrailing) {
-                                Image(uiImage: selectedImage[index])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 80, height: 80)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                Button {
-                                    selectedImage.remove(at: index)
-                                    selectedPhoto.remove(at: index)
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.white)
-                                        .background(Circle().fill(Color.black.opacity(0.6)))
-                                }
-                                .padding(4)
-                            }
-                        }
-                    }
-                }
+                ProfilePhotoSelectorView(image: $profileImage)
+//                HStack {
+//                    PhotosPicker(
+//                        selection: $selectedPhoto,
+//                        maxSelectionCount: 1,
+//                        matching: .images
+//                    ) {
+//                        Label("Add pfp", systemImage: "photo")
+//                    }
+//                    .onChange(of: selectedPhoto) {
+//                        Task {
+//                            await loadImage(items: selectedPhoto)
+//                        }
+//                    }
+//                    Spacer()
+//                    if !selectedImage.isEmpty {
+//                        ForEach(selectedImage.indices, id: \.self) { index in
+//                            ZStack(alignment: .topTrailing) {
+//                                Image(uiImage: selectedImage[index])
+//                                    .resizable()
+//                                    .scaledToFill()
+//                                    .frame(width: 80, height: 80)
+//                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+//                                
+//                                Button {
+//                                    selectedImage.remove(at: index)
+//                                    selectedPhoto.remove(at: index)
+//                                } label: {
+//                                    Image(systemName: "xmark.circle.fill")
+//                                        .foregroundColor(.white)
+//                                        .background(Circle().fill(Color.black.opacity(0.6)))
+//                                }
+//                                .padding(4)
+//                            }
+//                        }
+//                    }
+//                }
             }
             
             Button(action: {
@@ -91,17 +93,17 @@ struct SignupView: View {
 
     
     
-    func uploadPfp(userId: String, photo: [UIImage]) async {
+    func uploadPfp(userId: String, photo: UIImage) async {
         do {
-            var imageUrl: [String] = []
-            if !selectedImage.isEmpty {
-                for photo in selectedImage {
+//            var imageUrl: String
+            if profileImage != nil {
+//                for photo in selectedImage {
                     let path = "users/\(userId)/\(userId)"
-                    //                let url = try await uploadFeedbackScreenshot(screenshot: screenshot, path: path, format: .png)
+//                                    let url = try await uploadFeedbackScreenshot(screenshot: screenshot, path: path, format: .png)
                     let url = try await Firebase.shared.smartFormat(image: photo, path: path)
-                    imageUrl.append(url)
-                    try await Firebase.shared.getStore().collection("users").document(userId).updateData(["pfpUrl": imageUrl[0]])
-                }
+//                    imageUrl = url
+                    try await Firebase.shared.getStore().collection("users").document(userId).updateData(["pfpUrl": url])
+//                }
             }
         } catch {
             print("error: \(error.localizedDescription)")
@@ -128,7 +130,7 @@ struct SignupView: View {
                     
                     Task {
                         Firebase.shared.addUser(uid: uid, email: email, username: username/*, pfpUrl: imageUrl*/)
-                        await uploadPfp(userId: uid, photo: selectedImage)
+                        await uploadPfp(userId: uid, photo: profileImage!)
                     }
                     
                     dismiss()
@@ -139,14 +141,14 @@ struct SignupView: View {
         }
     }
     
-    private func loadImage(items: [PhotosPickerItem]) async {
-        selectedImage.removeAll()
-        
-        for item in items {
-            if let data = try? await item.loadTransferable(type: Data.self),
-               let image = UIImage(data: data) {
-                selectedImage.append(image)
-            }
-        }
-    }
+//    private func loadImage(items: [PhotosPickerItem]) async {
+//        selectedImage.removeAll()
+//        
+//        for item in items {
+//            if let data = try? await item.loadTransferable(type: Data.self),
+//               let image = UIImage(data: data) {
+//                selectedImage.append(image)
+//            }
+//        }
+//    }
 }

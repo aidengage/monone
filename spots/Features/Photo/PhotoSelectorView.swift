@@ -56,12 +56,60 @@ struct PhotoSelector: View {
 
 struct ProfilePhotoSelectorView: View {
     @Binding var image: UIImage?
-    @State private var selectedItem: PhotosPickerItem?
+    @State private var selectedPhoto: PhotosPickerItem?
     @State private var showCropper = false
     @State private var imageToCrop: UIImage?
     
     var body: some View {
+        VStack {
+            if let image = image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 120, height: 120)
+                    .clipShape(Circle())
+            } else {
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 120, height: 120)
+                    .overlay(
+                        Image(systemName: "person.circle.fill")
+                            .font(.system(size: 120))
+                            .foregroundColor(.gray)
+                    )
+            }
+            
+            PhotosPicker(
+                selection: $selectedPhoto,
+    //            maxSelectionCount: 1,
+                matching: .images
+            ) {
+                Label("Add pfp", systemImage: "photo")
+            }
+            .onChange(of: selectedPhoto) { newItem in
+                Task {
+                    if let data = try? await newItem?.loadTransferable(type: Data.self), let image = UIImage(data: data) {
+                        imageToCrop = image
+                        self.image = image
+                        showCropper = true
+                    }
+//                    await loadProfileImage(item: selectedPhoto)
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showCropper) {
+            if let image = imageToCrop {
+                MantisCropView(image: image, croppedImage: $image)
+            }
+        }
         
+    }
+    
+    private func loadProfileImage(item: PhotosPickerItem) async {
+        if let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) {
+            imageToCrop = image
+            showCropper = true
+        }
     }
 }
 
@@ -71,8 +119,57 @@ struct MantisCropView: UIViewControllerRepresentable {
     @Environment(\.dismiss) var dismiss
     
     func makeUIViewController(context: Context) -> UIViewController {
+        var config = Mantis.Config()
+        
+        config.cropShapeType = .square
+        config.presetFixedRatioType = .alwaysUsingOnePresetFixedRatio(ratio: 1.0)
+        
+        let cropVC = Mantis.cropViewController(image: image, config: config)
+        cropVC.delegate = context.coordinator
+        
+        return cropVC
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         
     }
     
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
     
+    class Coordinator: CropViewControllerDelegate {
+        let parent: MantisCropView
+        
+        init(_ base: MantisCropView) {
+            self.parent = base
+        }
+        
+        func cropViewControllerDidFailToCrop(_ cropViewController: Mantis.CropViewController, original: UIImage) {
+            print("⚠️ Failed to crop image")
+            parent.dismiss()
+        }
+        
+        func cropViewControllerDidBeginResize(_ cropViewController: Mantis.CropViewController) {
+            print("in crop did begin resize func")
+        }
+        
+        func cropViewControllerDidEndResize(_ cropViewController: Mantis.CropViewController, original: UIImage, cropInfo: Mantis.CropInfo) {
+            print("in crop did end resize func")
+        }
+        
+        func cropViewControllerDidCrop(_ cropViewController: CropViewController,
+                                       cropped: UIImage,
+                                       transformation: Transformation,
+                                       cropInfo: CropInfo) {
+            print("in crop view controller func")
+            parent.croppedImage = cropped
+            parent.dismiss()
+        }
+        
+        func cropViewControllerDidCancel(_ cropViewController: CropViewController, original: UIImage) {
+            print("in crop cancel func")
+            parent.dismiss()
+        }
+    }
 }
