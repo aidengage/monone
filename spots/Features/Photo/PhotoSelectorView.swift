@@ -40,7 +40,6 @@ struct PhotoSelector: View {
                         await MainActor.run {
                             // add uuid to own array
                             imageUUIDs.append(UUID().uuidString)
-//                            images.append(UIImage(data: imageData) ?? UIImage())
                             data.append(imageData)
                             
                             if let image = UIImage(data: imageData) {
@@ -58,7 +57,6 @@ struct ProfilePhotoSelectorView: View {
     @Binding var image: UIImage?
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var showCropper = false
-    @State private var imageToCrop: UIImage?
     
     var body: some View {
         VStack {
@@ -81,24 +79,21 @@ struct ProfilePhotoSelectorView: View {
             
             PhotosPicker(
                 selection: $selectedPhoto,
-    //            maxSelectionCount: 1,
                 matching: .images
             ) {
                 Label("Add pfp", systemImage: "photo")
             }
-            .onChange(of: selectedPhoto) { newItem in
+            .onChange(of: selectedPhoto) {
                 Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self), let image = UIImage(data: data) {
-                        imageToCrop = image
-                        self.image = image
+                    if let data = try? await selectedPhoto?.loadTransferable(type: Data.self), let image = UIImage(data: data) {
                         showCropper = true
+                        self.image = image
                     }
-//                    await loadProfileImage(item: selectedPhoto)
                 }
             }
         }
         .fullScreenCover(isPresented: $showCropper) {
-            if let image = imageToCrop {
+            if let image = self.image {
                 MantisCropView(image: image, croppedImage: $image)
             }
         }
@@ -107,7 +102,7 @@ struct ProfilePhotoSelectorView: View {
     
     private func loadProfileImage(item: PhotosPickerItem) async {
         if let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) {
-            imageToCrop = image
+            self.image = image
             showCropper = true
         }
     }
