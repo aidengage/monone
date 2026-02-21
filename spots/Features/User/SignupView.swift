@@ -20,6 +20,7 @@ struct SignupView: View {
     @State private var selectedPhoto: [PhotosPickerItem] = []
 //    @State private var selectedImage: [UIImage] = []
     @State private var profileImage: UIImage?
+    @State private var showCamera: Bool = false
 
     var body: some View {
         
