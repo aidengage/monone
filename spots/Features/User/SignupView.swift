@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import PhotosUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct SignupView: View {
     @Environment(\.dismiss)private var dismiss
@@ -15,6 +17,9 @@ struct SignupView: View {
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
     @State private var error: String? = nil
+    @State private var selectedPhoto: [PhotosPickerItem] = []
+//    @State private var selectedImage: [UIImage] = []
+    @State private var profileImage: UIImage?
 
     var body: some View {
         
@@ -30,41 +35,67 @@ struct SignupView: View {
             Section(header: Text("Confirm Password")) {
                 TextField("Confirm Password", text: $confirmPassword)
             }
+            
+            // upload profile picture needs square crop
+            Section(header: Text("Upload a Profile Picture")) {
+                ProfilePhotoSelectorView(image: $profileImage)
+            }
+            
             Button(action: {
-                signup(email: email, username: username, password: password)
+                Task {
+                    await signup(email: email, username: username, password: password)
+                }
             }) {
                 Text("Signup")
             }
+            .buttonStyle(.glassProminent)
         }
         .navigationTitle("Sign Up")
 
     }
+
+    
+    
+    func uploadPfp(userId: String, photo: UIImage) async {
+        do {
+            if profileImage != nil {
+                let path = "users/\(userId)/\(userId)"
+                let url = try await Firebase.shared.smartFormat(image: photo, path: path)
+                try await Firebase.shared.getStore().collection("users").document(userId).updateData(["pfpUrl": url])
+            }
+        } catch {
+            print("error: \(error.localizedDescription)")
+        }
+        
+    }
     
     // signup function to create account linked to button
-    func signup(email: String, username: String, password: String) {
-        if password != confirmPassword {
-            error = "Passwords do not match"
-        } else {
-            Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                
-                // unwrapping authresult to get user id from account creation
-                guard let user = authResult?.user else {
-                    self.error = "Could not create user"
-                    return
-                }
+    func signup(email: String, username: String, password: String) async {
+        do {
+            if password != confirmPassword {
+                error = "Passwords do not match"
+            } else {
+                let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
                 
                 // setting user id
-                let uid = user.uid
+                let uid = authResult.user.uid
                 
                 if let error = error {
                     print(error)
                 } else {
                     // creates corresponding user in firebase db to link to
-                    print("User created successfully")
-                    Firebase.shared.addUser(uid: uid, email: email, username: username)
+                    print("auth created, adding user and uploading pfp")
+                    
+                    Task {
+                        Firebase.shared.addUser(uid: uid, email: email, username: username)
+                        await uploadPfp(userId: uid, photo: profileImage!)
+                    }
+                    
                     dismiss()
                 }
             }
+        } catch {
+            print("error : \(error.localizedDescription)")
         }
     }
 }
