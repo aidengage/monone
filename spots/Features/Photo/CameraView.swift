@@ -13,23 +13,37 @@ import CoreImage
 //import Observation
 
 struct CameraView: View {
+    @Environment(\.dismiss)private var dismiss
 //    @Binding var image: CGImage?
     @State private var viewModel = ViewModel()
     
     var body: some View {
-        GeometryReader { geometry in
-            if let image = viewModel.currentFrame {
-                Image(decorative: image, scale: 1)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .clipped()
-            } else {
-                ContentUnavailableView("no camera feed", systemImage: "xmark.circle.fill")
-                    .scaledToFit()
-                    .frame(width: geometry.size.width, height: geometry.size.height)
+        NavigationStack {
+            GeometryReader { geometry in
+                if let image = viewModel.currentFrame {
+                    Image(decorative: image, scale: 1)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                } else {
+                    ContentUnavailableView("no camera feed", systemImage: "xmark.circle.fill")
+                        .scaledToFit()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                }
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.backward")
+                    }
+                }
+            }
+            .toolbarBackground(.hidden, for: .navigationBar)
         }
+        
     }
 }
 

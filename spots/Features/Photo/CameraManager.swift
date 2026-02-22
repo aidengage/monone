@@ -99,13 +99,13 @@ class CameraManager: NSObject {
         captureSession.addInput(deviceInput)
         captureSession.addOutput(videoOutput)
         
-//        if let connection = videoOutput.connection(with: .video) {
-//            if connection.isVideoRotationAngleSupported(90) {
-//                connection.videoRotationAngle = 90
-//            }
-//        }
+        if let connection = videoOutput.connection(with: .video) {
+            if connection.isVideoRotationAngleSupported(90) {
+                connection.videoRotationAngle = 90
+            }
+        }
         
-        updateVideoOrientation()
+//        updateVideoOrientation()
         
         self.deviceInput = deviceInput
         self.videoOutput = videoOutput
