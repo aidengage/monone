@@ -1,0 +1,56 @@
+//
+//  CameraView.swift
+//  spots
+//
+//  Created by Aiden Gage on 2/21/26.
+//
+// docs from
+// https://www.createwithswift.com/camera-capture-setup-in-a-swiftui-app/
+
+import SwiftUI
+//import Foundation
+import CoreImage
+//import Observation
+
+struct CameraView: View {
+    @Binding var image: CGImage?
+    
+    var body: some View {
+        GeometryReader { geometry in
+            if let image = image {
+                Image(decorative: image, scale: 1)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: geometry.size.width,
+                           height: geometry.size.height)
+            } else {
+                ContentUnavailableView("no camera feed", systemImage: "xmark.circle.fill")
+                    .frame(width: geometry.size.width,
+                           height: geometry.size.height)
+            }
+        }
+    }
+}
+
+@Observable
+class ViewModel {
+    var currentFrame: CGImage?
+    private let cameraManager = CameraManager()
+    
+    init() {
+        Task {
+            await handleCameraPreviews()
+        }
+    }
+    
+    // handle the updates of the AsyncStream and move the update of the published variables to the MainActor, updating the UI
+    func handleCameraPreviews() async {
+        for await image in cameraManager.previewStream {
+            Task { @MainActor in
+                currentFrame = image
+            }
+        }
+    }
+    
+    
+}
