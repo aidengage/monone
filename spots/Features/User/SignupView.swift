@@ -22,7 +22,6 @@ struct SignupView: View {
     @State private var profileImage: UIImage?
     @State private var showCamera: Bool = false
 
-    @State private var cameraViewModel = ViewModel()
     var body: some View {
         NavigationStack {
             // signup form for user to fill out to create an account
@@ -41,16 +40,13 @@ struct SignupView: View {
                 // upload profile picture needs square crop
                 Section(header: Text("Upload a Profile Picture")) {
                     ProfilePhotoSelectorView(image: $profileImage)
-//                    NavigationLink(destination: CameraView(/*image: $cameraViewModel.currentFrame*/)) {
-//                        Text("take a photo instead!")
-//                    }
                     Button("take a photo instead!") {
                         showCamera = true
                     }
                     .buttonStyle(.glassProminent)
                 }
                 .fullScreenCover(isPresented: $showCamera) {
-                    CameraView()
+//                    CameraView()
                 }
                 
                 Button(action: {
