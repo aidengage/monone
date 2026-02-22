@@ -18,7 +18,7 @@ struct CameraView: View {
     @State private var viewModel = ViewModel()
     
     var body: some View {
-        NavigationStack {
+//        NavigationStack {
             GeometryReader { geometry in
                 if let image = viewModel.currentFrame {
                     Image(decorative: image, scale: 1)
@@ -41,8 +41,8 @@ struct CameraView: View {
                     }
                 }
             }
-            .toolbarBackground(.hidden, for: .navigationBar)
-        }
+//            .toolbarBackground(.hidden, for: .navigationBar)
+//        }
         
     }
 }
