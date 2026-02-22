@@ -13,20 +13,21 @@ import CoreImage
 //import Observation
 
 struct CameraView: View {
-    @Binding var image: CGImage?
+//    @Binding var image: CGImage?
+    @State private var viewModel = ViewModel()
     
     var body: some View {
         GeometryReader { geometry in
-            if let image = image {
+            if let image = viewModel.currentFrame {
                 Image(decorative: image, scale: 1)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: geometry.size.width,
-                           height: geometry.size.height)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
             } else {
                 ContentUnavailableView("no camera feed", systemImage: "xmark.circle.fill")
-                    .frame(width: geometry.size.width,
-                           height: geometry.size.height)
+                    .scaledToFit()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
     }
@@ -47,7 +48,7 @@ class ViewModel {
     func handleCameraPreviews() async {
         for await image in cameraManager.previewStream {
             Task { @MainActor in
-                currentFrame = image
+                self.currentFrame = image
             }
         }
     }

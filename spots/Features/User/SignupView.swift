@@ -22,34 +22,46 @@ struct SignupView: View {
     @State private var profileImage: UIImage?
     @State private var showCamera: Bool = false
 
+    @State private var cameraViewModel = ViewModel()
     var body: some View {
-        
-        // signup form for user to fill out to create an account
-        Form {
-            Section(header: Text("Email")) {
-                TextField("Email", text: $email)
-                TextField("Username (optional)", text: $username)
-            }
-            Section(header: Text("Password")) {
-                TextField("Password", text: $password)
-            }
-            Section(header: Text("Confirm Password")) {
-                TextField("Confirm Password", text: $confirmPassword)
-            }
-            
-            // upload profile picture needs square crop
-            Section(header: Text("Upload a Profile Picture")) {
-                ProfilePhotoSelectorView(image: $profileImage)
-            }
-            
-            Button(action: {
-                Task {
-                    await signup(email: email, username: username, password: password)
+        NavigationStack {
+            // signup form for user to fill out to create an account
+            Form {
+                Section(header: Text("Email")) {
+                    TextField("Email", text: $email)
+                    TextField("Username (optional)", text: $username)
                 }
-            }) {
-                Text("Signup")
+                Section(header: Text("Password")) {
+                    TextField("Password", text: $password)
+                }
+                Section(header: Text("Confirm Password")) {
+                    TextField("Confirm Password", text: $confirmPassword)
+                }
+                
+                // upload profile picture needs square crop
+                Section(header: Text("Upload a Profile Picture")) {
+                    ProfilePhotoSelectorView(image: $profileImage)
+//                    NavigationLink(destination: CameraView(/*image: $cameraViewModel.currentFrame*/)) {
+//                        Text("take a photo instead!")
+//                    }
+                    Button("take a photo instead!") {
+                        showCamera = true
+                    }
+                    .buttonStyle(.glassProminent)
+                }
+                .fullScreenCover(isPresented: $showCamera) {
+                    CameraView()
+                }
+                
+                Button(action: {
+                    Task {
+                        await signup(email: email, username: username, password: password)
+                    }
+                }) {
+                    Text("Signup")
+                }
+                .buttonStyle(.glassProminent)
             }
-            .buttonStyle(.glassProminent)
         }
         .navigationTitle("Sign Up")
 

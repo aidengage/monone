@@ -75,8 +75,12 @@ class CameraManager: NSObject {
             self.captureSession.commitConfiguration()
         }
         
+        // better quality apparently
+        captureSession.sessionPreset = .photo
+        
         // Define the video output and set the Sample Buffer Delegate and the queue for invoking callbacks
         let videoOutput = AVCaptureVideoDataOutput()
+        videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
         videoOutput.setSampleBufferDelegate(self, queue: sessionQueue)
         
         // Check if the input can be added to the capture session
@@ -94,6 +98,31 @@ class CameraManager: NSObject {
         // Adds the input and the output to the AVCaptureSession
         captureSession.addInput(deviceInput)
         captureSession.addOutput(videoOutput)
+        
+//        if let connection = videoOutput.connection(with: .video) {
+//            if connection.isVideoRotationAngleSupported(90) {
+//                connection.videoRotationAngle = 90
+//            }
+//        }
+        
+        updateVideoOrientation()
+        
+        self.deviceInput = deviceInput
+        self.videoOutput = videoOutput
+    }
+    
+    private func updateVideoOrientation() {
+        guard let videoOutput = videoOutput, let connection = videoOutput.connection(with: .video) else {
+            return
+        }
+        
+        if connection.isVideoRotationAngleSupported(90) {
+            connection.videoRotationAngle = 90
+        }
+        
+        if let device = deviceInput?.device, device.position == .front {
+            connection.isVideoMirrored = true
+        }
     }
     
     // The startSession() function will only be responsible for starting the camera session.
@@ -102,6 +131,10 @@ class CameraManager: NSObject {
         guard await isAuthorized else { return }
         // Start the capture session flow of data
         captureSession.startRunning()
+    }
+    
+    func stopSession() {
+        captureSession.stopRunning()
     }
 }
 
