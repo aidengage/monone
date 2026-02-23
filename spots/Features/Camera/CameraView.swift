@@ -5,11 +5,18 @@ import AVKit
 import AVFoundation
 
 enum CaptureMode {
-    
+    case photo
+    case video
+}
+
+struct IdentifiableURL: Identifiable {
+    var id = UUID()
+    var url: URL
 }
 
 struct CameraView: View {
     @StateObject var cameraManager: CameraManager
+    @State private var captureMode: CaptureMode = .photo
     
     var body: some View {
         ZStack {
@@ -41,31 +48,137 @@ struct CameraView: View {
                 }
             }
             VStack {
+                
+                HStack {
+                    Spacer()
+                    Picker("mode", selection: $captureMode) {
+                        Text("Photo").tag(CaptureMode.photo)
+                        Text("Video").tag(CaptureMode.video)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
+                    .padding()
+                }
+                
                 Spacer()
                 
-                Button {
-                    cameraManager.capturePhoto()
-                } label: {
-                    Circle()
-                        .strokeBorder(.white, lineWidth: 3)
-                        .frame(width: 70, height: 70)
-                        .overlay {
-                            Circle()
-                                .fill(.white)
-                                .frame(width: 60, height: 60)
+                if captureMode == .photo {
+                    
+                    
+                    // photo button
+                    Button {
+                        cameraManager.capturePhoto()
+                    } label: {
+                        Circle()
+                            .strokeBorder(.white, lineWidth: 3)
+                            .frame(width: 70, height: 70)
+                            .overlay {
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: 60, height: 60)
+                            }
+                    }
+                    .ignoresSafeArea()
+//                    .padding(.bottom, 10)
+                } else {
+                    // video button
+                    Button {
+                        if cameraManager.isRecording {
+                            cameraManager.stopRecording()
+                        } else {
+                            cameraManager.startRecording()
                         }
+                    } label: {
+                        Circle()
+                            .strokeBorder(.white, lineWidth: 3)
+                            .frame(width: 70, height: 70)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: cameraManager.isRecording ? 6 : 30)
+                                    .fill(.red)
+                                    .frame(width: cameraManager.isRecording ? 30 : 60, height: cameraManager.isRecording ? 30 : 60)
+                            }
+                    }
+                    .ignoresSafeArea()
                 }
-                .ignoresSafeArea()
-//                .padding(.bottom, 10)
+                
+                if cameraManager.isRecording {
+                    HStack {
+                        Circle()
+                            .fill(.red)
+                            .frame(width: 10, height: 10)
+                        Text("recordin!")
+                            .foregroundStyle(.white)
+                    }
+                }
             }
             .sheet(item: $cameraManager.capturedImage) { item in
                 PhotoPreviewView(item: item, onDismiss: {
                     cameraManager.capturedImage = nil
                 })
             }
+            .sheet(item: Binding(get: {cameraManager.recordedVideoURL.map { IdentifiableURL(url: $0)}}, set: {cameraManager.recordedVideoURL = $0?.url})) { item in
+                VideoPreviewView(url: item.url, onDismiss: {
+                    cameraManager.recordedVideoURL = nil
+                })
+            }
         }
         .onAppear {
             cameraManager.checkAuth()
+        }
+    }
+}
+
+struct PhotoPreviewView: View {
+    let item: IdentifiableImage
+    let onDismiss: () -> Void
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Button("retake") {
+                    onDismiss()
+                }
+                .padding()
+                
+                Spacer()
+                
+                Button("save") {
+                    UIImageWriteToSavedPhotosAlbum(item.image, nil, nil, nil)
+                    onDismiss()
+                }
+            }
+            .background(.ultraThinMaterial)
+            
+            Image(uiImage: item.image)
+                .resizable()
+                .scaledToFit()
+            Spacer()
+        }
+    }
+}
+
+struct VideoPreviewView: View {
+    let url: URL
+    let onDismiss: () -> Void
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Button("retake") {
+                    onDismiss()
+                }
+                .padding()
+                
+                Spacer()
+                
+                Button("save") {
+                    UISaveVideoAtPathToSavedPhotosAlbum(url.path(), nil, nil, nil)
+                    onDismiss()
+                }
+            }
+            .background(.ultraThinMaterial)
+            
+            VideoPlayer(player: AVPlayer(url: url))
         }
     }
 }
