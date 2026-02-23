@@ -27,7 +27,7 @@ struct SignupView: View {
     @StateObject private var cameraManager = CameraManager()
 
     var body: some View {
-        NavigationStack {
+//        NavigationStack {
             // signup form for user to fill out to create an account
             Form {
                 Section(header: Text("Email")) {
@@ -92,7 +92,7 @@ struct SignupView: View {
                 }
                 .buttonStyle(.glassProminent)
             }
-        }
+//        }
         .navigationTitle("Sign Up")
 
     }
