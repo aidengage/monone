@@ -9,6 +9,11 @@ enum CaptureMode {
     case video
 }
 
+struct IdentifiableImage: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
 struct IdentifiableURL: Identifiable {
     var id = UUID()
     var url: URL
