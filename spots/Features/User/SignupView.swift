@@ -40,13 +40,15 @@ struct SignupView: View {
                 // upload profile picture needs square crop
                 Section(header: Text("Upload a Profile Picture")) {
                     ProfilePhotoSelectorView(image: $profileImage)
+                }
+                Section(header: Text("take photo instead! (hidden)")) {
                     Button("take a photo instead!") {
                         showCamera = true
                     }
                     .buttonStyle(.glassProminent)
-                }
-                .fullScreenCover(isPresented: $showCamera) {
-//                    CameraView()
+                    .fullScreenCover(isPresented: $showCamera) {
+                        CameraView()
+                    }
                 }
                 
                 Button(action: {
