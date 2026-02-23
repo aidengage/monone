@@ -18,10 +18,23 @@ struct CameraView: View {
     @StateObject var cameraManager: CameraManager
     @State private var captureMode: CaptureMode = .photo
     
+    private var flashIcon: String {
+        switch cameraManager.flashMode {
+        case .off:
+            return "bolt.slash.fill"
+        case .on:
+            return "bolt.fill"
+        case .auto:
+            return "bolt.badge.automatic.fill"
+        @unknown default:
+            return "bolt.slash.fill"
+        }
+    }
+    
     var body: some View {
         ZStack {
             if cameraManager.authorizationStatus == .authorized {
-                CameraPreview(session: cameraManager.session)
+                CameraPreview(session: cameraManager.session, cameraManager: cameraManager)
                     .ignoresSafeArea()
             } else {
                 HStack {
@@ -52,6 +65,16 @@ struct CameraView: View {
             VStack {
                 
                 HStack {
+                    if captureMode == .photo {
+                        Button {
+                            cameraManager.toggleFlash()
+                        } label: {
+                            Image(systemName: flashIcon)
+                                .font(.title2)
+                                .foregroundStyle(.white)
+                                .padding()
+                        }
+                    }
                     Spacer()
                     Picker("mode", selection: $captureMode) {
                         Text("Photo").tag(CaptureMode.photo)
@@ -63,6 +86,14 @@ struct CameraView: View {
                 }
                 
                 Spacer()
+                
+                Button {
+                    cameraManager.switchCamera()
+                } label: {
+                    Image(systemName: "arrow.triangle.2.circlepath.camera")
+                        .font(.largeTitle)
+                        .foregroundStyle(.white)
+                }
                 
                 if captureMode == .photo {
                     
@@ -122,13 +153,6 @@ struct CameraView: View {
                     cameraManager.recordedVideoURL = nil
                 })
             }
-//            .sheet(item: Binding(
-//                get: {cameraManager.recordedVideoURL.map { IdentifiableURL(url: $0)}},
-//                set: {cameraManager.recordedVideoURL = $0?.url })) { item in
-//                    VideoPreviewView(item: item, onDismiss: {
-//                        cameraManager.recordedVideoURL = nil
-//                    })
-//                }
         }
         .onAppear {
             cameraManager.checkAuth()

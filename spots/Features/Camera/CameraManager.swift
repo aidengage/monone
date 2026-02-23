@@ -23,6 +23,10 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
     @Published var authorizationStatus: AVAuthorizationStatus = .notDetermined
     @Published var isRecording = false
     @Published var recordedVideoURL: IdentifiableURL?
+    @Published var flashMode: AVCaptureDevice.FlashMode = .off
+    @Published var zoomFactor: CGFloat = 1.0
+    private let minZoom: CGFloat = 1.0
+    private let maxZoom: CGFloat = 5.0
     private var outputURL: URL?
     
     let session = AVCaptureSession()
@@ -120,7 +124,7 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
             guard let self = self else { return }
             
             let settings = AVCapturePhotoSettings()
-            settings.flashMode = .off
+            settings.flashMode = self.flashMode
             
             if self.photoOutput.isHighResolutionCaptureEnabled {
                 settings.isHighResolutionPhotoEnabled = true
@@ -173,6 +177,76 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
             
             DispatchQueue.main.async {
                 self?.isRecording = false
+            }
+        }
+    }
+    
+    func switchCamera() {
+        sessionQueue.async {
+            [weak self] in
+            guard let self = self else { return }
+            
+            self.session.beginConfiguration()
+            
+            //remove current input
+            if let currentInput = self.currentInput {
+                self.session.removeInput(currentInput)
+            }
+            
+            let currentPosition = self.currentInput?.device.position ?? .back
+            let newPosition: AVCaptureDevice.Position = (currentPosition == .back) ? .front : .back
+            
+            guard let newCam = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: newPosition),
+                  let newInput = try? AVCaptureDeviceInput(device: newCam) else {
+                // fail new cam
+                if let currentInput = self.currentInput,
+                   self.session.canAddInput(currentInput) {
+                    self.session.addInput(currentInput)
+                }
+                self.session.commitConfiguration()
+                return
+            }
+            
+            if self.session.canAddInput(newInput) {
+                self.session.addInput(newInput)
+                self.currentInput = newInput
+            }
+            self.session.commitConfiguration()
+        }
+    }
+    
+    func toggleFlash() {
+        flashMode = switch flashMode {
+        case .off:
+            .on
+        case .on:
+            .auto
+        case .auto:
+            .off
+        @unknown default:
+            .off
+        }
+    }
+    
+    func zoom(factor: CGFloat) {
+        sessionQueue.async {
+            [weak self] in
+            guard let self, let device = self.currentInput?.device else { return }
+            
+            do {
+                try device.lockForConfiguration()
+                
+                //clamp zoom
+                let clampView = max(self.minZoom, min(factor, min(self.maxZoom, device.activeFormat.videoMaxZoomFactor)))
+                
+                device.videoZoomFactor = clampView
+                
+                DispatchQueue.main.async {
+                    self.zoomFactor = clampView
+                }
+                device.unlockForConfiguration()
+            } catch {
+                print("zoom error: \(error.localizedDescription)")
             }
         }
     }

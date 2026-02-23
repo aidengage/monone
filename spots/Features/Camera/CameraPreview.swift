@@ -11,6 +11,7 @@ import AVFoundation
 
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
+    let cameraManager: CameraManager
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
@@ -23,6 +24,11 @@ struct CameraPreview: UIViewRepresentable {
         
         // store layer context
         context.coordinator.previewLayer = previewLayer
+        
+        let pinchGesture = UIPinchGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handlePinch(_:)))
+        view.addGestureRecognizer(pinchGesture)
+        
+        context.coordinator.cameraManager = cameraManager
         
         return view
     }
@@ -41,6 +47,22 @@ struct CameraPreview: UIViewRepresentable {
     
     class Coordinator {
         var previewLayer: AVCaptureVideoPreviewLayer?
+        var lastZoomFactor: CGFloat = 1.0
+        var cameraManager: CameraManager?
+        
+        @objc func handlePinch(_ gesture: UIPinchGestureRecognizer) {
+            guard let manager = cameraManager else { return }
+            
+            switch gesture.state {
+            case .began:
+                lastZoomFactor = manager.zoomFactor
+            case .changed:
+                let newZoom = lastZoomFactor * gesture.scale
+                manager.zoom(factor: newZoom)
+            default:
+                break
+            }
+        }
     }
     
     
