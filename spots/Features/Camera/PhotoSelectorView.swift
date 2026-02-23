@@ -7,6 +7,7 @@
 import SwiftUI
 import PhotosUI
 import Mantis
+import AVFoundation
 
 // photo selector view, maybe move this to add post view??
 struct PhotoSelector: View {
@@ -168,3 +169,33 @@ struct MantisCropView: UIViewControllerRepresentable {
         }
     }
 }
+
+struct PhotoPreviewView: View {
+    let item: IdentifiableImage
+    let onDismiss: () -> Void
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Button("retake") {
+                    onDismiss()
+                }
+                .padding()
+                
+                Spacer()
+                
+                Button("save") {
+                    UIImageWriteToSavedPhotosAlbum(item.image, nil, nil, nil)
+                    onDismiss()
+                }
+            }
+            .background(.ultraThinMaterial)
+            
+            Image(uiImage: item.image)
+                .resizable()
+                .scaledToFit()
+            Spacer()
+        }
+    }
+}
+

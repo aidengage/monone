@@ -3,17 +3,26 @@ import SwiftUI
 import AVFoundation
 import Combine
 
-class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
+class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureFileOutputRecordingDelegate {
     
-//    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: (any Error)?) {
-//        <#code#>
-//    }
-    
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: (any Error)?) {
+        if let error = error {
+            print("video recording error \(error.localizedDescription)")
+            return
+        }
+        
+        DispatchQueue.main.async {
+            [weak self] in
+            self?.recordedVideoURL = outputFileURL
+        }
+    }
     
     @Published var capturedImage: IdentifiableImage?
     @Published var isSessionRunning = false
     @Published var authorizationStatus: AVAuthorizationStatus = .notDetermined
     @Published var isRecording = false
+    @Published var recordedVideoURL: URL?
+    private var outputURL: URL?
     
     let session = AVCaptureSession()
     
@@ -58,7 +67,7 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
             
             //quality
             self.session.beginConfiguration()
-            self.session.sessionPreset = .photo
+            self.session.sessionPreset = .high
             
             //cam input
             guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back), let input = try? AVCaptureDeviceInput(device: camera) else {
@@ -79,6 +88,18 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
                 self.photoOutput.isHighResolutionCaptureEnabled = true
 //                self.photoOutput.maxPhotoDimensions = .init(width: 1920, height: 1080)
                 self.photoOutput.maxPhotoQualityPrioritization = .quality
+            }
+            
+            // added video output
+            if self.session.canAddOutput(self.videoOutput) {
+                self.session.addOutput(self.videoOutput)
+            }
+            
+            //mic output
+            if let mic = AVCaptureDevice.default(for: .audio),
+                let audioInput = try? AVCaptureDeviceInput(device: mic),
+                self.session.canAddInput(audioInput) {
+                self.session.addInput(audioInput)
             }
             
             self.session.commitConfiguration()
@@ -121,6 +142,37 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
         DispatchQueue.main.async {
             [weak self] in
             self?.capturedImage = IdentifiableImage(image: uiImage)
+        }
+    }
+    
+    func startRecording() {
+        sessionQueue.async {
+            [weak self] in
+            guard let self else { return }
+            
+            let tempURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension(AVFileType.mov.rawValue)
+            
+            self.outputURL = tempURL
+            
+            // start recording to file
+            self.videoOutput.startRecording(to: tempURL, recordingDelegate: self)
+            
+            DispatchQueue.main.async {
+                self.isRecording = true
+            }
+        }
+    }
+    
+    func stopRecording() {
+        sessionQueue.async {
+            [weak self] in
+            self?.videoOutput.stopRecording()
+            
+            DispatchQueue.main.async {
+                self?.isRecording = false
+            }
         }
     }
 }
