@@ -9,6 +9,8 @@ import SwiftUI
 import PhotosUI
 import FirebaseAuth
 import FirebaseFirestore
+import AVFoundation
+import AVKit
 
 struct SignupView: View {
     @Environment(\.dismiss)private var dismiss
@@ -21,6 +23,8 @@ struct SignupView: View {
 //    @State private var selectedImage: [UIImage] = []
     @State private var profileImage: UIImage?
     @State private var showCamera: Bool = false
+    
+    @StateObject private var cameraManager = CameraManager()
 
     var body: some View {
         NavigationStack {
@@ -46,9 +50,37 @@ struct SignupView: View {
                         showCamera = true
                     }
                     .buttonStyle(.glassProminent)
-                    .fullScreenCover(isPresented: $showCamera) {
-                        CameraView()
+                    .sheet(isPresented: $showCamera) {
+//                        CameraView()
+                        if cameraManager.authorizationStatus == .authorized {
+                            CameraPreview(session: cameraManager.session)
+                                .ignoresSafeArea()
+                        } else {
+                            Image(systemName: "camera.fill.badge.xmark")
+                                .font(.largeTitle)
+                                .foregroundStyle(Color(.systemGray2))
+                            Text("Camera Permission Required")
+                                .font(.largeTitle)
+                                .foregroundStyle(Color(.systemGray2))
+                            
+                            if cameraManager.authorizationStatus == .denied {
+                                Text("please enable camera in settings")
+                                
+                                Button("open settings?") {
+                                    if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                                        UIApplication.shared
+                                            .open(settingsURL)
+                                    }
+                                }
+                                .buttonStyle(.glassProminent)
+                                .tint(Color.indigo)
+                            }
+                        }
                     }
+                    .onAppear {
+                        cameraManager.checkAuth()
+                    }
+                    .padding()
                 }
                 
                 Button(action: {
