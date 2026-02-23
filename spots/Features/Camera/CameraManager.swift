@@ -14,7 +14,7 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
         
         DispatchQueue.main.async {
             [weak self] in
-            self?.recordedVideoURL = outputFileURL
+            self?.recordedVideoURL = IdentifiableURL(url: outputFileURL)
         }
     }
     
@@ -22,7 +22,7 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
     @Published var isSessionRunning = false
     @Published var authorizationStatus: AVAuthorizationStatus = .notDetermined
     @Published var isRecording = false
-    @Published var recordedVideoURL: URL?
+    @Published var recordedVideoURL: IdentifiableURL?
     private var outputURL: URL?
     
     let session = AVCaptureSession()
@@ -82,7 +82,7 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
                 self.currentInput = input
             }
             
-            // add output
+            // add camera output
             if self.session.canAddOutput(self.photoOutput) {
                 self.session.addOutput(self.photoOutput)
                 
@@ -149,11 +149,11 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
     func startRecording() {
         sessionQueue.async {
             [weak self] in
-            guard let self else { return }
+            guard let self = self else { return }
             
             let tempURL = FileManager.default.temporaryDirectory
                 .appendingPathComponent(UUID().uuidString)
-                .appendingPathExtension(AVFileType.mov.rawValue)
+                .appendingPathExtension("mov")
             
             self.outputURL = tempURL
             

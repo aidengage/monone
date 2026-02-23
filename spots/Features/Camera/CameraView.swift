@@ -24,27 +24,29 @@ struct CameraView: View {
                 CameraPreview(session: cameraManager.session)
                     .ignoresSafeArea()
             } else {
-                Image(systemName: "camera.fill.badge.xmark")
-                    .font(.largeTitle)
-                    .foregroundStyle(Color(.systemGray2))
-                Text("Camera Permission Required")
-                    .font(.largeTitle)
-                    .foregroundStyle(Color(.systemGray2))
-                
-                if cameraManager.authorizationStatus == .denied {
-                    Text("please enable camera in settings")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                HStack {
+                    Image(systemName: "camera.fill.badge.xmark")
+                        .font(.largeTitle)
+                        .foregroundStyle(Color(.systemGray2))
+                    Text("Camera Permission Required")
+                        .font(.largeTitle)
+                        .foregroundStyle(Color(.systemGray2))
                     
-                    Button("open settings?") {
-                        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
-                            UIApplication.shared
-                                .open(settingsURL)
+                    if cameraManager.authorizationStatus == .denied {
+                        Text("please enable camera in settings")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        Button("open settings?") {
+                            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared
+                                    .open(settingsURL)
+                            }
                         }
+                        .buttonStyle(.glassProminent)
                     }
-                    .buttonStyle(.glassProminent)
                 }
             }
             VStack {
@@ -63,7 +65,6 @@ struct CameraView: View {
                 Spacer()
                 
                 if captureMode == .photo {
-                    
                     
                     // photo button
                     Button {
@@ -116,11 +117,18 @@ struct CameraView: View {
                     cameraManager.capturedImage = nil
                 })
             }
-            .sheet(item: Binding(get: {cameraManager.recordedVideoURL.map { IdentifiableURL(url: $0)}}, set: {cameraManager.recordedVideoURL = $0?.url})) { item in
-                VideoPreviewView(url: item.url, onDismiss: {
+            .sheet(item: $cameraManager.recordedVideoURL) { item in
+                VideoPreviewView(item: item, onDismiss: {
                     cameraManager.recordedVideoURL = nil
                 })
             }
+//            .sheet(item: Binding(
+//                get: {cameraManager.recordedVideoURL.map { IdentifiableURL(url: $0)}},
+//                set: {cameraManager.recordedVideoURL = $0?.url })) { item in
+//                    VideoPreviewView(item: item, onDismiss: {
+//                        cameraManager.recordedVideoURL = nil
+//                    })
+//                }
         }
         .onAppear {
             cameraManager.checkAuth()
@@ -146,6 +154,7 @@ struct PhotoPreviewView: View {
                     UIImageWriteToSavedPhotosAlbum(item.image, nil, nil, nil)
                     onDismiss()
                 }
+                .padding()
             }
             .background(.ultraThinMaterial)
             
@@ -158,7 +167,7 @@ struct PhotoPreviewView: View {
 }
 
 struct VideoPreviewView: View {
-    let url: URL
+    let item: IdentifiableURL
     let onDismiss: () -> Void
     
     var body: some View {
@@ -172,13 +181,14 @@ struct VideoPreviewView: View {
                 Spacer()
                 
                 Button("save") {
-                    UISaveVideoAtPathToSavedPhotosAlbum(url.path(), nil, nil, nil)
+                    UISaveVideoAtPathToSavedPhotosAlbum(item.url.path(), nil, nil, nil)
                     onDismiss()
                 }
+                .padding()
             }
             .background(.ultraThinMaterial)
             
-            VideoPlayer(player: AVPlayer(url: url))
+            VideoPlayer(player: AVPlayer(url: item.url))
         }
     }
 }
