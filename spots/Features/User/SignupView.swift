@@ -50,8 +50,9 @@ struct SignupView: View {
                         showCamera = true
                     }
                     .buttonStyle(.glassProminent)
+                    
+//                    .fullScreenCover(isPresented: $showCamera) {
                     .sheet(isPresented: $showCamera) {
-//                        CameraView()
                         if cameraManager.authorizationStatus == .authorized {
                             CameraPreview(session: cameraManager.session)
                                 .ignoresSafeArea()
