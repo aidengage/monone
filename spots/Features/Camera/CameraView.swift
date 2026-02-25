@@ -4,6 +4,17 @@ import SwiftUI
 import AVKit
 import AVFoundation
 
+//    some ideas
+//
+//  i want to allow a way to limit how many photos a user can take
+// to like 5-6, give the option for less but showing button when >zero photo taken
+// user is then displayed with a grid of photos to confirm, can retake specific photos
+// show empty placeholder spot for slots not taken
+//
+//  when taking a photo for profile picture, the photo should be put directly
+// into the square cropper we use which spits it all the way out to the
+// signup view
+
 enum CaptureMode {
     case photo
     case video
@@ -22,6 +33,7 @@ struct IdentifiableURL: Identifiable {
 struct CameraView: View {
     @StateObject var cameraManager: CameraManager
     @State private var captureMode: CaptureMode = .photo
+    // default photo limit = 6
     
     var body: some View {
         ZStack {
