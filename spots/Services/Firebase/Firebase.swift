@@ -63,7 +63,15 @@ final class Firebase {
         return storage.getStorage()
     }
     
-    
+    // already tested
+    func docUpdatedAt(docRef: DocumentReference) async {
+        do {
+            try await docRef.updateData(["updatedAt": FieldValue.serverTimestamp()])
+        } catch {
+            print("error updating at...")
+            print(error.localizedDescription)
+        }
+    }
         
     // storage
     func uploadImage(uuidArray: [String], data: [Data]) async throws {

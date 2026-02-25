@@ -156,7 +156,7 @@ extension Firebase {
         let postRef = getStore().collection("posts").document(postId)
         do {
             try await postRef.updateData(["selectedActivity": newActivity.displayActivity])
-            await postUpdatedAt(postRef: postRef)
+            await docUpdatedAt(docRef: postRef)
         } catch {
             print("error updating activity")
             print(error.localizedDescription)
@@ -168,7 +168,7 @@ extension Firebase {
         let postRef = getStore().collection("posts").document(postId)
         do {
             try await postRef.updateData(["name": newName])
-            await postUpdatedAt(postRef: postRef)
+            await docUpdatedAt(docRef: postRef)
         } catch {
             print("error updating name")
             print(error.localizedDescription)
@@ -180,7 +180,7 @@ extension Firebase {
         let postRef = getStore().collection("posts").document(postId)
         do {
             try await postRef.updateData(["address": newAddress])
-            await postUpdatedAt(postRef: postRef)
+            await docUpdatedAt(docRef: postRef)
         } catch {
             print("error updating address")
             print(error.localizedDescription)
@@ -193,19 +193,9 @@ extension Firebase {
         do {
             try await postRef.updateData(["latitude": newLocation.latitude])
             try await postRef.updateData(["longitude": newLocation.longitude])
-            await postUpdatedAt(postRef: postRef)
+            await docUpdatedAt(docRef: postRef)
         } catch {
             print("error updating location")
-            print(error.localizedDescription)
-        }
-    }
-    
-    // already tested
-    func postUpdatedAt(postRef: DocumentReference) async {
-        do {
-            try await postRef.updateData(["updatedAt": FieldValue.serverTimestamp()])
-        } catch {
-            print("error updating at...")
             print(error.localizedDescription)
         }
     }
