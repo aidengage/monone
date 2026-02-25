@@ -14,6 +14,9 @@ import AVFoundation
 //  when taking a photo for profile picture, the photo should be put directly
 // into the square cropper we use which spits it all the way out to the
 // signup view
+//
+//  maybe think about making firebase manager more similar to how this
+// camera manager operates?
 
 enum CaptureMode {
     case photo
