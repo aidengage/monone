@@ -239,7 +239,7 @@ struct EditActivityCard: View {
         .padding(.horizontal, 20)
         .onDisappear {
             Task {
-                await Firebase.shared.updatePostActivity(postId: postId, newActivity: activity)
+                await Firebase.shared.postUpdateActivity(postId: postId, newActivity: activity)
             }
         }
     }
