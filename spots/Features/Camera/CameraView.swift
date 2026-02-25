@@ -171,59 +171,67 @@ struct CameraControlBottom: View {
     @ObservedObject var cameraManager: CameraManager
     
     var body: some View {
-        Button {
-            cameraManager.switchCamera()
-        } label: {
-            Image(systemName: "arrow.triangle.2.circlepath.camera")
-                .font(.largeTitle)
-                .foregroundStyle(.white)
-        }
-        
-        if captureMode == .photo {
-            
-            // photo button
-            Button {
-                cameraManager.capturePhoto()
-            } label: {
-                Circle()
-                    .strokeBorder(.white, lineWidth: 3)
-                    .frame(width: 70, height: 70)
-                    .overlay {
+        HStack {
+            Spacer() // placeholder spacer to center button, need replacement
+            Spacer()
+            VStack {
+                if captureMode == .photo {
+                    
+                    // photo button
+                    Button {
+                        cameraManager.capturePhoto()
+                    } label: {
                         Circle()
-                            .fill(.white)
-                            .frame(width: 60, height: 60)
+                            .strokeBorder(.white, lineWidth: 3)
+                            .frame(width: 70, height: 70)
+                            .overlay {
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: 60, height: 60)
+                            }
                     }
-            }
-            .ignoresSafeArea()
-        } else {
-            // video button
-            Button {
-                if cameraManager.isRecording {
-                    cameraManager.stopRecording()
+                    .ignoresSafeArea()
                 } else {
-                    cameraManager.startRecording()
-                }
-            } label: {
-                Circle()
-                    .strokeBorder(.white, lineWidth: 3)
-                    .frame(width: 70, height: 70)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: cameraManager.isRecording ? 6 : 30)
-                            .fill(.red)
-                            .frame(width: cameraManager.isRecording ? 30 : 60, height: cameraManager.isRecording ? 30 : 60)
+                    // video button
+                    Button {
+                        if cameraManager.isRecording {
+                            cameraManager.stopRecording()
+                        } else {
+                            cameraManager.startRecording()
+                        }
+                    } label: {
+                        Circle()
+                            .strokeBorder(.white, lineWidth: 3)
+                            .frame(width: 70, height: 70)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: cameraManager.isRecording ? 6 : 30)
+                                    .fill(.red)
+                                    .frame(width: cameraManager.isRecording ? 30 : 60, height: cameraManager.isRecording ? 30 : 60)
+                            }
                     }
+                    .ignoresSafeArea()
+                }
+                
+                if cameraManager.isRecording {
+                    HStack {
+                        Circle()
+                            .fill(.red)
+                            .frame(width: 10, height: 10)
+                        Text("recordin!")
+                            .foregroundStyle(.white)
+                    }
+                }
             }
-            .ignoresSafeArea()
-        }
-        
-        if cameraManager.isRecording {
-            HStack {
-                Circle()
-                    .fill(.red)
-                    .frame(width: 10, height: 10)
-                Text("recordin!")
+            
+            Spacer()
+            Button {
+                cameraManager.switchCamera()
+            } label: {
+                Image(systemName: "arrow.triangle.2.circlepath.camera")
+                    .font(.largeTitle)
                     .foregroundStyle(.white)
             }
+            .padding()
         }
     }
 }
