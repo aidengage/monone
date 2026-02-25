@@ -23,6 +23,13 @@ enum CaptureMode {
     case video
 }
 
+enum SwipeDirection {
+    case left
+    case right
+    case up
+    case down
+}
+
 struct IdentifiableImage: Identifiable {
     let id = UUID()
     let image: UIImage
@@ -38,14 +45,25 @@ struct CameraView: View {
     @State private var captureMode: CaptureMode = .photo
     // default photo limit = 6
     
+    @State var swipeDirection = SwipeDirection.left
+    var swipeGesture: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onEnded {
+                // Capture swipe direction.
+                captureMode = $0.translation.width < 0 ? .photo : .video
+            }
+    }
+    
     var body: some View {
         ZStack {
             if cameraManager.authorizationStatus == .authorized {
                 CameraPreview(session: cameraManager.session, cameraManager: cameraManager)
                     .ignoresSafeArea()
+                    .simultaneousGesture(swipeGesture)
             } else {
                 NoCameraView(authorizationStatus: cameraManager.authorizationStatus)
             }
+            
             VStack {
                 CameraControlTop(captureMode: $captureMode, cameraManager: cameraManager)
                 Spacer()
@@ -155,13 +173,6 @@ struct CameraControlTop: View {
                 }
             }
             Spacer()
-            Picker("mode", selection: $captureMode) {
-                Text("Photo").tag(CaptureMode.photo)
-                Text("Video").tag(CaptureMode.video)
-            }
-            .pickerStyle(.segmented)
-            .frame(width: 200)
-            .padding()
         }
     }
 }
@@ -171,10 +182,19 @@ struct CameraControlBottom: View {
     @ObservedObject var cameraManager: CameraManager
     
     var body: some View {
-        HStack {
-            Spacer() // placeholder spacer to center button, need replacement
-            Spacer()
+        
+        ZStack(alignment: .bottom) {
+            Color.clear
             VStack {
+                Picker("mode", selection: $captureMode) {
+                    Text("Photo").tag(CaptureMode.photo)
+                    Text("Video").tag(CaptureMode.video)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 200)
+                .glassEffect()
+                .padding()
+                
                 if captureMode == .photo {
                     
                     // photo button
@@ -222,16 +242,17 @@ struct CameraControlBottom: View {
                     }
                 }
             }
-            
-            Spacer()
-            Button {
-                cameraManager.switchCamera()
-            } label: {
-                Image(systemName: "arrow.triangle.2.circlepath.camera")
-                    .font(.largeTitle)
-                    .foregroundStyle(.white)
+            HStack {
+                Spacer()
+                Button {
+                    cameraManager.switchCamera()
+                } label: {
+                    Image(systemName: "arrow.triangle.2.circlepath.camera")
+                        .font(.largeTitle)
+                        .foregroundStyle(.white)
+                }
+                .padding()
             }
-            .padding()
         }
     }
 }
