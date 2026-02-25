@@ -1,6 +1,7 @@
 // https://www.youtube.com/watch?v=ik1QRc_kN9M
 
 import SwiftUI
+import Photos
 import AVFoundation
 import Combine
 
@@ -25,6 +26,7 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
     @Published var recordedVideoURL: IdentifiableURL?
     @Published var flashMode: AVCaptureDevice.FlashMode = .off
     @Published var zoomFactor: CGFloat = 1.0
+    @Published var latestThumbnail: UIImage? = nil
     private let minZoom: CGFloat = 1.0
     private let maxZoom: CGFloat = 5.0
     private var outputURL: URL?
@@ -147,6 +149,37 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
         DispatchQueue.main.async {
             [weak self] in
             self?.capturedImage = IdentifiableImage(image: uiImage)
+//            self?.latestThumbnail = self?.capturedImage?.image // need rework
+        }
+    }
+    
+    func updateLibraryThumbnail(image: UIImage?) {
+        if image == nil {
+            PHPhotoLibrary.requestAuthorization { status in
+                guard status == .authorized else {
+                    print("permission denied")
+                    return
+                }
+                
+                let fetchOptions = PHFetchOptions()
+                fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+                fetchOptions.fetchLimit = 1
+                
+                let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+                
+                DispatchQueue.main.async {
+                    if let lastAsset = fetchResult.firstObject {
+                        PHImageManager.default().requestImage(for: lastAsset, targetSize: CGSize(width: 200, height: 200), contentMode: .aspectFill, options: nil) { uiImage, _ in
+                            if let uiImage = uiImage {
+                                self.latestThumbnail = uiImage
+                            }}
+                    }
+                }
+            }
+        } else {
+            let targetSize = CGSize(width: 200, height: 200)
+            self.latestThumbnail = image
+//            self.latestThumbnail = image?.resizeImageTo(size: targetSize) // need consistent resolution like above
         }
     }
     

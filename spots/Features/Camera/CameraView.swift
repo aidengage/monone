@@ -1,6 +1,7 @@
 // https://www.youtube.com/watch?v=ik1QRc_kN9M
 
 import SwiftUI
+import PhotosUI
 import AVKit
 import AVFoundation
 
@@ -70,7 +71,7 @@ struct CameraView: View {
                 CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager)
             }
             .sheet(item: $cameraManager.capturedImage) { item in
-                PhotoPreviewView(item: item, onDismiss: {
+                PhotoPreviewView(cameraManager: cameraManager, item: item, onDismiss: {
                     cameraManager.capturedImage = nil
                 })
             }
@@ -82,11 +83,13 @@ struct CameraView: View {
         }
         .onAppear {
             cameraManager.checkAuth()
+            cameraManager.updateLibraryThumbnail(image: nil)
         }
     }
 }
 
 struct PhotoPreviewView: View {
+    @ObservedObject var cameraManager: CameraManager
     let item: IdentifiableImage
     let onDismiss: () -> Void
     
@@ -102,6 +105,7 @@ struct PhotoPreviewView: View {
                 
                 Button("save") {
                     UIImageWriteToSavedPhotosAlbum(item.image, nil, nil, nil)
+                    cameraManager.updateLibraryThumbnail(image: item.image)
                     onDismiss()
                 }
                 .padding()
@@ -243,6 +247,7 @@ struct CameraControlBottom: View {
                 }
             }
             HStack {
+                ThumbnailButton(cameraManager: cameraManager)
                 Spacer()
                 Button {
                     cameraManager.switchCamera()
@@ -284,6 +289,37 @@ struct NoCameraView: View {
                 }
                 .buttonStyle(.glassProminent)
             }
+        }
+    }
+}
+
+struct ThumbnailButton: View {
+    
+    @ObservedObject var cameraManager: CameraManager
+    
+    @State private var selectedItems: [PhotosPickerItem] = []
+    
+    var body: some View {
+        PhotosPicker( selection: $selectedItems, matching: .images, photoLibrary: .shared()) {
+            thumbnail
+        }
+        .frame(width: 64.0, height: 64.0)
+        .cornerRadius(8)
+        .padding()
+//        .disabled(camera.captureActivity.isRecording)
+    }
+    
+    @ViewBuilder
+    var thumbnail: some View {
+        if let thumbnail = cameraManager.latestThumbnail {
+            Image(uiImage: thumbnail)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .animation(.easeInOut(duration: 0.3), value: thumbnail)
+        } else {
+            Rectangle()
+                .fill(.gray)
+                .frame(width: 64.0, height: 64.0)
         }
     }
 }
