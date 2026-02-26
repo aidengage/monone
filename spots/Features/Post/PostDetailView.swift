@@ -119,10 +119,24 @@ struct PostDetailView: View {
             // also start single post listener?
             Firebase.shared.startPostListenerById(postId: post.id)
             Firebase.shared.startRatingListener(postId: post.id)
+            addTapGestureToDismissKeyboard()
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
         }
+        .scrollDismissesKeyboard(.interactively)
+        
+    }
+    
+    func addTapGestureToDismissKeyboard() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let window = windowScene.windows.first else {
+            return
+        }
+        
+        let tapGesture = UITapGestureRecognizer(target: UIApplication.shared, action: #selector( UIApplication.dismissKeyboard ))
+        tapGesture.cancelsTouchesInView = false  // This is KEY - lets other gestures still work
+        window.addGestureRecognizer(tapGesture)
     }
 }
 
