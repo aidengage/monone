@@ -44,7 +44,10 @@ struct IdentifiableURL: Identifiable {
 struct CameraView: View {
     @StateObject var cameraManager: CameraManager
     @State private var captureMode: CaptureMode = .photo
-    // default photo limit = 6
+    var maxNumPhotos: Int
+    @State private var numCaptures: Int = 0
+    var enablePhoto: Bool
+    var enableVideo: Bool
     
     @State var swipeDirection = SwipeDirection.left
     var swipeGesture: some Gesture {
@@ -60,7 +63,7 @@ struct CameraView: View {
             if cameraManager.authorizationStatus == .authorized {
                 CameraPreview(session: cameraManager.session, cameraManager: cameraManager)
                     .ignoresSafeArea()
-                    .simultaneousGesture(swipeGesture)
+                    .simultaneousGesture(swipeGesture, isEnabled: enablePhoto && enableVideo)
             } else {
                 NoCameraView(authorizationStatus: cameraManager.authorizationStatus)
             }
@@ -68,12 +71,12 @@ struct CameraView: View {
             VStack {
                 CameraControlTop(captureMode: $captureMode, cameraManager: cameraManager)
                 Spacer()
-                CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager)
+                CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager, numCaptures: $numCaptures, enablePhoto: enablePhoto, enableVideo: enableVideo)
             }
             .sheet(item: $cameraManager.capturedImage) { item in
                 PhotoPreviewView(cameraManager: cameraManager, item: item, onDismiss: {
                     cameraManager.capturedImage = nil
-                })
+                }, numCaptures: $numCaptures)
             }
             .sheet(item: $cameraManager.recordedVideoURL) { item in
                 VideoPreviewView(item: item, onDismiss: {
@@ -92,6 +95,7 @@ struct PhotoPreviewView: View {
     @ObservedObject var cameraManager: CameraManager
     let item: IdentifiableImage
     let onDismiss: () -> Void
+    @Binding var numCaptures: Int
     
     var body: some View {
         VStack {
@@ -181,69 +185,129 @@ struct CameraControlTop: View {
     }
 }
 
+struct PhotoCaptureButton: View {
+//    var captureMode: CaptureMode
+    @ObservedObject var cameraManager: CameraManager
+    @Binding var numCaptures: Int
+    
+    var body: some View {
+        Button {
+            cameraManager.capturePhoto()
+            numCaptures += 1
+            print("num captures: \(numCaptures)")
+        } label: {
+            Circle()
+                .strokeBorder(.white, lineWidth: 3)
+                .frame(width: 70, height: 70)
+                .overlay {
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 60, height: 60)
+                }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct VideoCaptureButton: View {
+    @ObservedObject var cameraManager: CameraManager
+    
+    var body: some View {
+        Button {
+            if cameraManager.isRecording {
+                cameraManager.stopRecording()
+            } else {
+                cameraManager.startRecording()
+            }
+        } label: {
+            Circle()
+                .strokeBorder(.white, lineWidth: 3)
+                .frame(width: 70, height: 70)
+                .overlay {
+                    RoundedRectangle(cornerRadius: cameraManager.isRecording ? 6 : 30)
+                        .fill(.red)
+                        .frame(width: cameraManager.isRecording ? 30 : 60, height: cameraManager.isRecording ? 30 : 60)
+                }
+        }
+        .ignoresSafeArea()
+    }
+}
+
 struct CameraControlBottom: View {
     @Binding var captureMode: CaptureMode
     @ObservedObject var cameraManager: CameraManager
+    @Binding var numCaptures: Int
+    var enablePhoto: Bool
+    var enableVideo: Bool
     
     var body: some View {
         
         ZStack(alignment: .bottom) {
             Color.clear
             VStack {
-                Picker("mode", selection: $captureMode) {
-                    Text("Photo").tag(CaptureMode.photo)
-                    Text("Video").tag(CaptureMode.video)
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 200)
-                .glassEffect()
-                .padding()
-                
-                if captureMode == .photo {
+                if enablePhoto && enableVideo {
+                    Picker("mode", selection: $captureMode) {
+                        Text("Photo").tag(CaptureMode.photo)
+                        Text("Video").tag(CaptureMode.video)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
+                    .glassEffect()
+                    .padding()
                     
-                    // photo button
-                    Button {
-                        cameraManager.capturePhoto()
-                    } label: {
-                        Circle()
-                            .strokeBorder(.white, lineWidth: 3)
-                            .frame(width: 70, height: 70)
-                            .overlay {
-                                Circle()
-                                    .fill(.white)
-                                    .frame(width: 60, height: 60)
-                            }
+                    if captureMode == .photo {
+                        
+                        // photo button
+                        PhotoCaptureButton(cameraManager: cameraManager, numCaptures: $numCaptures)
+//                        Button {
+//                            cameraManager.capturePhoto()
+//                            numCaptures += 1
+//                        } label: {
+//                            Circle()
+//                                .strokeBorder(.white, lineWidth: 3)
+//                                .frame(width: 70, height: 70)
+//                                .overlay {
+//                                    Circle()
+//                                        .fill(.white)
+//                                        .frame(width: 60, height: 60)
+//                                }
+//                        }
+//                        .ignoresSafeArea()
+                    } else {
+                        // video button
+                        VideoCaptureButton(cameraManager: cameraManager)
+//                        Button {
+//                            if cameraManager.isRecording {
+//                                cameraManager.stopRecording()
+//                            } else {
+//                                cameraManager.startRecording()
+//                            }
+//                        } label: {
+//                            Circle()
+//                                .strokeBorder(.white, lineWidth: 3)
+//                                .frame(width: 70, height: 70)
+//                                .overlay {
+//                                    RoundedRectangle(cornerRadius: cameraManager.isRecording ? 6 : 30)
+//                                        .fill(.red)
+//                                        .frame(width: cameraManager.isRecording ? 30 : 60, height: cameraManager.isRecording ? 30 : 60)
+//                                }
+//                        }
+//                        .ignoresSafeArea()
                     }
-                    .ignoresSafeArea()
-                } else {
-                    // video button
-                    Button {
-                        if cameraManager.isRecording {
-                            cameraManager.stopRecording()
-                        } else {
-                            cameraManager.startRecording()
+                    
+                    if cameraManager.isRecording {
+                        HStack {
+                            Circle()
+                                .fill(.red)
+                                .frame(width: 10, height: 10)
+                            Text("recordin!")
+                                .foregroundStyle(.white)
                         }
-                    } label: {
-                        Circle()
-                            .strokeBorder(.white, lineWidth: 3)
-                            .frame(width: 70, height: 70)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: cameraManager.isRecording ? 6 : 30)
-                                    .fill(.red)
-                                    .frame(width: cameraManager.isRecording ? 30 : 60, height: cameraManager.isRecording ? 30 : 60)
-                            }
                     }
-                    .ignoresSafeArea()
-                }
-                
-                if cameraManager.isRecording {
-                    HStack {
-                        Circle()
-                            .fill(.red)
-                            .frame(width: 10, height: 10)
-                        Text("recordin!")
-                            .foregroundStyle(.white)
-                    }
+                } else if enablePhoto && !enableVideo {
+                    PhotoCaptureButton(cameraManager: cameraManager, numCaptures: $numCaptures)
+                } else if !enablePhoto && enableVideo {
+                    VideoCaptureButton(cameraManager: cameraManager)
                 }
             }
             HStack {
@@ -322,4 +386,8 @@ struct ThumbnailButton: View {
                 .frame(width: 64.0, height: 64.0)
         }
     }
+}
+
+#Preview {
+    
 }

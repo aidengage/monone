@@ -53,7 +53,7 @@ struct SignupView: View {
                     
 //                    .fullScreenCover(isPresented: $showCamera) {
                     .sheet(isPresented: $showCamera) {
-                        CameraView(cameraManager: cameraManager)
+                        CameraView(cameraManager: cameraManager, maxNumPhotos: 1, enablePhoto: true, enableVideo: false)
                     }
                 }
                 

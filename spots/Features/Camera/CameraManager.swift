@@ -20,6 +20,9 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
     }
     
     @Published var capturedImage: IdentifiableImage?
+    @Published var capturedImages: [IdentifiableImage?] = []
+    @Published var showPhotoPreview: Bool = false
+    // vide preview bool
     @Published var isSessionRunning = false
     @Published var authorizationStatus: AVAuthorizationStatus = .notDetermined
     @Published var isRecording = false
