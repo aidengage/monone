@@ -68,10 +68,23 @@ struct SignupView: View {
             }
 //        }
         .navigationTitle("Sign Up")
+        .scrollDismissesKeyboard(.interactively)
+        .onAppear() {
+            addTapGestureToDismissKeyboard()
+        }
 
     }
 
-    
+    func addTapGestureToDismissKeyboard() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let window = windowScene.windows.first else {
+            return
+        }
+        
+        let tapGesture = UITapGestureRecognizer(target: UIApplication.shared, action: #selector( UIApplication.dismissKeyboard ))
+        tapGesture.cancelsTouchesInView = false  
+        window.addGestureRecognizer(tapGesture)
+    }
     
     func uploadPfp(userId: String, photo: UIImage) async {
         do {
