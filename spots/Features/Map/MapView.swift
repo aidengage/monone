@@ -109,7 +109,7 @@ struct MapView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil, viewModel.profileToggle {
+                if /*Firebase.shared.getCurrentUser() != nil,*/ viewModel.profileToggle {
                     Button(action: {
                         viewModel.showOnlyBookmarked.toggle()
                     }) {

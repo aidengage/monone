@@ -18,6 +18,8 @@ import AVFoundation
 //
 //  maybe think about making firebase manager more similar to how this
 // camera manager operates?
+//
+//  swipe up gesture brings up the previewer
 
 enum CaptureMode {
     case photo
@@ -36,18 +38,26 @@ struct IdentifiableImage: Identifiable {
     let image: UIImage
 }
 
+struct IdentifiableImages: Identifiable {
+    var id = UUID()
+    var images: [IdentifiableImage]
+}
+
 struct IdentifiableURL: Identifiable {
     var id = UUID()
     var url: URL
 }
 
 struct CameraView: View {
+    @Environment(\.dismiss) var dismiss
     @StateObject var cameraManager: CameraManager
     @State private var captureMode: CaptureMode = .photo
-    var maxNumPhotos: Int
+    var photoLimit: Int
     @State private var numCaptures: Int = 0
     var enablePhoto: Bool
     var enableVideo: Bool
+    var showConfirmation: Bool = false
+    @Binding var selectedImages: [UIImage]
     
     @State var swipeDirection = SwipeDirection.left
     var swipeGesture: some Gesture {
@@ -73,10 +83,20 @@ struct CameraView: View {
                 Spacer()
                 CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager, numCaptures: $numCaptures, enablePhoto: enablePhoto, enableVideo: enableVideo)
             }
-            .sheet(item: $cameraManager.capturedImage) { item in
-                PhotoPreviewView(cameraManager: cameraManager, item: item, onDismiss: {
-                    cameraManager.capturedImage = nil
-                }, numCaptures: $numCaptures)
+            .sheet(isPresented: $cameraManager.showBatchPreview) {
+//                PhotoPreviewView(cameraManager: cameraManager, item: item, onDismiss: {
+//                    cameraManager.capturedImages = []
+////                    cameraManager.capturedImage = nil
+//                }, numCaptures: $numCaptures)
+                BatchPhotoPreviewView(
+                    images: cameraManager.capturedImages,
+                    onDismiss: {
+                        cameraManager.clearCapturedPhotos()
+                    },
+                    onSave: { images in
+                        selectedImages = images
+                        dismiss()
+                    })
             }
             .sheet(item: $cameraManager.recordedVideoURL) { item in
                 VideoPreviewView(item: item, onDismiss: {
@@ -93,7 +113,7 @@ struct CameraView: View {
 
 struct PhotoPreviewView: View {
     @ObservedObject var cameraManager: CameraManager
-    let item: IdentifiableImage
+    let item: IdentifiableImages // change this to []
     let onDismiss: () -> Void
     @Binding var numCaptures: Int
     
@@ -108,15 +128,20 @@ struct PhotoPreviewView: View {
                 Spacer()
                 
                 Button("save") {
-                    UIImageWriteToSavedPhotosAlbum(item.image, nil, nil, nil)
-                    cameraManager.updateLibraryThumbnail(image: item.image)
+                    // make this section a loop / seperate function
+                    UIImageWriteToSavedPhotosAlbum(item.images[0].image, nil, nil, nil)
+                    cameraManager.updateLibraryThumbnail(image: item.images[0].image)
+                    //
+                    
                     onDismiss()
                 }
                 .padding()
             }
             .background(.ultraThinMaterial)
             
-            Image(uiImage: item.image)
+            // add grid here
+            // go through []
+            Image(uiImage: item.images[0].image)
                 .resizable()
                 .scaledToFit()
             Spacer()
@@ -151,6 +176,130 @@ struct VideoPreviewView: View {
     }
 }
 
+struct BatchPhotoPreviewView: View {
+    let images: [IdentifiableImage]
+    let onDismiss: () -> Void
+    let onSave: ([UIImage]) -> Void
+    
+    @State private var selectedImageIndices: Set<Int> = []
+    @State private var currentIndex = 0
+    
+    init(images: [IdentifiableImage], onDismiss: @escaping () -> Void, onSave: @escaping ([UIImage]) -> Void) {
+        self.images = images
+        self.onDismiss = onDismiss
+        self.onSave = onSave
+        // Pre-select all images
+        _selectedImageIndices = State(initialValue: Set(images.indices))
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Top bar
+            HStack {
+                Button("Retake All") {
+                    onDismiss()
+                }
+                .padding()
+                
+                Spacer()
+                
+                Text("\(selectedImageIndices.count) selected")
+                    .font(.headline)
+                
+                Spacer()
+                
+                Button("Use Photos") {
+                    let selectedImages = selectedImageIndices.sorted().compactMap { index in
+                        images.indices.contains(index) ? images[index].image : nil
+                    }
+                    onSave(selectedImages)
+                }
+                .padding()
+                .disabled(selectedImageIndices.isEmpty)
+            }
+            .background(.ultraThinMaterial)
+            
+            // Main image viewer
+            TabView(selection: $currentIndex) {
+                ForEach(images.indices, id: \.self) { index in
+                    ZStack {
+                        Image(uiImage: images[index].image)
+                            .resizable()
+                            .scaledToFit()
+                        
+                        // Selection overlay
+                        VStack {
+                            HStack {
+                                Spacer()
+                                
+                                Button {
+                                    if selectedImageIndices.contains(index) {
+                                        selectedImageIndices.remove(index)
+                                    } else {
+                                        selectedImageIndices.insert(index)
+                                    }
+                                } label: {
+                                    Image(systemName: selectedImageIndices.contains(index) ? "checkmark.circle.fill" : "circle")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(.white)
+                                        .shadow(radius: 4)
+                                }
+                                .padding()
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                    .tag(index)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .always))
+            
+            // Thumbnail strip
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(images.indices, id: \.self) { index in
+                        Button {
+                            currentIndex = index
+                        } label: {
+                            Image(uiImage: images[index].image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 80, height: 80)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(currentIndex == index ? Color.blue : Color.white, lineWidth: currentIndex == index ? 3 : 1)
+                                )
+                                .overlay(
+                                    Group {
+                                        if !selectedImageIndices.contains(index) {
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(Color.black.opacity(0.5))
+                                        }
+                                    }
+                                )
+                                .overlay(
+                                    Group {
+                                        if selectedImageIndices.contains(index) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(.white)
+                                                .font(.title2)
+                                        }
+                                    },
+                                    alignment: .topTrailing
+                                )
+                        }
+                    }
+                }
+                .padding()
+            }
+            .frame(height: 120)
+            .background(Color.black.opacity(0.8))
+        }
+    }
+}
+
 struct CameraControlTop: View {
     @Binding var captureMode: CaptureMode
     @ObservedObject var cameraManager: CameraManager
@@ -181,6 +330,15 @@ struct CameraControlTop: View {
                 }
             }
             Spacer()
+            if captureMode == .photo {
+                Text("\(cameraManager.capturedImages.count)/\(cameraManager.photoLimit)")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.black.opacity(0.6))
+                    .cornerRadius(20)
+            }
         }
     }
 }
@@ -194,7 +352,8 @@ struct PhotoCaptureButton: View {
         Button {
             cameraManager.capturePhoto()
             numCaptures += 1
-            print("num captures: \(numCaptures)")
+            print("num captures value: \(numCaptures)")
+            print("number of button clicks saved: \(String(describing: cameraManager.capturedImages.count))")
         } label: {
             Circle()
                 .strokeBorder(.white, lineWidth: 3)
@@ -205,6 +364,7 @@ struct PhotoCaptureButton: View {
                         .frame(width: 60, height: 60)
                 }
         }
+        .disabled(cameraManager.capturedImages.count >= cameraManager.photoLimit)
         .ignoresSafeArea()
     }
 }
@@ -391,3 +551,4 @@ struct ThumbnailButton: View {
 #Preview {
     
 }
+

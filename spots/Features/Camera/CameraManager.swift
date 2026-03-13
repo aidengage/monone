@@ -20,8 +20,9 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
     }
     
     @Published var capturedImage: IdentifiableImage?
-    @Published var capturedImages: [IdentifiableImage?] = []
-    @Published var showPhotoPreview: Bool = false
+    @Published var capturedImages: [IdentifiableImage] = []
+    @Published var photoLimit: Int = 6
+    @Published var showBatchPreview: Bool = false
     // vide preview bool
     @Published var isSessionRunning = false
     @Published var authorizationStatus: AVAuthorizationStatus = .notDetermined
@@ -128,6 +129,11 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
             [weak self] in
             guard let self = self else { return }
             
+            guard capturedImages.count < photoLimit else {
+                print("Photo limit reached")
+                return
+            }
+            
             let settings = AVCapturePhotoSettings()
             settings.flashMode = self.flashMode
             
@@ -138,6 +144,12 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
         }
     }
     
+    func clearCapturedPhotos() {
+        capturedImages.removeAll()
+        showBatchPreview = false
+    }
+    
+//    @MainActor
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {
             print("photo capture error: \(error.localizedDescription)")
@@ -149,10 +161,16 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
             return
         }
         
-        DispatchQueue.main.async {
-            [weak self] in
-            self?.capturedImage = IdentifiableImage(image: uiImage)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+//            [weak self] in
+//            self?.capturedImage = IdentifiableImage(image: uiImage)
+            self.capturedImages.append(IdentifiableImage(image: uiImage))
 //            self?.latestThumbnail = self?.capturedImage?.image // need rework
+            
+            if self.capturedImages.count >= self.photoLimit {
+                self.showBatchPreview = true
+            }
         }
     }
     

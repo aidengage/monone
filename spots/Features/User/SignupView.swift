@@ -20,7 +20,7 @@ struct SignupView: View {
     @State private var confirmPassword: String = ""
     @State private var error: String? = nil
     @State private var selectedPhoto: [PhotosPickerItem] = []
-//    @State private var selectedImage: [UIImage] = []
+    @State private var selectedImage: [UIImage] = []
     @State private var profileImage: UIImage?
     @State private var showCamera: Bool = false
     
@@ -53,7 +53,7 @@ struct SignupView: View {
                     
 //                    .fullScreenCover(isPresented: $showCamera) {
                     .sheet(isPresented: $showCamera) {
-                        CameraView(cameraManager: cameraManager, maxNumPhotos: 1, enablePhoto: true, enableVideo: false)
+                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
                     }
                 }
                 
