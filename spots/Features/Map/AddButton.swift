@@ -14,10 +14,12 @@ struct AddButton: View {
     @State private var showLogin = false
     
     @Binding var path: NavigationPath
+//    This lets Add​Button use the same navigation stack as its parent (your Map​View). When it appends to path, it navigates to another screen within the same stack.
+
     
     @Binding var centerLat: Double
     @Binding var centerLong: Double
-    
+    //these get updated by MapView using .onMapCameraChange
     var body: some View {
         NavigationStack(path: $path) {
             
