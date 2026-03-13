@@ -14,9 +14,11 @@ import FirebaseFirestore
 
 
 extension MapView {
+// observable makes sure VieModel's stored properties can automatically publish changes so SwiftUI views can react
     @Observable class ViewModel {
         var hasValidLocation = false
         var hasCenteredOnUser = false
+        //*what is this?
         var observersSetUp = false
         
 //        var listenedToPosts: [Post] = []
@@ -24,16 +26,20 @@ extension MapView {
         
         var selectedPost: Post?
         var profileToggle: Bool = false
+
+        var showOnlyBookmarked: Bool = false
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
         var centerLong: Double = 0
         
         var deviceLocationService = DeviceLocationService.shared
+    //*what do we need this for? --> to store the user location perhaps
         var tokens: Set<AnyCancellable> = []
         
         var path: NavigationPath = NavigationPath()
         
+    //*why is camera position hardcoded in?
         var cameraPosition: MapCameraPosition = .region(
             MKCoordinateRegion(
                 center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
@@ -99,6 +105,7 @@ extension MapView {
                 .store(in: &tokens)
         }
         
+        //**lowkey why do we even need this function?
         func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
             print("locations = \(locValue.latitude) \(locValue.longitude)")
