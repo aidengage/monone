@@ -14,12 +14,13 @@ struct PostDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var displayView: DisplayPost = .main
+    @State private var bookmarkedPostIds: [String] = [] 
     
     enum DisplayPost {
         case main
         case raw
-    }
-    
+    }       
+
     var body: some View {
         ScrollView {
             VStack {
@@ -58,9 +59,18 @@ struct PostDetailView: View {
                             .buttonStyle(.glassProminent)
                         }
                         
-                        StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0, numStars: 5)
-                            .padding(.horizontal, 20)
-                        
+                        HStack(spacing: 16) {
+                            StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0, numStars: 5)
+                            Spacer()
+                            Button(action: { bookmarkButtonTapped(post: post) }) {
+                                Label(
+                                    bookmarkedPostIds.contains(post.id) ? "Bookmarked" : "Bookmark",
+                                    systemImage: bookmarkedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark"
+                                )
+                            }
+                            .buttonStyle(.glassProminent)
+                        }
+                        .padding(.horizontal, 20)
                         
                         // info cards to represent address, description, and coords
                         // need to add photos and name/title
@@ -119,10 +129,21 @@ struct PostDetailView: View {
             // also start single post listener?
             Firebase.shared.startPostListenerById(postId: post.id)
             Firebase.shared.startRatingListener(postId: post.id)
+            bookmarkedPostIds = Firebase.shared.bookmarkedPostIds
+            //storing the bookmarks in our firebase global var into this local var "bookmarkedPostIds" so the button can show curr state [is it bookmarked already or not] 
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
         }
+    }
+    
+    private func bookmarkButtonTapped(post: Post) {
+        if bookmarkedPostIds.contains(post.id) {
+            bookmarkedPostIds.removeAll { $0 == post.id }
+        } else {
+            bookmarkedPostIds.append(post.id)
+        }
+        Firebase.shared.updateBookmarkedPostIds(bookmarkedPostIds)
     }
 }
 

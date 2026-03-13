@@ -31,6 +31,7 @@ struct AddPostView: View {
     var body: some View {
         Form {
             // title, description, and address for where pin is
+            //*need to check if address autofills. 
             Section(header: Text("Add a new post")) {
                 TextField("Title", text: $viewModel.title)
                     .focused($focusedField, equals: .title)

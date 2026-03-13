@@ -13,6 +13,7 @@ struct MapView: View {
     @State private var viewModel = ViewModel()
     
     var body: some View {
+        //the viewModel navigates the path for each screen.
         NavigationStack(path: $viewModel.path) {
             ZStack(alignment: .bottomLeading) {
                 ZStack {
@@ -30,8 +31,15 @@ struct MapView: View {
                                     .clipShape(Circle())
                             }
                         }
-                        // looping through posts array and displaying them all on map with a clickable marker
-                        ForEach(Firebase.shared.posts.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
+                        // Explore = all posts. Profile = my posts, or (when bookmark tapped) my bookmarked posts from all users.
+                        //lowkey neat because you're setting a variable based on an if condition 
+                        let postsToShow: [Post] = if viewModel.profileToggle && viewModel.showOnlyBookmarked {
+                            Firebase.shared.posts.filter { Firebase.shared.bookmarkedPostIds.contains($0.id) }
+                        } else {
+                            Firebase.shared.posts
+                        }
+
+                        ForEach(postsToShow.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
                             Annotation(post.name, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)) {
                                 Image(systemName: "mappin.circle.fill")
                                     .foregroundColor(.red)
@@ -49,27 +57,17 @@ struct MapView: View {
                     }
                     // loads posts when the map appears
                     .onAppear {
-                        // starts post listener
-                        print("map appeared, starting post listener")
-                        print("profile toggle: \(viewModel.profileToggle)")
-//                        Firebase.shared.startPostListener()
-                        
-                        if !viewModel.profileToggle {
-                            Firebase.shared.startPostListener()
-                        } else {
-                            Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
-                        }
-                        
-                        
-                        // Set up location observers only once
+                        startPostListenerForMode()
                         if !viewModel.observersSetUp {
                             viewModel.observeCoordinateUpdates()
                             viewModel.observeLocationAccessDenied()
                             viewModel.observersSetUp = true
                         }
-                        // Request location updates every time view appears (in case app was backgrounded)
                         viewModel.deviceLocationService.requestLocationUpdates()
+                        Firebase.shared.loadBookmarks()
                     }
+                    .onChange(of: viewModel.profileToggle) { _, _ in startPostListenerForMode() }
+                    .onChange(of: viewModel.showOnlyBookmarked) { _, _ in startPostListenerForMode() }
                     .onDisappear {
                         // stops post listener
                         Firebase.shared.stopPostListener()
@@ -80,6 +78,7 @@ struct MapView: View {
                         viewModel.update(centerLat: mapCameraUpdateContext.camera.centerCoordinate.latitude)
                         viewModel.update(centerLong: mapCameraUpdateContext.camera.centerCoordinate.longitude)
                         print("\(viewModel.centerLat): \(viewModel.centerLong)")
+                        //later used by Add Button to create a post at the center of the screen
                     }
                     
                     // visual indicator of the center of the screen
@@ -110,6 +109,20 @@ struct MapView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
+                if Firebase.shared.getCurrentUser() != nil, viewModel.profileToggle {
+                    Button(action: {
+                        viewModel.showOnlyBookmarked.toggle()
+                    }) {
+                        Label(
+                            viewModel.showOnlyBookmarked ? "Show all" : "Bookmarks",
+                            systemImage: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark"
+                        )
+                    }
+                    .tint(viewModel.showOnlyBookmarked ? .blue : .primary)
+                    .buttonStyle(.glassProminent)
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
                     FeedbackButton(path: $viewModel.path)
                 }
@@ -118,15 +131,7 @@ struct MapView: View {
    
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
-            // camera zoom back out needs to be implemented
-//            print("post detail view dismissed")
-            if !viewModel.profileToggle {
-                Firebase.shared.startPostListener()
-//                print("  trying to start post listener")
-            } else {
-                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
-//                print("  trying to start user post listener")
-            }
+            startPostListenerForMode()
         }) { post in
             PostDetailView(post: post /*viewModel.selectedPost!*/ /*, ratings: Firebase.shared.ratings*/)
                 .presentationDetents([.fraction(0.75)])
@@ -135,6 +140,17 @@ struct MapView: View {
                         viewModel.cameraZoomOnPost(post: post /*viewModel.selectedPost!*/)
                     }
                 }
+        }
+    }
+    
+    /// Profile off = all posts. Profile on, no bookmark filter = my posts. Profile on, bookmark on = all posts (filter in view to bookmarked).
+    private func startPostListenerForMode() {
+        if !viewModel.profileToggle {
+            Firebase.shared.startPostListener()
+        } else if viewModel.showOnlyBookmarked {
+            Firebase.shared.startPostListener()
+        } else {
+            Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
         }
     }
 }

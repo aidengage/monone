@@ -9,18 +9,20 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseAuth
 
-// codable user obejct to send to firebase database
+// codable user object to send to firebase database
 struct User: Codable, Identifiable {
     let id: String
     let email: String
     let username: String
     let pfpUrl: String?
-    
-    init(id: String, email: String, username: String, pfpUrl: String) {
+    var bookmarkedPostIds: [String]
+
+    init(id: String, email: String, username: String, pfpUrl: String, bookmarkedPostIds: [String] = []) {
         self.id = id
         self.email = email
         self.username = username
         self.pfpUrl = pfpUrl
+        self.bookmarkedPostIds = bookmarkedPostIds
     }
     
 //    init(user: FirebaseAuth.User?) {
@@ -53,8 +55,9 @@ extension Firebase {
         }
     }
     
-    func addUser(uid: String, email: String, username: String/*, pfpUrl: [String]*/) {
-        let newUser = User(id: uid, email: email, username: username, pfpUrl: "")
+    func addUser(uid: String, email: String, username: String/*, pfpUrl: [String]*/, bookmarkedPostIds: [String] = []) {
+        //instatiating new user with empty bookmark list 
+        let newUser = User(id: uid, email: email, username: username, pfpUrl: "", bookmarkedPostIds: bookmarkedPostIds)
         do {
             let userRef = getStore().collection("users").document(uid)
             try userRef.setData(from: newUser) { error in

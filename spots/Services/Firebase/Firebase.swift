@@ -26,7 +26,8 @@ final class Firebase {
     var ratingListener: ListenerRegistration?
     var feedbacks: [Feedback] = []
     var feedbackListener: ListenerRegistration?
-    
+    // Current user's bookmarked post IDs (loaded from user doc)
+    var bookmarkedPostIds: [String] = []
     private init() {}
     
     enum ImageFormat {
@@ -90,4 +91,45 @@ final class Firebase {
         try await storage.downloadData(ref: ref, size: size)
     }
 
+    // bookmarks (single list of post IDs on user doc)
+    func loadBookmarks() {
+        let uid = getCurrentUserID()
+        if uid.isEmpty {
+            return
+        }
+        else{
+        getStore().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+            if let error = error {
+                print("error loading bookmarks: \(error)")
+                return
+            }
+            //snapshot fetches the raw json so this takes the raw json and converts it to a user object in Swift 
+            if let user = try? snapshot?.data(as: User.self) {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    //taking the bookmarks from Firestore and copying them here into our global var so our app can use it locally 
+                    self.bookmarkedPostIds = user.bookmarkedPostIds
+                }
+            }
+        }
+        }
+    }
+
+    func updateBookmarkedPostIds(_ ids: [String]) {
+        let uid = getCurrentUserID()
+        if uid.isEmpty {
+            return
+        }
+        else{
+        getStore().collection("users").document(uid).updateData(["bookmarkedPostIds": ids]) { [weak self] error in
+            if let error = error {
+                print("error updating bookmarks: \(error)")
+                return
+            }
+            DispatchQueue.main.async {
+                self?.bookmarkedPostIds = ids
+            }
+        }
+        }
+    }
 }
