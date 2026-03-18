@@ -57,7 +57,9 @@ struct CameraView: View {
     var enablePhoto: Bool
     var enableVideo: Bool
     var showConfirmation: Bool = false
+    
     @Binding var selectedImages: [UIImage]
+//    @Binding var data: [Data]
     
     @State var swipeDirection = SwipeDirection.left
     var swipeGesture: some Gesture {
@@ -81,7 +83,7 @@ struct CameraView: View {
             VStack {
                 CameraControlTop(captureMode: $captureMode, cameraManager: cameraManager)
                 Spacer()
-                CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager, numCaptures: $numCaptures, enablePhoto: enablePhoto, enableVideo: enableVideo)
+                CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager, /*numCaptures: $numCaptures,*/ enablePhoto: enablePhoto, enableVideo: enableVideo)
             }
             .sheet(isPresented: $cameraManager.showBatchPreview) {
 //                PhotoPreviewView(cameraManager: cameraManager, item: item, onDismiss: {
@@ -97,6 +99,9 @@ struct CameraView: View {
                         selectedImages = images
                         dismiss()
                     })
+                .onDisappear {
+                    cameraManager.clearCapturedPhotos()
+                }
             }
             .sheet(item: $cameraManager.recordedVideoURL) { item in
                 VideoPreviewView(item: item, onDismiss: {
@@ -346,14 +351,14 @@ struct CameraControlTop: View {
 struct PhotoCaptureButton: View {
 //    var captureMode: CaptureMode
     @ObservedObject var cameraManager: CameraManager
-    @Binding var numCaptures: Int
+//    @Binding var numCaptures: Int
     
     var body: some View {
         Button {
             cameraManager.capturePhoto()
-            numCaptures += 1
-            print("num captures value: \(numCaptures)")
-            print("number of button clicks saved: \(String(describing: cameraManager.capturedImages.count))")
+//            numCaptures += 1
+//            print("num captures value: \(numCaptures)")
+//            print("number of button clicks saved: \(String(describing: cameraManager.capturedImages.count))")
         } label: {
             Circle()
                 .strokeBorder(.white, lineWidth: 3)
@@ -363,8 +368,9 @@ struct PhotoCaptureButton: View {
                         .fill(.white)
                         .frame(width: 60, height: 60)
                 }
+                .glassEffect()
         }
-        .disabled(cameraManager.capturedImages.count >= cameraManager.photoLimit)
+//        .disabled(cameraManager.capturedImages.count >= cameraManager.photoLimit)
         .ignoresSafeArea()
     }
 }
@@ -396,7 +402,7 @@ struct VideoCaptureButton: View {
 struct CameraControlBottom: View {
     @Binding var captureMode: CaptureMode
     @ObservedObject var cameraManager: CameraManager
-    @Binding var numCaptures: Int
+//    @Binding var numCaptures: Int
     var enablePhoto: Bool
     var enableVideo: Bool
     
@@ -418,7 +424,7 @@ struct CameraControlBottom: View {
                     if captureMode == .photo {
                         
                         // photo button
-                        PhotoCaptureButton(cameraManager: cameraManager, numCaptures: $numCaptures)
+                        PhotoCaptureButton(cameraManager: cameraManager/*, numCaptures: $numCaptures*/)
 //                        Button {
 //                            cameraManager.capturePhoto()
 //                            numCaptures += 1
@@ -465,7 +471,7 @@ struct CameraControlBottom: View {
                         }
                     }
                 } else if enablePhoto && !enableVideo {
-                    PhotoCaptureButton(cameraManager: cameraManager, numCaptures: $numCaptures)
+                    PhotoCaptureButton(cameraManager: cameraManager/*, numCaptures: $numCaptures*/)
                 } else if !enablePhoto && enableVideo {
                     VideoCaptureButton(cameraManager: cameraManager)
                 }

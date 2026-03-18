@@ -165,12 +165,26 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
             guard let self = self else { return }
 //            [weak self] in
 //            self?.capturedImage = IdentifiableImage(image: uiImage)
-            self.capturedImages.append(IdentifiableImage(image: uiImage))
+//            self.capturedImages.append(IdentifiableImage(image: uiImage))
 //            self?.latestThumbnail = self?.capturedImage?.image // need rework
             
-            if self.capturedImages.count >= self.photoLimit {
-                self.showBatchPreview = true
+//            guard capturedImages.count < photoLimit else {
+//                print("done captured images: \(self.capturedImages.count)")
+//                showBatchPreview = true
+//                return
+//            }
+            
+            if self.capturedImages.count < self.photoLimit {
+                self.capturedImages.append(IdentifiableImage(image: uiImage))
+                print("captured image: \(self.capturedImages.count)")
+                if self.capturedImages.count == self.photoLimit {
+                    showBatchPreview = true
+                }
             }
+//            else {
+//                print("done captured images: \(self.capturedImages.count)")
+//                self.showBatchPreview = true
+//            }
         }
     }
     
