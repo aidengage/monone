@@ -9,6 +9,8 @@ import SwiftUI
 import PhotosUI
 import FirebaseAuth
 import FirebaseFirestore
+import AVFoundation
+import AVKit
 
 struct SignupView: View {
     @Environment(\.dismiss)private var dismiss
@@ -18,43 +20,71 @@ struct SignupView: View {
     @State private var confirmPassword: String = ""
     @State private var error: String? = nil
     @State private var selectedPhoto: [PhotosPickerItem] = []
-//    @State private var selectedImage: [UIImage] = []
+    @State private var selectedImage: [UIImage] = []
     @State private var profileImage: UIImage?
+    @State private var showCamera: Bool = false
+    
+    @StateObject private var cameraManager = CameraManager()
 
     var body: some View {
-        
-        // signup form for user to fill out to create an account
-        Form {
-            Section(header: Text("Email")) {
-                TextField("Email", text: $email)
-                TextField("Username (optional)", text: $username)
-            }
-            Section(header: Text("Password")) {
-                TextField("Password", text: $password)
-            }
-            Section(header: Text("Confirm Password")) {
-                TextField("Confirm Password", text: $confirmPassword)
-            }
-            
-            // upload profile picture needs square crop
-            Section(header: Text("Upload a Profile Picture")) {
-                ProfilePhotoSelectorView(image: $profileImage)
-            }
-            
-            Button(action: {
-                Task {
-                    await signup(email: email, username: username, password: password)
+//        NavigationStack {
+            // signup form for user to fill out to create an account
+            Form {
+                Section(header: Text("Email")) {
+                    TextField("Email", text: $email)
+                    TextField("Username (optional)", text: $username)
                 }
-            }) {
-                Text("Signup")
+                Section(header: Text("Password")) {
+                    TextField("Password", text: $password)
+                }
+                Section(header: Text("Confirm Password")) {
+                    TextField("Confirm Password", text: $confirmPassword)
+                }
+                
+                // upload profile picture needs square crop
+                Section(header: Text("Upload a Profile Picture")) {
+                    ProfilePhotoSelectorView(image: $profileImage)
+                }
+                Section(header: Text("take photo instead! (hidden)")) {
+                    Button("take a photo instead!") {
+                        showCamera = true
+                    }
+                    .buttonStyle(.glassProminent)
+                    
+//                    .fullScreenCover(isPresented: $showCamera) {
+                    .sheet(isPresented: $showCamera) {
+                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
+                    }
+                }
+                
+                Button(action: {
+                    Task {
+                        await signup(email: email, username: username, password: password)
+                    }
+                }) {
+                    Text("Signup")
+                }
+                .buttonStyle(.glassProminent)
             }
-            .buttonStyle(.glassProminent)
-        }
+//        }
         .navigationTitle("Sign Up")
+        .scrollDismissesKeyboard(.interactively)
+        .onAppear() {
+            addTapGestureToDismissKeyboard()
+        }
 
     }
 
-    
+    func addTapGestureToDismissKeyboard() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let window = windowScene.windows.first else {
+            return
+        }
+        
+        let tapGesture = UITapGestureRecognizer(target: UIApplication.shared, action: #selector( UIApplication.dismissKeyboard ))
+        tapGesture.cancelsTouchesInView = false  
+        window.addGestureRecognizer(tapGesture)
+    }
     
     func uploadPfp(userId: String, photo: UIImage) async {
         do {

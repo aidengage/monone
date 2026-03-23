@@ -16,7 +16,7 @@ import FirebaseStorage
 // still need to rework database for users/posts
 
 // codable user obejct to send to firebase database
-struct Post: Codable, Identifiable {
+struct Post: Codable, Identifiable, Hashable {
     let id: String
     let userId: String
     let images: [String]
@@ -65,6 +65,16 @@ struct Post: Codable, Identifiable {
         
         var id: Self { self }
         
+        var color: Color {
+            switch self {
+                case .smoke: return .red
+                case .date: return .purple
+                case .photography: return .orange
+                case .trainStation: return .blue
+                case .unknown: return .black
+            }
+        }
+        
         var displayActivity: String {
             switch self {
                 case .smoke: return "Smoke"
@@ -89,7 +99,9 @@ struct Post: Codable, Identifiable {
             case "photography": return .photography
             case "train station": return .trainStation
             default:
-                print("Warning: Unknown activity type '\(string)'")
+                // dont know if i should keep this if it matters, spams the debug log when uncommented
+                // fix later?
+//                print("Warning: Unknown activity type '\(lowercased)'")
                 return .unknown
             }
         }
@@ -149,15 +161,57 @@ extension Firebase {
         }
     }
     
-    func updatePostActivity(postId: String, newActivity: Post.ActivityType) async {
+    
+    // db manipulation functions
+    // already tested
+    func postUpdateActivity(postId: String, newActivity: Post.ActivityType) async {
         let postRef = getStore().collection("posts").document(postId)
         do {
             try await postRef.updateData(["selectedActivity": newActivity.displayActivity])
-            try await postRef.updateData(["updatedAt": FieldValue.serverTimestamp()])
+            await docUpdatedAt(docRef: postRef)
         } catch {
-            print("error updated activity: \(error.localizedDescription)")
+            print("error updating activity")
+            print(error.localizedDescription)
         }
     }
+    
+    // need to test
+    func postUpdateName(postId: String, newName: String) async {
+        let postRef = getStore().collection("posts").document(postId)
+        do {
+            try await postRef.updateData(["name": newName])
+            await docUpdatedAt(docRef: postRef)
+        } catch {
+            print("error updating name")
+            print(error.localizedDescription)
+        }
+    }
+    
+    // need to test
+    func postUpdateAddress(postId: String, newAddress: String) async {
+        let postRef = getStore().collection("posts").document(postId)
+        do {
+            try await postRef.updateData(["address": newAddress])
+            await docUpdatedAt(docRef: postRef)
+        } catch {
+            print("error updating address")
+            print(error.localizedDescription)
+        }
+    }
+    
+    // need to test
+    func postUpdateLocation(postId: String, newLocation: GeoPoint) async {
+        let postRef = getStore().collection("posts").document(postId)
+        do {
+            try await postRef.updateData(["latitude": newLocation.latitude])
+            try await postRef.updateData(["longitude": newLocation.longitude])
+            await docUpdatedAt(docRef: postRef)
+        } catch {
+            print("error updating location")
+            print(error.localizedDescription)
+        }
+    }
+    
     
     // delete post data funcitons
     func deletePostBatch(postId: String) async {

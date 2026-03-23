@@ -19,7 +19,7 @@ struct MapView: View {
                 ZStack {
                 
                     
-                    Map(position: $viewModel.cameraPosition) {
+                    Map(position: $viewModel.cameraPosition, selection: $viewModel.selectedPost) {
                         
                         //for curr location, display a marker (only when we have valid coordinates)
                         if viewModel.hasValidLocation {
@@ -40,19 +40,9 @@ struct MapView: View {
                         }
 
                         ForEach(postsToShow.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
-                            Annotation(post.name, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)) {
-                                Image(systemName: "mappin.circle.fill")
-                                    .foregroundColor(.red)
-                                    .font(.title2)
-                                    .background(Color.white)
-                                    .clipShape(Circle())
-                                    .onTapGesture {
-                                        // once user taps, state of selectedPost changes
-//                                        viewModel.selectedPost = post
-                                        viewModel.selectedPost = post
-//                                        viewModel.startPostListenerById(postId: post.id)
-                                    }
-                            }
+                            Marker(post.name, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude))
+                                .tag(post)
+                                .tint(Post.ActivityType.from(post.selectedActivity).color) // throws the warning for some reason for unknown even when it is not unknown
                         }
                     }
                     // loads posts when the map appears
@@ -109,7 +99,7 @@ struct MapView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil, viewModel.profileToggle {
+                if /*Firebase.shared.getCurrentUser() != nil,*/ viewModel.profileToggle {
                     Button(action: {
                         viewModel.showOnlyBookmarked.toggle()
                     }) {

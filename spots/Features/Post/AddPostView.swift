@@ -17,6 +17,9 @@ struct AddPostView: View {
     
     @State private var viewModel = ViewModel()
     
+    @State private var showCamera: Bool = false
+    @StateObject private var cameraManager = CameraManager()
+    
     @Environment(\.dismiss) private var dismiss
     
     @FocusState private var focusedField: KeyboardField?
@@ -64,6 +67,15 @@ struct AddPostView: View {
             // custom photo picker logic in AddPostView and FirebaseManager
             Section(header: Text("Image Upload")) {
                 PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images)
+                Button("take a photo instead!") {
+                    showCamera = true
+                }
+                .buttonStyle(.glassProminent)
+                
+//                    .fullScreenCover(isPresented: $showCamera) {
+                .sheet(isPresented: $showCamera) {
+                    CameraView(cameraManager: cameraManager, photoLimit: 6, enablePhoto: true, enableVideo: true, selectedImages: $viewModel.images)
+                }
             }
             
             // autofilled coordinates based on where the pin is

@@ -75,7 +75,7 @@ extension AddPostView {
         }
         
         let tapGesture = UITapGestureRecognizer(target: UIApplication.shared, action: #selector( UIApplication.dismissKeyboard ))
-        tapGesture.cancelsTouchesInView = false  // This is KEY - lets other gestures still work
+        tapGesture.cancelsTouchesInView = false
         window.addGestureRecognizer(tapGesture)
     }
     

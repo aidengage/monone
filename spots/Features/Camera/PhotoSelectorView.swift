@@ -7,6 +7,25 @@
 import SwiftUI
 import PhotosUI
 import Mantis
+import AVFoundation
+import AVKit
+
+
+
+// this does not work rn i come back to this
+//import UIKit
+//import Foundation
+//extension UIImage {
+//    
+//    func resizeImageTo(/*image: UIImage, */size: CGSize) -> UIImage {
+//        
+//        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+//        self.draw(in: CGRect(origin: CGPoint.zero, size: size))
+//        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+//        UIGraphicsEndImageContext()
+//        return resizedImage
+//    }
+//}
 
 // photo selector view, maybe move this to add post view??
 struct PhotoSelector: View {

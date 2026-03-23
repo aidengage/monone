@@ -129,12 +129,26 @@ struct PostDetailView: View {
             // also start single post listener?
             Firebase.shared.startPostListenerById(postId: post.id)
             Firebase.shared.startRatingListener(postId: post.id)
+            addTapGestureToDismissKeyboard()
             bookmarkedPostIds = Firebase.shared.bookmarkedPostIds
             //storing the bookmarks in our firebase global var into this local var "bookmarkedPostIds" so the button can show curr state [is it bookmarked already or not] 
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
         }
+        .scrollDismissesKeyboard(.interactively)
+        
+    }
+    
+    func addTapGestureToDismissKeyboard() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let window = windowScene.windows.first else {
+            return
+        }
+        
+        let tapGesture = UITapGestureRecognizer(target: UIApplication.shared, action: #selector( UIApplication.dismissKeyboard ))
+        tapGesture.cancelsTouchesInView = false  // This is KEY - lets other gestures still work
+        window.addGestureRecognizer(tapGesture)
     }
     
     private func bookmarkButtonTapped(post: Post) {
@@ -260,7 +274,7 @@ struct EditActivityCard: View {
         .padding(.horizontal, 20)
         .onDisappear {
             Task {
-                await Firebase.shared.updatePostActivity(postId: postId, newActivity: activity)
+                await Firebase.shared.postUpdateActivity(postId: postId, newActivity: activity)
             }
         }
     }

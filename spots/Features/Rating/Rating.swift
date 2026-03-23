@@ -67,7 +67,7 @@ extension Firebase {
         
     }
     
-    func updateAvgRating(postId: String) async {
+    func ratingUpdateAvg(postId: String) async {
         do {
             let avgRating = try await getPostAverageRatings(postId: postId)
             let postRef = getStore().collection("posts").document(postId)
@@ -75,8 +75,16 @@ extension Firebase {
         } catch {
             print("error handling average rating: \(error)")
         }
-        
-        
+    }
+    
+    func ratingUpdateComment(ratingId: String, newComment: String) async {
+        do {
+            let ratingRef = getStore().collection("ratings").document(ratingId)
+            try await ratingRef.updateData(["comment": newComment])
+        } catch {
+            print("error updating rating comment...")
+            print(error.localizedDescription)
+        }
     }
     
     func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
@@ -88,7 +96,6 @@ extension Firebase {
                 .getDocuments()
     
             if !snapshot.isEmpty {
-//                print(snapshot)
                 print("Document exists")
             } else {
                 print("Document does not exist, adding rating")
@@ -96,12 +103,9 @@ extension Firebase {
                 try ratingRef.setData(from: newRating)
                 try await ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
                 let postRef = getStore().collection("posts").document(postId)
-//                    .whereField("postId", isEqualTo: postId)
-//                try await postRef.updateData(["avgRating": getPostAverageRatings(postId: postId)])
-                await updateAvgRating(postId: postId)
+                await ratingUpdateAvg(postId: postId)
                 
                 try await postRef.updateData(["ratingCount": FieldValue.increment(Int64(1))])
-//                    .updateData(["avgRating": Firebase.shared.getPostAverageRatings(postId: postId)])
             }
             
         } catch {
@@ -114,7 +118,6 @@ extension Firebase {
         do {
             let query = try await getStore().collection("ratings")
                 .whereField("postId", isEqualTo: postId)
-//                .whereField("userId", isEqualTo: userId)
                 .getDocuments()
             
             guard !query.documents.isEmpty else {
@@ -153,7 +156,7 @@ extension Firebase {
             batch.updateData(["ratingCount": FieldValue.increment(Int64(-1))], forDocument: postRef)
             
             try await batch.commit()
-            await updateAvgRating(postId: postId)
+            await ratingUpdateAvg(postId: postId)
             print("successfully removed your rating from post...")
         } catch {
             print("error removing your rating from post: \(error.localizedDescription)")
@@ -181,7 +184,6 @@ extension Firebase {
             self.ratings = documents.compactMap { document in
                 do {
                     let rating = try document.data(as: Rating.self)
-//                    print(rating)
                     return rating
                 } catch {
                     print("error decoding rating \(document.documentID): \(error.localizedDescription)")
