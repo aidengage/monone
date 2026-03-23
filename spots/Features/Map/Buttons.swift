@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import Combine
 
 struct Buttons {
-//    @State private var buttonsViewModel = ButtonsViewModel()
+
+    
     
     struct ProfileButton: View {
-        @State var viewModel: ButtonsViewModel
+        @ObservedObject var viewModel: ButtonsViewModel
         var body: some View {
             Button(action: {
                 viewModel.profileToggle.toggle()
@@ -68,7 +70,7 @@ struct Buttons {
     }
     
     struct SmokeFilter: View {
-        @State var viewModel: ButtonsViewModel
+        @ObservedObject var viewModel: ButtonsViewModel
         var body: some View {
             Button(action: {
                 viewModel.showSmoke.toggle()
@@ -78,7 +80,6 @@ struct Buttons {
                 viewModel.showUnknown = false
                 
                 if viewModel.showSmoke {
-                    print(viewModel.showSmoke)
                     Firebase.shared.startPostActivityListener(activity: .smoke)
                 } else {
                     viewModel.startPostListenerForMode()
@@ -86,15 +87,31 @@ struct Buttons {
             }) {
                 Label(viewModel.showSmoke ? "Hide smoke" : "Show smoke",
                       systemImage: ActivityType.smoke.icon)
+//                .opacity(viewModel.showSmoke ? 1.0 : 0.3)
             }
             .tint(ActivityType.smoke.color)
             .buttonStyle(.glassProminent)
+//            .background(
+//                viewModel.showSmoke ?
+//                    ActivityType.smoke.color.opacity(0.2) :
+//                    Color.clear
+//            )
+//            .overlay(
+//                RoundedRectangle(cornerRadius: 8)
+//                    .stroke(
+//                        ActivityType.smoke.color,
+//                        lineWidth: viewModel.showSmoke ? 3 : 0
+//                    )
+//            )
+//            .animation(.easeInOut, value: viewModel.showSmoke)
         }
     }
     
     struct DateFilter: View {
-        @State var viewModel: ButtonsViewModel
+        @ObservedObject var viewModel: ButtonsViewModel
         var body: some View {
+//            Text(viewModel.showDate.description)
+//                .foregroundColor(.white)
             Button(action: {
                 viewModel.showSmoke = false
                 viewModel.showDate.toggle()
@@ -117,7 +134,7 @@ struct Buttons {
     }
     
     struct PhotographyFilter: View {
-        @State var viewModel: ButtonsViewModel
+        @ObservedObject var viewModel: ButtonsViewModel
         var body: some View {
             Button(action: {
                 viewModel.showSmoke = false
@@ -141,7 +158,7 @@ struct Buttons {
     }
     
     struct TrainstationFilter: View {
-        @State var viewModel: ButtonsViewModel
+        @ObservedObject var viewModel: ButtonsViewModel
         var body: some View {
             Button(action: {
                 viewModel.showSmoke = false
@@ -165,7 +182,7 @@ struct Buttons {
     }
     
     struct UnknownFilter: View {
-        @State var viewModel: ButtonsViewModel
+        @ObservedObject var viewModel: ButtonsViewModel
         var body: some View {
             Button(action: {
                 viewModel.showSmoke = false
@@ -191,15 +208,16 @@ struct Buttons {
 }
 
 extension Buttons {
-    @Observable class ButtonsViewModel {
-        var profileToggle: Bool = false
-        var showOnlyBookmarked: Bool = false
+    
+    class ButtonsViewModel: ObservableObject {
+        @Published var profileToggle: Bool = false
+        @Published var showOnlyBookmarked: Bool = false
         
-        var showSmoke: Bool = false
-        var showDate: Bool = false
-        var showPhoto: Bool = false
-        var showTrain: Bool = false
-        var showUnknown: Bool = false
+        @Published var showSmoke: Bool = false
+        @Published var showDate: Bool = false
+        @Published var showPhoto: Bool = false
+        @Published var showTrain: Bool = false
+        @Published var showUnknown: Bool = false
         
         func startPostListenerForMode() {
             if !profileToggle {
@@ -211,6 +229,5 @@ extension Buttons {
             }
         }
     }
-    
     
 }
