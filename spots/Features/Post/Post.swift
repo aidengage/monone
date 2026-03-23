@@ -361,7 +361,35 @@ extension Firebase {
     }
     
     func startPostActivityListener(activity: ActivityType) {
-        
+        stopPostListener()
+        print("activity: \(activity)")
+        print("display activity: \(activity.displayActivity)")
+        postListener = getStore().collection("posts")
+            .whereField("selectedActivity", isEqualTo: activity.displayActivity)
+            .addSnapshotListener { [weak self] (snapshot, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error getting posts: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("No posts found")
+                self.posts = []
+                return
+            }
+                
+            self.posts = documents.compactMap { document in
+                do {
+                    let post = try document.data(as: Post.self)
+                    return post
+                } catch {
+                    print("Error decoding document \(document.documentID): \(error)")
+                    return nil
+                }
+            }
+        }
     }
     
     func stopPostListener() {

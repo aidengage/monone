@@ -29,6 +29,11 @@ extension MapView {
         var profileToggle: Bool = false
 
         var showOnlyBookmarked: Bool = false
+        var showSmoke: Bool = false
+        var showDate: Bool = false
+        var showPhoto: Bool = false
+        var showTrain: Bool = false
+        var showUnknown: Bool = false
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0

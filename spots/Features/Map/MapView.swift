@@ -119,6 +119,109 @@ struct MapView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: {
+                    viewModel.showSmoke.toggle()
+                    viewModel.showDate = false
+                    viewModel.showPhoto = false
+                    viewModel.showTrain = false
+                    viewModel.showUnknown = false
+                    
+                    if viewModel.showSmoke {
+                        print(viewModel.showSmoke)
+                        Firebase.shared.startPostActivityListener(activity: .smoke)
+                    } else {
+                        startPostListenerForMode()
+                    }
+                }) {
+                    Label(viewModel.showSmoke ? "Hide smoke" : "Show smoke",
+                          systemImage: ActivityType.smoke.icon)
+                }
+                .tint(ActivityType.smoke.color)
+                .buttonStyle(.glassProminent)
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: {
+                    viewModel.showSmoke = false
+                    viewModel.showDate.toggle()
+                    viewModel.showPhoto = false
+                    viewModel.showTrain = false
+                    viewModel.showUnknown = false
+                    
+                    if viewModel.showDate {
+                        Firebase.shared.startPostActivityListener(activity: .date)
+                    } else {
+                        startPostListenerForMode()
+                    }
+                }) {
+                    Label(viewModel.showDate ? "hide date" : "show date",
+                          systemImage: ActivityType.date.icon)
+                }
+                .tint(ActivityType.date.color)
+                .buttonStyle(.glassProminent)
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: {
+                    viewModel.showSmoke = false
+                    viewModel.showDate = false
+                    viewModel.showPhoto.toggle()
+                    viewModel.showTrain = false
+                    viewModel.showUnknown = false
+                    
+                    if viewModel.showPhoto {
+                        Firebase.shared.startPostActivityListener(activity: .photography)
+                    } else {
+                        startPostListenerForMode()
+                    }
+                }) {
+                    Label(viewModel.showPhoto ? "hide photo" : "show photo",
+                          systemImage: ActivityType.photography.icon)
+                }
+                .tint(ActivityType.photography.color)
+                .buttonStyle(.glassProminent)
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: {
+                    viewModel.showSmoke = false
+                    viewModel.showDate = false
+                    viewModel.showPhoto = false
+                    viewModel.showTrain.toggle()
+                    viewModel.showUnknown = false
+                    
+                    if viewModel.showTrain {
+                        Firebase.shared.startPostActivityListener(activity: .trainStation)
+                    } else {
+                        startPostListenerForMode()
+                    }
+                }) {
+                    Label(viewModel.showTrain ? "hide train" : "show train",
+                          systemImage: ActivityType.trainStation.icon)
+                }
+                .tint(ActivityType.trainStation.color)
+                .buttonStyle(.glassProminent)
+            }
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: {
+                    viewModel.showSmoke = false
+                    viewModel.showDate = false
+                    viewModel.showPhoto = false
+                    viewModel.showTrain = false
+                    viewModel.showUnknown.toggle()
+                    
+                    if viewModel.showUnknown {
+                        Firebase.shared.startPostActivityListener(activity: .unknown)
+                    } else {
+                        startPostListenerForMode()
+                    }
+                }) {
+                    Label(viewModel.showUnknown ? "hide unknown" : "show unknown",
+                          systemImage: ActivityType.unknown.icon)
+                }
+                .tint(ActivityType.unknown.color)
+                .buttonStyle(.glassProminent)
+            }
+        }
    
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
