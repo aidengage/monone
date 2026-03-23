@@ -56,64 +56,66 @@ struct Post: Codable, Identifiable, Hashable {
         self.selectedActivity = "Activity loading..."
     }
     
-    enum ActivityType: String, CaseIterable, Identifiable, Codable {
-        case smoke
-        case date
-        case photography
-        case trainStation
-        case unknown
-        
-        var id: Self { self }
-        
-        var color: Color {
-            switch self {
-                case .smoke: return .red
-                case .date: return .purple
-                case .photography: return .orange
-                case .trainStation: return .blue
-                case .unknown: return .black
-            }
+    
+}
+
+enum ActivityType: String, CaseIterable, Identifiable, Codable {
+    case smoke
+    case date
+    case photography
+    case trainStation
+    case unknown
+    
+    var id: Self { self }
+    
+    var color: Color {
+        switch self {
+            case .smoke: return .red
+            case .date: return .purple
+            case .photography: return .orange
+            case .trainStation: return .blue
+            case .unknown: return .black
+        }
+    }
+    
+    var icon: String {
+        switch self {
+            case .smoke: return "vent.heat.waves.upward"
+            case .date: return "20.calendar"
+            case .photography: return "camera.shutter.button.fill"
+            case .trainStation: return "train.side.front.car"
+            case .unknown: return "questionmark.circle.dashed"
+        }
+    }
+    
+    var displayActivity: String {
+        switch self {
+            case .smoke: return "Smoke"
+            case .date: return "Date"
+            case .photography: return "Photography"
+            case .trainStation: return "Train Station"
+            case .unknown: return "Unknown"
+        }
+    }
+    
+    static func from(_ string: String) -> ActivityType {
+        // Try exact raw value match first
+        if let exact = ActivityType(rawValue: string) {
+            return exact
         }
         
-        var icon: String {
-            switch self {
-                case .smoke: return "vent.heat.waves.upward"
-                case .date: return "20.calendar"
-                case .photography: return "camera.shutter.button.fill"
-                case .trainStation: return "train.side.front.car"
-                case .unknown: return "questionmark.circle.dashed"
-            }
-        }
-        
-        var displayActivity: String {
-            switch self {
-                case .smoke: return "Smoke"
-                case .date: return "Date"
-                case .photography: return "Photography"
-                case .trainStation: return "Train Station"
-                case .unknown: return "Unknown"
-            }
-        }
-        
-        static func from(_ string: String) -> ActivityType {
-            // Try exact raw value match first
-            if let exact = ActivityType(rawValue: string) {
-                return exact
-            }
-            
-            // Try case-insensitive match
-            let lowercased = string.lowercased()
-            switch lowercased {
-            case "smoke": return .smoke
-            case "date": return .date
-            case "photography": return .photography
-            case "train station": return .trainStation
-            default:
-                // dont know if i should keep this if it matters, spams the debug log when uncommented
-                // fix later?
+        // Try case-insensitive match
+        let lowercased = string.lowercased()
+        switch lowercased {
+        case "smoke": return .smoke
+        case "date": return .date
+        case "photography": return .photography
+        case "train station": return .trainStation
+        default:
+            // dont know if i should keep this if it matters, spams the debug log when uncommented
+            // fix later?
 //                print("Warning: Unknown activity type '\(lowercased)'")
-                return .unknown
-            }
+            return .unknown
         }
     }
 }
@@ -174,7 +176,7 @@ extension Firebase {
     
     // db manipulation functions
     // already tested
-    func postUpdateActivity(postId: String, newActivity: Post.ActivityType) async {
+    func postUpdateActivity(postId: String, newActivity: ActivityType) async {
         let postRef = getStore().collection("posts").document(postId)
         do {
             try await postRef.updateData(["selectedActivity": newActivity.displayActivity])
@@ -356,6 +358,10 @@ extension Firebase {
         }
 //        print("starting post listener")
 //        print("post class listerner count: \(self.posts.count)")
+    }
+    
+    func startPostActivityListener(activity: ActivityType) {
+        
     }
     
     func stopPostListener() {

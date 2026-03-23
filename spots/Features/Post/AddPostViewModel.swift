@@ -31,7 +31,7 @@ extension AddPostView {
         var address: String = ""
         var rating: Decimal = 0.0
         var ratingCount: Int = 0
-        var selectedActivity: Post.ActivityType = .smoke
+        var selectedActivity: ActivityType = .smoke
         
         var imageURLs: [String] = []
         var imageData: [Data] = []
