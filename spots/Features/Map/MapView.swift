@@ -40,9 +40,10 @@ struct MapView: View {
                         }
 
                         ForEach(postsToShow.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
-                            Marker(post.name, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude))
+                            Marker(post.name, systemImage: Post.ActivityType.from(post.selectedActivity).icon, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude))
                                 .tag(post)
                                 .tint(Post.ActivityType.from(post.selectedActivity).color) // throws the warning for some reason for unknown even when it is not unknown
+                                
                         }
                     }
                     // loads posts when the map appears

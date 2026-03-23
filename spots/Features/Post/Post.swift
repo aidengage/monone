@@ -75,6 +75,16 @@ struct Post: Codable, Identifiable, Hashable {
             }
         }
         
+        var icon: String {
+            switch self {
+                case .smoke: return "vent.heat.waves.upward"
+                case .date: return "20.calendar"
+                case .photography: return "camera.shutter.button.fill"
+                case .trainStation: return "train.side.front.car"
+                case .unknown: return "questionmark.circle.dashed"
+            }
+        }
+        
         var displayActivity: String {
             switch self {
                 case .smoke: return "Smoke"
