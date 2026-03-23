@@ -68,10 +68,10 @@ struct Post: Codable, Identifiable, Hashable {
         var color: Color {
             switch self {
                 case .smoke: return .red
-                case .date: return .orange
-                case .photography: return .yellow
-                case .trainStation: return .green
-                case .unknown: return .blue
+                case .date: return .purple
+                case .photography: return .orange
+                case .trainStation: return .blue
+                case .unknown: return .black
             }
         }
         
