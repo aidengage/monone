@@ -68,7 +68,7 @@ extension MapView {
     //        cameraPosition = .region(region)
             
             // hardcoded offset camera zoom that barely works
-            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0043, longitude: post.longitude)
+            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0035, longitude: post.longitude)
             let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
             cameraPosition = .region(offsetRegion)
     //        return postView
