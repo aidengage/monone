@@ -11,6 +11,7 @@ import Combine
 
 struct MapView: View {
     @State private var viewModel = ViewModel()
+    @State var buttonsViewModel = Buttons.ButtonsViewModel()
     
     var body: some View {
         //the viewModel navigates the path for each screen.
@@ -31,9 +32,10 @@ struct MapView: View {
                                     .clipShape(Circle())
                             }
                         }
+                        
                         // Explore = all posts. Profile = my posts, or (when bookmark tapped) my bookmarked posts from all users.
                         //lowkey neat because you're setting a variable based on an if condition 
-                        let postsToShow: [Post] = if viewModel.profileToggle && viewModel.showOnlyBookmarked {
+                        let postsToShow: [Post] = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
                             Firebase.shared.posts.filter { Firebase.shared.bookmarkedPostIds.contains($0.id) }
                         } else {
                             Firebase.shared.posts
@@ -48,7 +50,7 @@ struct MapView: View {
                     }
                     // loads posts when the map appears
                     .onAppear {
-                        startPostListenerForMode()
+                        buttonsViewModel.startPostListenerForMode()
                         if !viewModel.observersSetUp {
                             viewModel.observeCoordinateUpdates()
                             viewModel.observeLocationAccessDenied()
@@ -57,8 +59,8 @@ struct MapView: View {
                         viewModel.deviceLocationService.requestLocationUpdates()
                         Firebase.shared.loadBookmarks()
                     }
-                    .onChange(of: viewModel.profileToggle) { _, _ in startPostListenerForMode() }
-                    .onChange(of: viewModel.showOnlyBookmarked) { _, _ in startPostListenerForMode() }
+                    .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
+                    .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
                     .onDisappear {
                         // stops post listener
                         Firebase.shared.stopPostListener()
@@ -96,155 +98,58 @@ struct MapView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
-                    ProfileButton(profileToggle: $viewModel.profileToggle)
+                    Buttons.ProfileButton(profileToggle: $buttonsViewModel.profileToggle)
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                if /*Firebase.shared.getCurrentUser() != nil,*/ viewModel.profileToggle {
+                if buttonsViewModel.profileToggle {
                     Button(action: {
-                        viewModel.showOnlyBookmarked.toggle()
+                        buttonsViewModel.showOnlyBookmarked.toggle()
                     }) {
                         Label(
-                            viewModel.showOnlyBookmarked ? "Show all" : "Bookmarks",
-                            systemImage: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark"
+                            buttonsViewModel.showOnlyBookmarked ? "Show all" : "Bookmarks",
+                            systemImage: buttonsViewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark"
                         )
                     }
-                    .tint(viewModel.showOnlyBookmarked ? .blue : .primary)
+                    .tint(buttonsViewModel.showOnlyBookmarked ? .blue : .primary)
                     .buttonStyle(.glassProminent)
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
-                    FeedbackButton(path: $viewModel.path)
+                    Buttons.FeedbackButton(path: $viewModel.path)
                 }
             }
         }
         .toolbar {
             ToolbarItem(placement: .bottomBar) {
-                Button(action: {
-                    viewModel.showSmoke.toggle()
-                    viewModel.showDate = false
-                    viewModel.showPhoto = false
-                    viewModel.showTrain = false
-                    viewModel.showUnknown = false
-                    
-                    if viewModel.showSmoke {
-                        print(viewModel.showSmoke)
-                        Firebase.shared.startPostActivityListener(activity: .smoke)
-                    } else {
-                        startPostListenerForMode()
-                    }
-                }) {
-                    Label(viewModel.showSmoke ? "Hide smoke" : "Show smoke",
-                          systemImage: ActivityType.smoke.icon)
-                }
-                .tint(ActivityType.smoke.color)
-                .buttonStyle(.glassProminent)
+                Buttons.SmokeFilter(viewModel: buttonsViewModel)
             }
             ToolbarItem(placement: .bottomBar) {
-                Button(action: {
-                    viewModel.showSmoke = false
-                    viewModel.showDate.toggle()
-                    viewModel.showPhoto = false
-                    viewModel.showTrain = false
-                    viewModel.showUnknown = false
-                    
-                    if viewModel.showDate {
-                        Firebase.shared.startPostActivityListener(activity: .date)
-                    } else {
-                        startPostListenerForMode()
-                    }
-                }) {
-                    Label(viewModel.showDate ? "hide date" : "show date",
-                          systemImage: ActivityType.date.icon)
-                }
-                .tint(ActivityType.date.color)
-                .buttonStyle(.glassProminent)
+                Buttons.DateFilter(viewModel: buttonsViewModel)
             }
             ToolbarItem(placement: .bottomBar) {
-                Button(action: {
-                    viewModel.showSmoke = false
-                    viewModel.showDate = false
-                    viewModel.showPhoto.toggle()
-                    viewModel.showTrain = false
-                    viewModel.showUnknown = false
-                    
-                    if viewModel.showPhoto {
-                        Firebase.shared.startPostActivityListener(activity: .photography)
-                    } else {
-                        startPostListenerForMode()
-                    }
-                }) {
-                    Label(viewModel.showPhoto ? "hide photo" : "show photo",
-                          systemImage: ActivityType.photography.icon)
-                }
-                .tint(ActivityType.photography.color)
-                .buttonStyle(.glassProminent)
+                Buttons.PhotographyFilter(viewModel: buttonsViewModel)
             }
             ToolbarItem(placement: .bottomBar) {
-                Button(action: {
-                    viewModel.showSmoke = false
-                    viewModel.showDate = false
-                    viewModel.showPhoto = false
-                    viewModel.showTrain.toggle()
-                    viewModel.showUnknown = false
-                    
-                    if viewModel.showTrain {
-                        Firebase.shared.startPostActivityListener(activity: .trainStation)
-                    } else {
-                        startPostListenerForMode()
-                    }
-                }) {
-                    Label(viewModel.showTrain ? "hide train" : "show train",
-                          systemImage: ActivityType.trainStation.icon)
-                }
-                .tint(ActivityType.trainStation.color)
-                .buttonStyle(.glassProminent)
+                Buttons.TrainstationFilter(viewModel: buttonsViewModel)
             }
             ToolbarItem(placement: .bottomBar) {
-                Button(action: {
-                    viewModel.showSmoke = false
-                    viewModel.showDate = false
-                    viewModel.showPhoto = false
-                    viewModel.showTrain = false
-                    viewModel.showUnknown.toggle()
-                    
-                    if viewModel.showUnknown {
-                        Firebase.shared.startPostActivityListener(activity: .unknown)
-                    } else {
-                        startPostListenerForMode()
-                    }
-                }) {
-                    Label(viewModel.showUnknown ? "hide unknown" : "show unknown",
-                          systemImage: ActivityType.unknown.icon)
-                }
-                .tint(ActivityType.unknown.color)
-                .buttonStyle(.glassProminent)
+                Buttons.UnknownFilter(viewModel: buttonsViewModel)
             }
         }
    
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
-            startPostListenerForMode()
+            buttonsViewModel.startPostListenerForMode()
         }) { post in
-            PostDetailView(post: post /*viewModel.selectedPost!*/ /*, ratings: Firebase.shared.ratings*/)
+            PostDetailView(post: post)
                 .presentationDetents([.fraction(0.75)])
                 .task {
                     withAnimation(.easeInOut(duration: 0.7)) {
-                        viewModel.cameraZoomOnPost(post: post /*viewModel.selectedPost!*/)
+                        viewModel.cameraZoomOnPost(post: post)
                     }
                 }
-        }
-    }
-    
-    /// Profile off = all posts. Profile on, no bookmark filter = my posts. Profile on, bookmark on = all posts (filter in view to bookmarked).
-    private func startPostListenerForMode() {
-        if !viewModel.profileToggle {
-            Firebase.shared.startPostListener()
-        } else if viewModel.showOnlyBookmarked {
-            Firebase.shared.startPostListener()
-        } else {
-            Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
         }
     }
 }
