@@ -25,6 +25,7 @@ extension MapView {
 //        var post: Post = Post()
         
         var selectedPost: Post?
+        var selectedPostID: String?
         var profileToggle: Bool = false
 
         var showOnlyBookmarked: Bool = false
@@ -62,7 +63,7 @@ extension MapView {
     //        cameraPosition = .region(region)
             
             // hardcoded offset camera zoom that barely works
-            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.005, longitude: post.longitude)
+            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0043, longitude: post.longitude)
             let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
             cameraPosition = .region(offsetRegion)
     //        return postView

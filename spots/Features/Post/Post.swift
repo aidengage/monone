@@ -16,7 +16,7 @@ import FirebaseStorage
 // still need to rework database for users/posts
 
 // codable user obejct to send to firebase database
-struct Post: Codable, Identifiable {
+struct Post: Codable, Identifiable, Hashable {
     let id: String
     let userId: String
     let images: [String]
@@ -65,6 +65,16 @@ struct Post: Codable, Identifiable {
         
         var id: Self { self }
         
+        var color: Color {
+            switch self {
+                case .smoke: return .red
+                case .date: return .orange
+                case .photography: return .yellow
+                case .trainStation: return .green
+                case .unknown: return .blue
+            }
+        }
+        
         var displayActivity: String {
             switch self {
                 case .smoke: return "Smoke"
@@ -89,7 +99,9 @@ struct Post: Codable, Identifiable {
             case "photography": return .photography
             case "train station": return .trainStation
             default:
-                print("Warning: Unknown activity type '\(string)'")
+                // dont know if i should keep this if it matters, spams the debug log when uncommented
+                // fix later?
+//                print("Warning: Unknown activity type '\(lowercased)'")
                 return .unknown
             }
         }
