@@ -362,8 +362,8 @@ extension Firebase {
     
     func startPostActivityListener(activity: ActivityType) {
         stopPostListener()
-        print("activity: \(activity)")
-        print("display activity: \(activity.displayActivity)")
+//        print("activity: \(activity)")
+//        print("display activity: \(activity.displayActivity)")
         postListener = getStore().collection("posts")
             .whereField("selectedActivity", isEqualTo: activity.displayActivity)
             .addSnapshotListener { [weak self] (snapshot, error) in

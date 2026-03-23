@@ -11,16 +11,23 @@ struct Buttons {
 //    @State private var buttonsViewModel = ButtonsViewModel()
     
     struct ProfileButton: View {
-        @Binding var profileToggle: Bool
+        @State var viewModel: ButtonsViewModel
         var body: some View {
             Button(action: {
-                if !profileToggle {
-                    profileToggle = true
+                viewModel.profileToggle.toggle()
+                viewModel.showSmoke = false
+                viewModel.showDate = false
+                viewModel.showPhoto = false
+                viewModel.showTrain = false
+                viewModel.showUnknown = false
+
+                if viewModel.profileToggle {
+                    
                     //                profileToggle = false
                     print("profile button clicked, starting user post listener")
                     Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
                 } else {
-                    profileToggle = false
+                    
                     //                profileToggle = true
                     print("profile button clicked, starting post listener")
                     Firebase.shared.startPostListener()
@@ -28,11 +35,9 @@ struct Buttons {
             }) {
                 Label("profile", systemImage: "person.crop.circle")
             }
-            .tint(profileToggle ? .green : .red)
+            .tint(viewModel.profileToggle ? .green : .red)
             .buttonStyle(.glassProminent)
         }
-        
-        
     }
     
     struct FeedbackButton: View {
@@ -156,7 +161,6 @@ struct Buttons {
             }
             .tint(ActivityType.trainStation.color)
             .buttonStyle(.glassProminent)
-
         }
     }
     
@@ -178,10 +182,10 @@ struct Buttons {
             }) {
                 Label(viewModel.showUnknown ? "hide unknown" : "show unknown",
                       systemImage: ActivityType.unknown.icon)
+                
             }
             .tint(ActivityType.unknown.color)
             .buttonStyle(.glassProminent)
-
         }
     }
 }
