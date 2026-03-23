@@ -26,12 +26,12 @@ struct Buttons {
                 if viewModel.profileToggle {
                     
                     //                profileToggle = false
-                    print("profile button clicked, starting user post listener")
+//                    print("profile button clicked, starting user post listener")
                     Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
                 } else {
                     
                     //                profileToggle = true
-                    print("profile button clicked, starting post listener")
+//                    print("profile button clicked, starting post listener")
                     Firebase.shared.startPostListener()
                 }
             }) {
