@@ -54,7 +54,7 @@ struct AddPostView: View {
             
             Section(header: Text("Activity Type")) {
                 Picker("Activity", selection: $viewModel.selectedActivity) {
-                    ForEach(Post.ActivityType.allCases) { type in
+                    ForEach(ActivityType.allCases) { type in
                         Text(type.displayActivity).tag(type)
                     }
                 }

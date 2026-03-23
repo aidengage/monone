@@ -245,12 +245,12 @@ struct DebugPostView: View {
 }
 
 struct EditActivityCard: View {
-    @State private var activity: Post.ActivityType
+    @State private var activity: ActivityType
     private var postId: String
     
     init(post: Post) {
         self.postId = post.id
-        self._activity = State(initialValue: Post.ActivityType.from(post.selectedActivity))
+        self._activity = State(initialValue: ActivityType.from(post.selectedActivity))
     }
     
     var body: some View {
@@ -262,7 +262,7 @@ struct EditActivityCard: View {
                 .foregroundColor(.primary)
             Spacer()
             Picker("Type", selection: $activity) {
-                ForEach(Post.ActivityType.allCases) { type in
+                ForEach(ActivityType.allCases) { type in
                     Text(type.displayActivity).tag(type)
                 }
             }
