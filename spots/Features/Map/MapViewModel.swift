@@ -15,7 +15,7 @@ import FirebaseFirestore
 
 extension MapView {
 // observable makes sure VieModel's stored properties can automatically publish changes so SwiftUI views can react
-    @Observable class ViewModel {
+    class ViewModel: ObservableObject {
         var hasValidLocation = false
         var hasCenteredOnUser = false
         //*what is this?
@@ -24,7 +24,7 @@ extension MapView {
 //        var listenedToPosts: [Post] = []
 //        var post: Post = Post()
         
-        var selectedPost: Post?
+        @Published var selectedPost: Post?
         var selectedPostID: String?
 //        var profileToggle: Bool = false
 
@@ -46,7 +46,7 @@ extension MapView {
         var path: NavigationPath = NavigationPath()
         
     //*why is camera position hardcoded in?
-        var cameraPosition: MapCameraPosition = .region(
+        @Published var cameraPosition: MapCameraPosition = .region(
             MKCoordinateRegion(
                 center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
                 span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
@@ -68,7 +68,7 @@ extension MapView {
     //        cameraPosition = .region(region)
             
             // hardcoded offset camera zoom that barely works
-            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0043, longitude: post.longitude)
+            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0035, longitude: post.longitude)
             let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
             cameraPosition = .region(offsetRegion)
     //        return postView

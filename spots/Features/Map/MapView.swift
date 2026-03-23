@@ -10,8 +10,8 @@ import MapKit
 import Combine
 
 struct MapView: View {
-    @State private var viewModel = ViewModel()
-    @State var buttonsViewModel = Buttons.ButtonsViewModel()
+    @StateObject private var viewModel = ViewModel()
+    @StateObject var buttonsViewModel = Buttons.ButtonsViewModel()
     
     var body: some View {
         //the viewModel navigates the path for each screen.
@@ -22,7 +22,7 @@ struct MapView: View {
                     
                     Map(position: $viewModel.cameraPosition, selection: $viewModel.selectedPost) {
                         
-                        //for curr location, display a marker (only when we have valid coordinates)
+                        // for curr location, display a marker (only when we have valid coordinates)
                         if viewModel.hasValidLocation {
                             Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)) {
                                 Image(systemName: "mappin.circle.fill")
@@ -98,7 +98,7 @@ struct MapView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
-                    Buttons.ProfileButton(profileToggle: $buttonsViewModel.profileToggle)
+                    Buttons.ProfileButton(viewModel: buttonsViewModel)
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
