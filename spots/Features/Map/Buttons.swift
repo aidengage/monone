@@ -7,38 +7,119 @@
 
 import SwiftUI
 import Combine
+import FirebaseAuth
 
 struct Buttons {
 
-    
+    struct AddButton: View {
+        
+        @State private var showAddPost = false
+        @State private var showLogin = false
+        
+        @Binding var path: NavigationPath
+    //    This lets Add​Button use the same navigation stack as its parent (your Map​View). When it appends to path, it navigates to another screen within the same stack.
+
+        
+        @Binding var centerLat: Double
+        @Binding var centerLong: Double
+        //these get updated by MapView using .onMapCameraChange
+        var body: some View {
+            NavigationStack(path: $path) {
+                
+                
+                Button(action: {
+                    let currentUser = Firebase.shared.getCurrentUser()
+                    print("Current user: \(currentUser?.email ?? "nil")")
+                    print("User ID: \(currentUser?.uid ?? "nil")")
+                    
+                    // when logged in, showAddPost is true, appends to path stack with variable
+                    if currentUser != nil {
+                        showAddPost = true
+                        path.append(showAddPost)
+                    } else {
+                        showLogin = true
+                        path.append(showLogin)
+                    }
+                }) {
+                    Image(systemName: "plus")
+                        .font(.largeTitle)
+                        .padding(10)
+                }
+                .buttonStyle(.glass(.clear))
+                .buttonBorderShape(.circle)
+                .padding(.leading, 20)
+                
+                // navigation logic for login and addpost, sending center coords with the navigation
+                .navigationDestination(isPresented: $showAddPost) {
+                    AddPostView(centerLat: centerLat, centerLong: centerLong)
+                }
+                .navigationDestination(isPresented: $showLogin) {
+                    LoginView()
+                }
+            }
+        }
+    }
     
     struct ProfileButton: View {
         @ObservedObject var viewModel: ButtonsViewModel
+        
         var body: some View {
             Button(action: {
-                viewModel.profileToggle.toggle()
-                viewModel.showSmoke = false
-                viewModel.showDate = false
-                viewModel.showPhoto = false
-                viewModel.showTrain = false
-                viewModel.showUnknown = false
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    viewModel.profileToggle.toggle()
+                    viewModel.showSmoke = false
+                    viewModel.showDate = false
+                    viewModel.showPhoto = false
+                    viewModel.showTrain = false
+                    viewModel.showUnknown = false
+                }
 
                 if viewModel.profileToggle {
-                    
-                    //                profileToggle = false
-//                    print("profile button clicked, starting user post listener")
                     Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
                 } else {
-                    
-                    //                profileToggle = true
-//                    print("profile button clicked, starting post listener")
                     Firebase.shared.startPostListener()
                 }
             }) {
-                Label("profile", systemImage: "person.crop.circle")
+                Image(systemName: "person.crop.circle")
+                    .font(.largeTitle)
+                    .padding(10)
             }
             .tint(viewModel.profileToggle ? .green : .red)
             .buttonStyle(.glassProminent)
+        }
+    }
+    
+    struct BookmarkButton: View {
+        @ObservedObject var viewModel: ButtonsViewModel
+        
+        var body: some View {
+            
+                Button(action: {
+                    viewModel.showOnlyBookmarked.toggle()
+                }) {
+                    Image(systemName: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.title)
+                        .padding(2)
+                }
+                .tint(viewModel.showOnlyBookmarked ? .blue : .black)
+                .buttonStyle(.glassProminent)
+                .buttonBorderShape(.circle)
+            
+        }
+    }
+    
+    struct LogoutButton: View {
+        
+        var body: some View {
+            Button(action: {
+                Firebase.shared.logout()
+            }) {
+                Image(systemName: "arrow.right.square")
+                    .font(.title)
+                    .padding(2)
+            }
+            .buttonStyle(.glassProminent)
+            .buttonBorderShape(.circle)
         }
     }
     
@@ -210,6 +291,8 @@ struct Buttons {
 extension Buttons {
     
     class ButtonsViewModel: ObservableObject {
+        @Published var showAll: Bool = true
+        
         @Published var profileToggle: Bool = false
         @Published var showOnlyBookmarked: Bool = false
         
