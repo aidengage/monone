@@ -48,6 +48,7 @@ struct MapView: View {
                                 
                             }
                         }
+                        .mapStyle(.imagery(elevation: .realistic))
                         // loads posts when the map appears
                         .onAppear {
                             buttonsViewModel.startPostListenerForMode()
@@ -80,7 +81,7 @@ struct MapView: View {
                             .font(.system(size: 33))
                     }
                     Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
-                        .padding(.bottom, 15)
+                        .padding(.bottom, 5)
                 }
                 VerticalDropdownToolbar(viewModel: buttonsViewModel)
         }
