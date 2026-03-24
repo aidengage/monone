@@ -35,7 +35,7 @@ struct Buttons {
                     // when logged in, showAddPost is true, appends to path stack with variable
                     if currentUser != nil {
                         showAddPost = true
-                        path.append(showAddPost)
+//                        path.append(showAddPost)
                     } else {
                         showLogin = true
                         path.append(showLogin)
@@ -50,8 +50,9 @@ struct Buttons {
                 .padding(.leading, 20)
                 
                 // navigation logic for login and addpost, sending center coords with the navigation
-                .navigationDestination(isPresented: $showAddPost) {
+                .sheet(isPresented: $showAddPost) {
                     AddPostView(centerLat: centerLat, centerLong: centerLong)
+                        .presentationDetents([.fraction(0.75)])
                 }
                 .navigationDestination(isPresented: $showLogin) {
                     LoginView()
