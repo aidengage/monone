@@ -8,67 +8,25 @@
 import SwiftUI
 
 struct VerticalDropdownToolbar: View {
-    @State var mainToggle: Bool = false
+    @State var dropdownToggle: Bool = false
+    @ObservedObject var viewModel: Buttons.ButtonsViewModel
     
     var body: some View {
+        VStack {
 
-//        ZStack {
-            VStack {
-                Button(action: {
-                    print("vertical dropdown toolbar")
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        mainToggle.toggle()
-                    }
-                }) {
-                    Image(systemName: "plus.circle")
-                        .font(.largeTitle)
-                        .padding(10)
-                }
+            Buttons.ProfileButton(viewModel: viewModel)
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
-                
-                if mainToggle {
-                    Button(action: {
-                        print("new button spawn")
-                    }) {
-                        Image(systemName: "plus.circle")
-                            .font(.largeTitle)
-//                            .padding(10)
-                    }
-                    .buttonStyle(.glassProminent)
-                    .buttonBorderShape(.circle)
-                    .tint(.red)
-                    .transition(.opacity)
-                    
-                    Button(action: {
-                        print("third button whaaaat")
-                    }) {
-                        Image(systemName: "plus.circle")
-                            .font(.largeTitle)
-//                            .padding(10)
-                    }
-                    .buttonStyle(.glassProminent)
-                    .buttonBorderShape(.circle)
-                    .tint(.orange)
-                    .transition(.opacity)
-                }
+            
+            if viewModel.profileToggle {
+                Buttons.BookmarkButton(viewModel: viewModel)
+                Buttons.LogoutButton()
             }
-            .padding(.leading, 15)
-//            .padding(.top, 60)
-//            .ignoresSafeArea(edges: .top)
-
-//            .safeAreaPadding(.top, 20)
-//            .safeAreaInset(edge: .top) {
-//                Text("top edge !")
-//            }
-//        }
-        
-        
-        
-        
+        }
+        .padding(.leading, 15)
     }
 }
 
 #Preview {
-    VerticalDropdownToolbar()
+    VerticalDropdownToolbar(viewModel: Buttons.ButtonsViewModel())
 }

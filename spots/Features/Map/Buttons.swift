@@ -60,17 +60,41 @@ struct Buttons {
         }
     }
 
+    struct BookmarkButton: View {
+        @ObservedObject var viewModel: ButtonsViewModel
+        
+        var body: some View {
+            
+                Button(action: {
+                    viewModel.showOnlyBookmarked.toggle()
+                }) {
+//                    Label(
+//                        viewModel.showOnlyBookmarked ? "Show all" : "Bookmarks",
+//                        systemImage: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark"
+//                    )
+                    Image(systemName: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.title2)
+                }
+                .tint(viewModel.showOnlyBookmarked ? .blue : .black)
+                .buttonStyle(.glassProminent)
+                .buttonBorderShape(.circle)
+            
+        }
+    }
     
     struct ProfileButton: View {
         @ObservedObject var viewModel: ButtonsViewModel
+        
         var body: some View {
             Button(action: {
-                viewModel.profileToggle.toggle()
-                viewModel.showSmoke = false
-                viewModel.showDate = false
-                viewModel.showPhoto = false
-                viewModel.showTrain = false
-                viewModel.showUnknown = false
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    viewModel.profileToggle.toggle()
+                    viewModel.showSmoke = false
+                    viewModel.showDate = false
+                    viewModel.showPhoto = false
+                    viewModel.showTrain = false
+                    viewModel.showUnknown = false
+                }
 
                 if viewModel.profileToggle {
                     
@@ -84,10 +108,26 @@ struct Buttons {
                     Firebase.shared.startPostListener()
                 }
             }) {
-                Label("profile", systemImage: "person.crop.circle")
+                Image(systemName: "person.crop.circle")
+                    .font(.largeTitle)
+                    .padding(10)
             }
             .tint(viewModel.profileToggle ? .green : .red)
             .buttonStyle(.glassProminent)
+        }
+    }
+    
+    struct LogoutButton: View {
+        
+        var body: some View {
+            Button(action: {
+                Firebase.shared.logout()
+            }) {
+                Image(systemName: "arrow.right.square")
+                    .font(.title2)
+            }
+            .buttonStyle(.glassProminent)
+            .buttonBorderShape(.circle)
         }
     }
     

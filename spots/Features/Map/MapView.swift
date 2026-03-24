@@ -81,43 +81,44 @@ struct MapView: View {
                     }
                     Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
                 }
-                VerticalDropdownToolbar()
+                VerticalDropdownToolbar(viewModel: buttonsViewModel)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             // creates a toolbar to logout of account
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil {
-                    Button(action: {
-                        Firebase.shared.logout()
-                    }) {
-                        Label("Logout", systemImage: "arrow.right.square")
-                    }
-                    .buttonStyle(.glassProminent)
-                } else {
-                    //change button visibility to false
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil {
-                    Buttons.ProfileButton(viewModel: buttonsViewModel)
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if buttonsViewModel.profileToggle {
-                    Button(action: {
-                        buttonsViewModel.showOnlyBookmarked.toggle()
-                    }) {
-                        Label(
-                            buttonsViewModel.showOnlyBookmarked ? "Show all" : "Bookmarks",
-                            systemImage: buttonsViewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark"
-                        )
-                    }
-                    .tint(buttonsViewModel.showOnlyBookmarked ? .blue : .primary)
-                    .buttonStyle(.glassProminent)
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                if Firebase.shared.getCurrentUser() != nil {
+//                    Button(action: {
+//                        Firebase.shared.logout()
+//                    }) {
+//                        Label("Logout", systemImage: "arrow.right.square")
+//                    }
+//                    .buttonStyle(.glassProminent)
+//                } else {
+//                    //change button visibility to false
+//                }
+//            }
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                if Firebase.shared.getCurrentUser() != nil {
+//                    Buttons.ProfileButton(viewModel: buttonsViewModel)
+//                }
+//            }
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                if buttonsViewModel.profileToggle {
+//                    Button(action: {
+//                        buttonsViewModel.showOnlyBookmarked.toggle()
+//                    }) {
+//                        Label(
+//                            buttonsViewModel.showOnlyBookmarked ? "Show all" : "Bookmarks",
+//                            systemImage: buttonsViewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark"
+//                        )
+//                    }
+//                    .tint(buttonsViewModel.showOnlyBookmarked ? .blue : .primary)
+//                    .buttonStyle(.glassProminent)
+//                }
+//            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
                 if Firebase.shared.getCurrentUser() != nil {
                     Buttons.FeedbackButton(path: $viewModel.path)
                 }
