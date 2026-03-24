@@ -47,7 +47,7 @@ struct Buttons {
                 }
                 .buttonStyle(.glass(.clear))
                 .buttonBorderShape(.circle)
-                .padding(.leading, 30)
+                .padding(.leading, 20)
                 
                 // navigation logic for login and addpost, sending center coords with the navigation
                 .navigationDestination(isPresented: $showAddPost) {
