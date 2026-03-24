@@ -59,28 +59,6 @@ struct Buttons {
             }
         }
     }
-
-    struct BookmarkButton: View {
-        @ObservedObject var viewModel: ButtonsViewModel
-        
-        var body: some View {
-            
-                Button(action: {
-                    viewModel.showOnlyBookmarked.toggle()
-                }) {
-//                    Label(
-//                        viewModel.showOnlyBookmarked ? "Show all" : "Bookmarks",
-//                        systemImage: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark"
-//                    )
-                    Image(systemName: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark")
-                        .font(.title2)
-                }
-                .tint(viewModel.showOnlyBookmarked ? .blue : .black)
-                .buttonStyle(.glassProminent)
-                .buttonBorderShape(.circle)
-            
-        }
-    }
     
     struct ProfileButton: View {
         @ObservedObject var viewModel: ButtonsViewModel
@@ -97,14 +75,8 @@ struct Buttons {
                 }
 
                 if viewModel.profileToggle {
-                    
-                    //                profileToggle = false
-//                    print("profile button clicked, starting user post listener")
                     Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
                 } else {
-                    
-                    //                profileToggle = true
-//                    print("profile button clicked, starting post listener")
                     Firebase.shared.startPostListener()
                 }
             }) {
@@ -117,6 +89,25 @@ struct Buttons {
         }
     }
     
+    struct BookmarkButton: View {
+        @ObservedObject var viewModel: ButtonsViewModel
+        
+        var body: some View {
+            
+                Button(action: {
+                    viewModel.showOnlyBookmarked.toggle()
+                }) {
+                    Image(systemName: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.title)
+                        .padding(2)
+                }
+                .tint(viewModel.showOnlyBookmarked ? .blue : .black)
+                .buttonStyle(.glassProminent)
+                .buttonBorderShape(.circle)
+            
+        }
+    }
+    
     struct LogoutButton: View {
         
         var body: some View {
@@ -124,7 +115,8 @@ struct Buttons {
                 Firebase.shared.logout()
             }) {
                 Image(systemName: "arrow.right.square")
-                    .font(.title2)
+                    .font(.title)
+                    .padding(2)
             }
             .buttonStyle(.glassProminent)
             .buttonBorderShape(.circle)
