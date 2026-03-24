@@ -291,6 +291,8 @@ struct Buttons {
 extension Buttons {
     
     class ButtonsViewModel: ObservableObject {
+        @Published var showAll: Bool = true
+        
         @Published var profileToggle: Bool = false
         @Published var showOnlyBookmarked: Bool = false
         

@@ -13,14 +13,15 @@ struct VerticalDropdownToolbar: View {
     
     var body: some View {
         VStack {
-
-            Buttons.ProfileButton(viewModel: viewModel)
-                .buttonStyle(.glassProminent)
-                .buttonBorderShape(.circle)
-            
-            if viewModel.profileToggle {
-                Buttons.BookmarkButton(viewModel: viewModel)
-                Buttons.LogoutButton()
+            if viewModel.showAll {
+                Buttons.ProfileButton(viewModel: viewModel)
+                    .buttonStyle(.glassProminent)
+                    .buttonBorderShape(.circle)
+                
+                if viewModel.profileToggle {
+                    Buttons.BookmarkButton(viewModel: viewModel)
+                    Buttons.LogoutButton()
+                }
             }
         }
         .padding(.leading, 15)
