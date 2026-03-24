@@ -147,6 +147,10 @@ struct MapView: View {
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             buttonsViewModel.startPostListenerForMode()
+            
+            withAnimation(.easeInOut(duration: 0.2)) {
+                buttonsViewModel.showAll.toggle()
+            }
         }) { post in
             PostDetailView(post: post)
                 .presentationDetents([.fraction(0.75)])
@@ -155,6 +159,7 @@ struct MapView: View {
                 .task {
                     withAnimation(.easeInOut(duration: 0.7)) {
                         viewModel.cameraZoomOnPost(post: post)
+                        buttonsViewModel.showAll.toggle()
                     }
                 }
         }
