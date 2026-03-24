@@ -79,7 +79,7 @@ struct MapView: View {
                         .offset(y: -15)
                         .font(.system(size: 33))
                 }
-                AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
+                Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
