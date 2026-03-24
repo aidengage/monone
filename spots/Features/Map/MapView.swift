@@ -80,6 +80,7 @@ struct MapView: View {
                             .font(.system(size: 33))
                     }
                     Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
+                        .padding(.bottom, 15)
                 }
                 VerticalDropdownToolbar(viewModel: buttonsViewModel)
         }
