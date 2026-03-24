@@ -12,7 +12,7 @@ struct VerticalDropdownToolbar: View {
     
     var body: some View {
 
-        ZStack {
+//        ZStack {
             VStack {
                 Button(action: {
                     print("vertical dropdown toolbar")
@@ -53,13 +53,15 @@ struct VerticalDropdownToolbar: View {
                     .transition(.opacity)
                 }
             }
-            .padding(.leading, 10)
+            .padding(.leading, 15)
+//            .padding(.top, 60)
 //            .ignoresSafeArea(edges: .top)
+
 //            .safeAreaPadding(.top, 20)
 //            .safeAreaInset(edge: .top) {
 //                Text("top edge !")
 //            }
-        }
+//        }
         
         
         
