@@ -35,6 +35,16 @@ extension MapView {
                 return .hybrid(elevation: .realistic)
             }
         }
+        var currentMapIcon: String {
+            switch selectedMapStyleType {
+            case .standard:
+                return "map"
+            case .hybrid:
+                return "globe"
+//            case .imagery:
+//                return "bonjour"
+            }
+        }
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0

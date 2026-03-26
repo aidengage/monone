@@ -61,7 +61,7 @@ struct MapView: View {
                                     viewModel.selectedMapStyleType = .standard
                                 }
                             }) {
-                                Image(systemName: "map")
+                                Image(systemName: viewModel.currentMapIcon)
                                     .padding(5)
                                     .background(.ultraThinMaterial)
                                     .cornerRadius(10)
