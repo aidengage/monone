@@ -113,8 +113,6 @@ struct MapView: View {
                     Buttons.FeedbackButton(path: $viewModel.path)
                 }
             }
-        }
-        .toolbar {
             ToolbarItem(placement: .bottomBar) {
                 Buttons.SmokeFilter(viewModel: buttonsViewModel)
             }
