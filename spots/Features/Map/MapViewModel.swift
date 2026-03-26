@@ -20,20 +20,33 @@ extension MapView {
         var hasCenteredOnUser = false
         //*what is this?
         var observersSetUp = false
-        
-//        var listenedToPosts: [Post] = []
-//        var post: Post = Post()
-        
+
         @Published var selectedPost: Post?
         var selectedPostID: String?
-//        var profileToggle: Bool = false
-
-//        var showOnlyBookmarked: Bool = false
-//        var showSmoke: Bool = false
-//        var showDate: Bool = false
-//        var showPhoto: Bool = false
-//        var showTrain: Bool = false
-//        var showUnknown: Bool = false
+        
+        @Published var selectedMapStyleType: MapStyleType = .standard
+        var currentMapStyle: MapStyle {
+            switch selectedMapStyleType {
+            case .standard:
+                return .standard
+//            case .imagery:
+//                return .imagery(elevation: .realistic)
+            case .hybrid:
+                return .hybrid(elevation: .realistic)
+            }
+        }
+        var currentMapIcon: String {
+            switch selectedMapStyleType {
+            case .standard:
+                return "map"
+            case .hybrid:
+                return "globe"
+//            case .imagery:
+//                return "bonjour"
+            }
+        }
+        
+        @Published var touchToggle: Bool = true
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
@@ -46,12 +59,15 @@ extension MapView {
         var path: NavigationPath = NavigationPath()
         
     //*why is camera position hardcoded in?
-        @Published var cameraPosition: MapCameraPosition = .region(
-            MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
-                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-            )
-        )
+//        @Published var cameraPosition: MapCameraPosition = .region(
+//            MKCoordinateRegion(
+//                center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
+//                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+//            )
+//        )
+        @Published var cameraPosition: MapCameraPosition = .automatic
+        private var rotationTimer: AnyCancellable?
+        private var currentHeading: Double = 0
         
         func update(centerLat: Double) {
             self.centerLat = centerLat
@@ -63,15 +79,53 @@ extension MapView {
         
         func cameraZoomOnPost(post: Post) {
             let targetLocation = CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)
+            stopRotation()
+            let camera = MapCamera(
+                centerCoordinate: targetLocation, distance: 600, heading: 0, pitch: 65
+            )
             let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
-            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
+//            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
     //        cameraPosition = .region(region)
             
             // hardcoded offset camera zoom that barely works
-            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0035, longitude: post.longitude)
-            let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
-            cameraPosition = .region(offsetRegion)
+//            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0035, longitude: post.longitude)
+//            let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
+//            cameraPosition = .region(offsetRegion)
+            withAnimation(.easeInOut(duration: 0.6)) {
+                cameraPosition = .camera(camera)
+            }
     //        return postView
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+                self.startRotation(around: targetLocation)
+            }
+        }
+        
+        private func startRotation(around coordinate: CLLocationCoordinate2D) {
+            currentHeading = 0
+
+            rotationTimer = Timer.publish(every: 0.05, on: .main, in: .common)
+                .autoconnect()
+                .sink { [weak self] _ in
+                    guard let self else { return }
+
+                    self.currentHeading = (self.currentHeading + 0.3)
+                        .truncatingRemainder(dividingBy: 360)
+
+                    let camera = MapCamera(
+                        centerCoordinate: coordinate,
+                        distance: 600,
+                        heading: self.currentHeading,
+                        pitch: 65
+                    )
+                    // No animation wrapper here — the timer tick IS the animation
+                    self.cameraPosition = .camera(camera)
+                }
+        }
+
+        
+        func stopRotation() {
+            rotationTimer?.cancel()
+            rotationTimer = nil
         }
         
         //using publisher provided by deviceLocationService

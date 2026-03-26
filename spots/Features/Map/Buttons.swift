@@ -35,7 +35,7 @@ struct Buttons {
                     // when logged in, showAddPost is true, appends to path stack with variable
                     if currentUser != nil {
                         showAddPost = true
-                        path.append(showAddPost)
+//                        path.append(showAddPost)
                     } else {
                         showLogin = true
                         path.append(showLogin)
@@ -50,8 +50,9 @@ struct Buttons {
                 .padding(.leading, 20)
                 
                 // navigation logic for login and addpost, sending center coords with the navigation
-                .navigationDestination(isPresented: $showAddPost) {
+                .sheet(isPresented: $showAddPost) {
                     AddPostView(centerLat: centerLat, centerLong: centerLong)
+                        .presentationDetents([.fraction(0.75)])
                 }
                 .navigationDestination(isPresented: $showLogin) {
                     LoginView()
@@ -84,7 +85,7 @@ struct Buttons {
                     .font(.largeTitle)
                     .padding(10)
             }
-            .tint(viewModel.profileToggle ? .green : .red)
+            .tint(viewModel.profileToggle ? .green : .clear)
             .buttonStyle(.glassProminent)
         }
     }
@@ -99,9 +100,9 @@ struct Buttons {
                 }) {
                     Image(systemName: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark")
                         .font(.title)
-                        .padding(2)
+                        .padding(1)
                 }
-                .tint(viewModel.showOnlyBookmarked ? .blue : .black)
+                .tint(viewModel.showOnlyBookmarked ? .blue : .clear)
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
             
@@ -125,26 +126,20 @@ struct Buttons {
     
     struct FeedbackButton: View {
         
-        @Binding var path: NavigationPath
+//        @Binding var path: NavigationPath
         @State var showFeedback: Bool = false
         
         var body: some View {
-            NavigationStack(path: $path) {
+            NavigationStack(/*path: $path*/) {
                 Button(action: {
-                    if !showFeedback {
-                        showFeedback = true
-                        path.append(showFeedback)
-                    } else {
-                        showFeedback = false
-                    }
-                    
+                    showFeedback.toggle()
                 }) {
                     Label("feedback", systemImage: "bubble.left")
                 }
                 .buttonStyle(.glassProminent)
                 .tint(.orange)
                 .navigationDestination(isPresented: $showFeedback) {
-                    FeedbackForm(path: $path)
+                    FeedbackForm(/*path: $path*/)
                 }
             }
         }

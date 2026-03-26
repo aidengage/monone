@@ -9,11 +9,11 @@ import SwiftUI
 
 struct FeedbackView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var path: NavigationPath
+//    @Binding var path: NavigationPath
     let feedback: [Feedback]
     
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(/*path: $path*/) {
             ScrollView {
                 VStack(spacing: 10) {
                     ForEach(feedback) { feedback in
@@ -85,7 +85,7 @@ struct FeedbackInfoView: View {
 
 struct FeedbackViewButton: View {
     
-    @Binding var path: NavigationPath
+//    @Binding var path: NavigationPath
     @State var showFeedbackList: Bool = false
     
     var body: some View {
@@ -108,7 +108,7 @@ struct FeedbackViewButton: View {
 //            FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
 //        }
         .sheet(isPresented: $showFeedbackList) {
-            FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
+            FeedbackView(/*path: $path,*/ feedback: Firebase.shared.feedbacks)
         }
     }
 }

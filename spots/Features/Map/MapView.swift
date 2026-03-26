@@ -48,7 +48,29 @@ struct MapView: View {
                                 
                             }
                         }
-                        .mapStyle(.imagery(elevation: .realistic))
+                        .allowsHitTesting(viewModel.touchToggle)
+                        .mapStyle(viewModel.currentMapStyle) // Apply the reactive style
+                        .overlay(alignment: .bottomTrailing) {
+                            Button(action: {
+                                // Action to cycle through the map styles
+                                switch viewModel.selectedMapStyleType {
+                                case .standard:
+                                    viewModel.selectedMapStyleType = .hybrid
+//                                case .imagery:
+//                                    viewModel.selectedMapStyleType = .standard
+                                case .hybrid:
+                                    viewModel.selectedMapStyleType = .standard
+                                }
+                            }) {
+                                Image(systemName: viewModel.currentMapIcon)
+                                    .padding(5)
+                                    .background(.ultraThinMaterial)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                                    .tint(.black)
+                            }
+                            .padding()
+                        }
                         // loads posts when the map appears
                         .onAppear {
                             buttonsViewModel.startPostListenerForMode()
@@ -74,7 +96,11 @@ struct MapView: View {
                             print("\(viewModel.centerLat): \(viewModel.centerLong)")
                             //later used by Add Button to create a post at the center of the screen
                         }
-                        
+                        .safeAreaInset(edge: .bottom) {
+                            if !viewModel.touchToggle {
+                                Color.clear.frame(height: UIScreen.main.bounds.height * 0.50)
+                            }
+                        }
                         // visual indicator of the center of the screen
                         Image(systemName: "mappin")
                             .offset(y: -15)
@@ -88,12 +114,10 @@ struct MapView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil {
-                    Buttons.FeedbackButton(path: $viewModel.path)
+                if Firebase.shared.getCurrentUser() != nil /*&& buttonsViewModel.showAll*/ {
+                    Buttons.FeedbackButton(/*path: $viewModel.path*/)
                 }
             }
-        }
-        .toolbar {
             ToolbarItem(placement: .bottomBar) {
                 Buttons.SmokeFilter(viewModel: buttonsViewModel)
             }
@@ -114,16 +138,18 @@ struct MapView: View {
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             buttonsViewModel.startPostListenerForMode()
-            
+            viewModel.touchToggle.toggle()
             withAnimation(.easeInOut(duration: 0.2)) {
                 buttonsViewModel.showAll.toggle()
+                viewModel.stopRotation()
             }
         }) { post in
             PostDetailView(post: post)
                 .presentationDetents([.fraction(0.75)])
-                .presentationBackground(.clear)
+//                .presentationBackground(.clear)
 //                .presentationBackgroundInteraction(.enabled)
                 .task {
+                    viewModel.touchToggle.toggle()
                     withAnimation(.easeInOut(duration: 0.7)) {
                         viewModel.cameraZoomOnPost(post: post)
                         buttonsViewModel.showAll.toggle()
@@ -131,6 +157,10 @@ struct MapView: View {
                 }
         }
     }
+}
+
+enum MapStyleType {
+    case standard, /*imagery ,*/ hybrid
 }
 
 #Preview {
