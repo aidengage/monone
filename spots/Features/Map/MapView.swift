@@ -96,7 +96,11 @@ struct MapView: View {
                             print("\(viewModel.centerLat): \(viewModel.centerLong)")
                             //later used by Add Button to create a post at the center of the screen
                         }
-                        
+                        .safeAreaInset(edge: .bottom) {
+                            if !viewModel.touchToggle {
+                                Color.clear.frame(height: UIScreen.main.bounds.height * 0.50)
+                            }
+                        }
                         // visual indicator of the center of the screen
                         Image(systemName: "mappin")
                             .offset(y: -15)
@@ -137,6 +141,7 @@ struct MapView: View {
             viewModel.touchToggle.toggle()
             withAnimation(.easeInOut(duration: 0.2)) {
                 buttonsViewModel.showAll.toggle()
+                viewModel.stopRotation()
             }
         }) { post in
             PostDetailView(post: post)
