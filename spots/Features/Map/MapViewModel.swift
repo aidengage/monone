@@ -83,7 +83,7 @@ extension MapView {
             let camera = MapCamera(
                 centerCoordinate: targetLocation, distance: 600, heading: 0, pitch: 65
             )
-            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+//            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
 //            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
     //        cameraPosition = .region(region)
             

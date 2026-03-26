@@ -98,7 +98,7 @@ struct MapView: View {
                         }
                         .safeAreaInset(edge: .bottom) {
                             if !viewModel.touchToggle {
-                                Color.clear.frame(height: UIScreen.main.bounds.height * 0.50)
+                                Color.clear.frame(height: UIScreen.main.bounds.height * 0.55)
                             }
                         }
                         // visual indicator of the center of the screen
