@@ -20,20 +20,21 @@ extension MapView {
         var hasCenteredOnUser = false
         //*what is this?
         var observersSetUp = false
-        
-//        var listenedToPosts: [Post] = []
-//        var post: Post = Post()
-        
+
         @Published var selectedPost: Post?
         var selectedPostID: String?
-//        var profileToggle: Bool = false
-
-//        var showOnlyBookmarked: Bool = false
-//        var showSmoke: Bool = false
-//        var showDate: Bool = false
-//        var showPhoto: Bool = false
-//        var showTrain: Bool = false
-//        var showUnknown: Bool = false
+        
+        @Published var selectedMapStyleType: MapStyleType = .standard
+        var currentMapStyle: MapStyle {
+            switch selectedMapStyleType {
+            case .standard:
+                return .standard
+            case .imagery:
+                return .imagery(elevation: .realistic)
+            case .hybrid:
+                return .hybrid(elevation: .realistic)
+            }
+        }
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0

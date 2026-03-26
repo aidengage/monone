@@ -85,7 +85,7 @@ struct Buttons {
                     .font(.largeTitle)
                     .padding(10)
             }
-            .tint(viewModel.profileToggle ? .green : .red)
+            .tint(viewModel.profileToggle ? .green : .clear)
             .buttonStyle(.glassProminent)
         }
     }
@@ -100,9 +100,9 @@ struct Buttons {
                 }) {
                     Image(systemName: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark")
                         .font(.title)
-                        .padding(2)
+                        .padding(1)
                 }
-                .tint(viewModel.showOnlyBookmarked ? .blue : .black)
+                .tint(viewModel.showOnlyBookmarked ? .blue : .clear)
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
             

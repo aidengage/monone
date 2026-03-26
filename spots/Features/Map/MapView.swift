@@ -48,7 +48,28 @@ struct MapView: View {
                                 
                             }
                         }
-                        .mapStyle(.imagery(elevation: .realistic))
+                        .mapStyle(viewModel.currentMapStyle) // Apply the reactive style
+                        .overlay(alignment: .bottomTrailing) {
+                            Button(action: {
+                                // Action to cycle through the map styles
+                                switch viewModel.selectedMapStyleType {
+                                case .standard:
+                                    viewModel.selectedMapStyleType = .imagery
+                                case .imagery:
+                                    viewModel.selectedMapStyleType = .hybrid
+                                case .hybrid:
+                                    viewModel.selectedMapStyleType = .standard
+                                }
+                            }) {
+                                Image(systemName: "map")
+                                    .padding(5)
+                                    .background(.ultraThinMaterial)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                                    .tint(.black)
+                            }
+                            .padding()
+                        }
                         // loads posts when the map appears
                         .onAppear {
                             buttonsViewModel.startPostListenerForMode()
@@ -131,6 +152,10 @@ struct MapView: View {
                 }
         }
     }
+}
+
+enum MapStyleType {
+    case standard, imagery, hybrid
 }
 
 #Preview {
