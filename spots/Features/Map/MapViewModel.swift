@@ -29,8 +29,8 @@ extension MapView {
             switch selectedMapStyleType {
             case .standard:
                 return .standard
-            case .imagery:
-                return .imagery(elevation: .realistic)
+//            case .imagery:
+//                return .imagery(elevation: .realistic)
             case .hybrid:
                 return .hybrid(elevation: .realistic)
             }

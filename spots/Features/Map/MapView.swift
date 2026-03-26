@@ -54,9 +54,9 @@ struct MapView: View {
                                 // Action to cycle through the map styles
                                 switch viewModel.selectedMapStyleType {
                                 case .standard:
-                                    viewModel.selectedMapStyleType = .imagery
-                                case .imagery:
                                     viewModel.selectedMapStyleType = .hybrid
+//                                case .imagery:
+//                                    viewModel.selectedMapStyleType = .standard
                                 case .hybrid:
                                     viewModel.selectedMapStyleType = .standard
                                 }
@@ -153,7 +153,7 @@ struct MapView: View {
 }
 
 enum MapStyleType {
-    case standard, imagery, hybrid
+    case standard, /*imagery ,*/ hybrid
 }
 
 #Preview {
