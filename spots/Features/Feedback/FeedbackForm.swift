@@ -11,7 +11,7 @@ import PhotosUI
 struct FeedbackForm: View {
     @Environment(\.dismiss) var dismiss
     
-    @Binding var path: NavigationPath
+//    @Binding var path: NavigationPath
     @State var isFeedbackSheet: Bool = false
     
     @State private var feedbackType: FeedbackType = .general
@@ -22,7 +22,7 @@ struct FeedbackForm: View {
     @State private var showSuccess = false
     
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack/*(path: $path)*/ {
             Form {
                 // Feedback Type
                 Section("Type") {
@@ -115,7 +115,7 @@ struct FeedbackForm: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
 //                    Button(action: {
 //                        FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
-                        FeedbackViewButton(path: $path)
+                        FeedbackViewButton(/*path: $path*/)
 //                    isFeedbackSheet.toggle()
 //                    }) {
 //                        Label("feedbacks", systemImage: "bubble.right")

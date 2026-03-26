@@ -46,6 +46,8 @@ extension MapView {
             }
         }
         
+        @Published var touchToggle: Bool = true
+        
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
         var centerLong: Double = 0

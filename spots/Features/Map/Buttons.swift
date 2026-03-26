@@ -126,26 +126,20 @@ struct Buttons {
     
     struct FeedbackButton: View {
         
-        @Binding var path: NavigationPath
+//        @Binding var path: NavigationPath
         @State var showFeedback: Bool = false
         
         var body: some View {
-            NavigationStack(path: $path) {
+            NavigationStack(/*path: $path*/) {
                 Button(action: {
-                    if !showFeedback {
-                        showFeedback = true
-                        path.append(showFeedback)
-                    } else {
-                        showFeedback = false
-                    }
-                    
+                    showFeedback.toggle()
                 }) {
                     Label("feedback", systemImage: "bubble.left")
                 }
                 .buttonStyle(.glassProminent)
                 .tint(.orange)
                 .navigationDestination(isPresented: $showFeedback) {
-                    FeedbackForm(path: $path)
+                    FeedbackForm(/*path: $path*/)
                 }
             }
         }

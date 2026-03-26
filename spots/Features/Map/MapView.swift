@@ -48,6 +48,7 @@ struct MapView: View {
                                 
                             }
                         }
+                        .allowsHitTesting(viewModel.touchToggle)
                         .mapStyle(viewModel.currentMapStyle) // Apply the reactive style
                         .overlay(alignment: .bottomTrailing) {
                             Button(action: {
@@ -109,8 +110,8 @@ struct MapView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil {
-                    Buttons.FeedbackButton(path: $viewModel.path)
+                if Firebase.shared.getCurrentUser() != nil /*&& buttonsViewModel.showAll*/ {
+                    Buttons.FeedbackButton(/*path: $viewModel.path*/)
                 }
             }
             ToolbarItem(placement: .bottomBar) {
@@ -133,16 +134,17 @@ struct MapView: View {
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             buttonsViewModel.startPostListenerForMode()
-            
+            viewModel.touchToggle.toggle()
             withAnimation(.easeInOut(duration: 0.2)) {
                 buttonsViewModel.showAll.toggle()
             }
         }) { post in
             PostDetailView(post: post)
                 .presentationDetents([.fraction(0.75)])
-                .presentationBackground(.clear)
+//                .presentationBackground(.clear)
 //                .presentationBackgroundInteraction(.enabled)
                 .task {
+                    viewModel.touchToggle.toggle()
                     withAnimation(.easeInOut(duration: 0.7)) {
                         viewModel.cameraZoomOnPost(post: post)
                         buttonsViewModel.showAll.toggle()
