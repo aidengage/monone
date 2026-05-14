@@ -102,7 +102,7 @@ struct MapView: View {
                             }
                         }
                     }
-                    Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
+                    Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
                         .padding(.bottom, 5)
                 }
                 VerticalDropdownToolbar(viewModel: buttonsViewModel)
