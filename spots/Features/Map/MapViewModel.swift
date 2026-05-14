@@ -83,7 +83,7 @@ extension MapView {
             let camera = MapCamera(
                 centerCoordinate: targetLocation, distance: 600, heading: 0, pitch: 65
             )
-//            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
 //            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
     //        cameraPosition = .region(region)
             
@@ -93,9 +93,10 @@ extension MapView {
 //            cameraPosition = .region(offsetRegion)
             withAnimation(.easeInOut(duration: 0.6)) {
                 cameraPosition = .camera(camera)
+//                cameraPosition = .region(MKCoordinateRegion(center: camera.centerCoordinate, span: zoomLevel))
             }
     //        return postView
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            DispatchQueue.main.asyncAfter(deadline: .now()) {
                 self.startRotation(around: targetLocation)
             }
         }
