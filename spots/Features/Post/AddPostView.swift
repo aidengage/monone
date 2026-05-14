@@ -74,7 +74,7 @@ struct AddPostView: View {
                 
 //                    .fullScreenCover(isPresented: $showCamera) {
                 .sheet(isPresented: $showCamera) {
-                    CameraView(cameraManager: cameraManager, photoLimit: 6, enablePhoto: true, enableVideo: true, selectedImages: $viewModel.images)
+                    CameraView(cameraManager: cameraManager, photoLimit: 6, enablePhoto: true, enableVideo: false, selectedImages: $viewModel.images)
                 }
             }
             
