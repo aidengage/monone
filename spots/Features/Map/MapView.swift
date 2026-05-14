@@ -101,10 +101,6 @@ struct MapView: View {
                                 Color.clear.frame(height: UIScreen.main.bounds.height * 0.55)
                             }
                         }
-                        // visual indicator of the center of the screen
-                        Image(systemName: "mappin")
-                            .offset(y: -15)
-                            .font(.system(size: 33))
                     }
                     Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
                         .padding(.bottom, 5)
