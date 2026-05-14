@@ -110,8 +110,8 @@ struct MapView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil /*&& buttonsViewModel.showAll*/ {
-                    Buttons.FeedbackButton(/*path: $viewModel.path*/)
+                if Firebase.shared.getCurrentUser() != nil {
+                    Buttons.FeedbackButton()
                 }
             }
             ToolbarItem(placement: .bottomBar) {
