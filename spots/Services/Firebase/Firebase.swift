@@ -109,16 +109,18 @@ final class Firebase {
             return
         }
         else{
-        getStore().collection("users").document(uid).getDocument { [weak self] snapshot, error in
-            if let error = error {
-                print("error loading bookmarks: \(error)")
-                return
-            }
-            //snapshot fetches the raw json so this takes the raw json and converts it to a user object in Swift 
-            if let user = try? snapshot?.data(as: User.self) {
-                    guard let self = self else { return }
-                    //taking the bookmarks from Firestore and copying them here into our global var so our app can use it locally 
-                    self.bookmarkedPostIds = user.bookmarkedPostIds
+            getStore().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+                if let error = error {
+                    print("error loading bookmarks: \(error)")
+                    return
+                }
+                //snapshot fetches the raw json so this takes the raw json and converts it to a user object in Swift
+                if let user = try? snapshot?.data(as: User.self) {
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
+                        //taking the bookmarks from Firestore and copying them here into our global var so our app can use it locally
+                        self.bookmarkedPostIds = user.bookmarkedPostIds
+                    }
                 }
             }
         }
