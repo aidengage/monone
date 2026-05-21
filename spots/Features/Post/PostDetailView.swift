@@ -15,6 +15,9 @@ struct PostDetailView: View {
     
     @State private var displayView: DisplayPost = .main
     @State private var bookmarkedPostIds: [String] = [] 
+    @State private var followingUserIds: [String] = []
+    @State private var owner: String = ""
+    
     
     enum DisplayPost {
         case main
@@ -40,7 +43,21 @@ struct PostDetailView: View {
                             PhotoCard(urls: post.images)
                         }
                         VStack(alignment: .leading) {
-                            Text(post.userId)
+                            // Text(post.userId)
+                            //replacing this with username now
+                            Text(owner.isEmpty ? "Unknown user" : owner)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            //if it is not your own post, show follow button 
+                            if post.userId != Firebase.shared.getCurrentUserID() {
+                                Button(action: { followToggleTapped(targetUserId: post.userId) }) {
+                                    Label(
+                                        followingUserIds.contains(post.userId) ? "Following" : "Follow",
+                                        systemImage: followingUserIds.contains(post.userId) ? "person.fill.checkmark" : "person.badge.plus"
+                                    )
+                                }
+                                .buttonStyle(.glassProminent)
+                            }
                             Text(post.name)
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundColor(.primary)
@@ -72,6 +89,9 @@ struct PostDetailView: View {
                         }
                         .padding(.horizontal, 20)
                         
+                        
+
+                       
                         // info cards to represent address, description, and coords
                         // need to add photos and name/title
                         
@@ -131,7 +151,10 @@ struct PostDetailView: View {
             Firebase.shared.startRatingListener(postId: post.id)
             addTapGestureToDismissKeyboard()
             bookmarkedPostIds = Firebase.shared.bookmarkedPostIds
-            //storing the bookmarks in our firebase global var into this local var "bookmarkedPostIds" so the button can show curr state [is it bookmarked already or not] 
+            followingUserIds = Firebase.shared.followingUserIds
+        }
+        .task(id: post.userId) {
+            owner = await Firebase.shared.fetchUsername(userId: post.userId) ?? "Unknown user"
         }
         .onDisappear {
             Firebase.shared.stopRatingListener()
@@ -158,6 +181,16 @@ struct PostDetailView: View {
             bookmarkedPostIds.append(post.id)
         }
         Firebase.shared.updateBookmarkedPostIds(bookmarkedPostIds)
+    }
+
+    private func followToggleTapped(targetUserId: String) {
+        if followingUserIds.contains(targetUserId) {
+            followingUserIds.removeAll { $0 == targetUserId }
+            Firebase.shared.unfollowUser(targetUserId: targetUserId)
+        } else {
+            followingUserIds.append(targetUserId)
+            Firebase.shared.followUser(targetUserId: targetUserId)
+        }
     }
 }
 

@@ -81,6 +81,8 @@ struct MapView: View {
                             }
                             viewModel.deviceLocationService.requestLocationUpdates()
                             Firebase.shared.loadBookmarks()
+                            //testing this out
+                            Firebase.shared.loadUserSocials()
                         }
                         .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                         .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
