@@ -116,24 +116,14 @@ struct MapView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil /*&& buttonsViewModel.showAll*/ {
-                    Buttons.FeedbackButton(/*path: $viewModel.path*/)
+                if Firebase.shared.getCurrentUser() != nil {
+                    Buttons.FeedbackButton()
                 }
             }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.SmokeFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.DateFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.PhotographyFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.TrainstationFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.UnknownFilter(viewModel: buttonsViewModel)
+            ToolbarItem(placement: .topBarTrailing) {
+                if Firebase.shared.getCurrentUser() != nil {
+                    Buttons.ActivityFilter(viewModel: buttonsViewModel)
+                }
             }
         }
    
