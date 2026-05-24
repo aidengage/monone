@@ -81,6 +81,8 @@ struct MapView: View {
                             }
                             viewModel.deviceLocationService.requestLocationUpdates()
                             Firebase.shared.loadBookmarks()
+                            //testing this out
+                            Firebase.shared.loadUserSocials()
                         }
                         .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                         .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
@@ -114,20 +116,10 @@ struct MapView: View {
                     Buttons.FeedbackButton()
                 }
             }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.SmokeFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.DateFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.PhotographyFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.TrainstationFilter(viewModel: buttonsViewModel)
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Buttons.UnknownFilter(viewModel: buttonsViewModel)
+            ToolbarItem(placement: .topBarTrailing) {
+                if Firebase.shared.getCurrentUser() != nil {
+                    Buttons.ActivityFilter(viewModel: buttonsViewModel)
+                }
             }
         }
    

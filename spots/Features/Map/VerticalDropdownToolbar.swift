@@ -21,6 +21,15 @@ struct VerticalDropdownToolbar: View {
                 if viewModel.profileToggle {
                     Buttons.BookmarkButton(viewModel: viewModel)
                     Buttons.LogoutButton()
+                    NavigationLink {
+                        AccountView()
+                    } label: {
+                        Image(systemName: "person.text.rectangle")
+                            .font(.title)
+                            .padding(1)
+                    }
+                    .buttonStyle(.glassProminent)
+                    .buttonBorderShape(.circle)
                 }
             }
         }
