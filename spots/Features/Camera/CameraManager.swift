@@ -151,8 +151,12 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
     
 //    @MainActor
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+//        let isHEIF = photo.isRawPhoto == false &&
+//                     photo.fileDataRepresentation()?.prefix(12).contains(0x68) == true
+//        print("photo codec: \(photo.resolvedSettings) and \(isHEIF)")
+        
         if let error = error {
-            print("photo capture error: \(error.localizedDescription)")
+            print("photo capture error: \(error)")
             return
         }
         

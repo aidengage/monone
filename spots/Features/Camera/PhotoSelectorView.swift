@@ -9,6 +9,8 @@ import PhotosUI
 import Mantis
 import AVFoundation
 import AVKit
+import ImageIO
+import UniformTypeIdentifiers
 
 
 
@@ -60,7 +62,7 @@ struct PhotoSelector: View {
                             // add uuid to own array
                             imageUUIDs.append(UUID().uuidString)
                             data.append(imageData)
-                            
+                            printFormat(image: UIImage(data: imageData)!)
                             if let image = UIImage(data: imageData) {
                                 images.append(image)
                             }
@@ -70,6 +72,42 @@ struct PhotoSelector: View {
             }
         }
     }
+    
+    func printFormat(image: UIImage) {
+        
+        let format: Firebase.ImageFormat
+        
+        if let cgImage = image.cgImage,
+           let source = CGImageSourceCreateWithData(UIImage.pngData(image)() as CFData? ?? Data() as CFData, nil),
+           let uti = CGImageSourceGetType(source) as? String {
+            let type = UTType(uti)
+            if type?.conforms(to: .heif) == true || type?.conforms(to: .heic) == true {
+                format = .jpeg(compressionQuality: 0.8)
+            } else if type?.conforms(to: .png) == true {
+                format = .png
+            } else {
+                format = .jpeg(compressionQuality: 0.8)
+            }
+        } else {
+            format = .jpeg(compressionQuality: 0.8)
+        }
+        
+        print("smart format is: \(format)")
+    }
+    
+//    private func isHEIF(data: Data) -> Bool {
+//        // HEIC files start with ftyp box, with brand "heic", "heix", "mif1", or "msf1"
+//        guard data.count >= 12 else { return false }
+//        let ftypMarker = data[4...7]
+//        let brand = data[8...11]
+//        return ftypMarker == Data([0x66, 0x74, 0x79, 0x70]) && // "ftyp"
+//            (brand == Data([0x68, 0x65, 0x69, 0x63]) || // "heic"
+//             brand == Data([0x68, 0x65, 0x69, 0x78]) || // "heix"
+//             brand == Data([0x68, 0x65, 0x76, 0x63]) || // "hevc" — HEIF specific
+//             brand == Data([0x68, 0x65, 0x76, 0x78]) || // "hevx" — HEIF specific
+//             brand == Data([0x6D, 0x69, 0x66, 0x31]) || // "mif1"
+//             brand == Data([0x6D, 0x73, 0x66, 0x31]))   // "msf1"
+//    }
 }
 
 struct ProfilePhotoSelectorView: View {
