@@ -73,26 +73,27 @@ struct PhotoSelector: View {
         }
     }
     
-    func printFormat(image: UIImage) {
+    func printFormat(image: UIImage) -> Firebase.ImageFormat {
         
         let format: Firebase.ImageFormat
         
-        if let cgImage = image.cgImage,
-           let source = CGImageSourceCreateWithData(UIImage.pngData(image)() as CFData? ?? Data() as CFData, nil),
-           let uti = CGImageSourceGetType(source) as? String {
+        if let _cgImage = image.cgImage,
+            let source = CGImageSourceCreateWithData(UIImage.heicData(image)() as CFData? ?? Data() as CFData, nil),
+            let uti = CGImageSourceGetType(source) as? String {
             let type = UTType(uti)
             if type?.conforms(to: .heif) == true || type?.conforms(to: .heic) == true {
-                format = .jpeg(compressionQuality: 0.8)
+                format = .heic
             } else if type?.conforms(to: .png) == true {
                 format = .png
             } else {
-                format = .jpeg(compressionQuality: 0.8)
+                format = .jpeg(compressionQuality: 0.7)
             }
         } else {
-            format = .jpeg(compressionQuality: 0.8)
+            format = .jpeg(compressionQuality: 0.7)
         }
         
-        print("smart format is: \(format)")
+        print("image format is: \(format)")
+        return format
     }
     
 //    private func isHEIF(data: Data) -> Bool {

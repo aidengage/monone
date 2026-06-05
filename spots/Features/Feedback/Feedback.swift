@@ -9,6 +9,8 @@ import SwiftUI
 import FirebaseAuth
 import FirebaseStorage
 import FirebaseFirestore
+import ImageIO
+import UniformTypeIdentifiers
 
 struct Feedback: Codable, Identifiable {
     let id: String
@@ -155,7 +157,7 @@ extension Firebase {
                 imageData = screenshot.heicData()
                 contentType = "image/heic"
             } else {
-                imageData = screenshot.jpegData(compressionQuality: 0.8)
+                imageData = screenshot.jpegData(compressionQuality: 0.7)
                 contentType = "image/jpeg"
             }
         }
@@ -177,13 +179,20 @@ extension Firebase {
     }
     
     func smartFormat(image: UIImage, path: String) async throws -> String {
-        let hasAlpha = image.cgImage?.alphaInfo != CGImageAlphaInfo.none
-        let format: ImageFormat
-        
-        if hasAlpha {
-            format = .png
+        let format: Firebase.ImageFormat
+        if let _cgImage = image.cgImage,
+            let source = CGImageSourceCreateWithData(UIImage.heicData(image)() as CFData? ?? Data() as CFData, nil),
+            let uti = CGImageSourceGetType(source) as? String {
+            let type = UTType(uti)
+            if type?.conforms(to: .heif) == true || type?.conforms(to: .heic) == true {
+                format = .heic
+            } else if type?.conforms(to: .png) == true {
+                format = .png
+            } else {
+                format = .jpeg(compressionQuality: 0.7)
+            }
         } else {
-            format = .jpeg(compressionQuality: 0.8)
+            format = .jpeg(compressionQuality: 0.7)
         }
         print("smart format is: \(format)")
         
