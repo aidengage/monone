@@ -205,7 +205,7 @@ struct DebugPostView: View {
                         .fontWeight(.semibold)
                         .padding(.horizontal)
                     
-                    ScrollView {
+                ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
                             ForEach(post.images.indices, id: \.self) { index in
                                 VStack {
