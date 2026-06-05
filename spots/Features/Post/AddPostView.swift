@@ -24,6 +24,12 @@ struct AddPostView: View {
     
     @FocusState private var focusedField: KeyboardField?
     
+//    lazy var coordinateStream: AsyncStream<CLLocationCoordinate2D> = {
+//        AsyncStream { continuation in
+//            viewModel.coordinateContinuation = continuation
+//        }
+//    }()
+
     init(centerLat: Double, centerLong: Double) {
         // state variables received from contentview
         // center x and y for post location
@@ -44,6 +50,10 @@ struct AddPostView: View {
                     .focused($focusedField, equals: .address)
                     .textContentType(.fullStreetAddress)
                     .submitLabel(.next)
+            }
+            
+            Section(header: Text("Refine your location!")) {
+                RefineLocationPickerView(lat: $viewModel.centerLat, lon: $viewModel.centerLong)
             }
             
             Section(header: Text("Write your comment!")) {
@@ -112,14 +122,51 @@ struct AddPostView: View {
         .navigationTitle("Add Post")
         // task to use coords and receive its address if there is one
         // also sets the name if available
+        
         .task {
-            do {
-                viewModel.address = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: viewModel.centerLat, longitude: viewModel.centerLong))?.address ?? "nil"
-                viewModel.title = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: viewModel.centerLat, longitude: viewModel.centerLong))?.name ?? ""
-            } catch {
-                viewModel.address = "unknown"
-                print("reverse geocoding failed: \(error)")
+            var lastLat: Double? = nil
+            var lastLon: Double? = nil
+            let geocoder = ReverseGeocoding()
+            
+            while !Task.isCancelled {
+                if viewModel.centerLat != lastLat || viewModel.centerLong != lastLon {
+                    lastLat = viewModel.centerLat
+                    lastLon = viewModel.centerLong
+                    
+                    do {
+                        
+                        viewModel.address = try await geocoder.nearestAddress(location: CLLocation(latitude: viewModel.centerLat, longitude: viewModel.centerLong))?.address ?? "nil"
+                        
+                    } catch {
+                        viewModel.address = "unknown"
+                        print("reverse geocoding failed: \(error)")
+                    }
+                }
+                try? await Task.sleep(for: .seconds(0.5))
             }
         }
+        
+//        .task {
+//            var debounceTask: Task<Void, Never>?
+//            
+//            for await coordinate in viewModel.coordinateStream {
+//                // Cancel the previous pending geocode
+//                debounceTask?.cancel()
+//                
+//                debounceTask = Task {
+//                    // Wait for user to stop moving before geocoding
+//                    try? await Task.sleep(for: .milliseconds(500))
+//                    guard !Task.isCancelled else { return }
+//                    
+//                    do {
+//                        viewModel.address = try await ReverseGeocoding().nearestAddress(location: CLLocation(latitude: viewModel.centerLat, longitude: viewModel.centerLong))?.address ?? "nil"
+//                    } catch {
+//                        viewModel.address = "unknown"
+//                        print("reverse geocoding failed: \(error)")
+//                    }
+//                }
+//            }
+//        }
     }
 }
+
