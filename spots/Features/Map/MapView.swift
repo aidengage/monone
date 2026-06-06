@@ -13,6 +13,8 @@ struct MapView: View {
     @StateObject private var viewModel = ViewModel()
     @StateObject var buttonsViewModel = Buttons.ButtonsViewModel()
     
+    @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
+    
     var body: some View {
         //the viewModel navigates the path for each screen.
         NavigationStack(path: $viewModel.path) {
@@ -75,6 +77,7 @@ struct MapView: View {
                         }
                         // loads posts when the map appears
                         .onAppear {
+                            viewModel.style = settingMapStyle
                             buttonsViewModel.startPostListenerForMode()
                             if !viewModel.observersSetUp {
                                 viewModel.observeCoordinateUpdates()
@@ -88,6 +91,7 @@ struct MapView: View {
                         }
                         .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                         .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
+                        .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
                         .onDisappear {
                             // stops post listener
                             Firebase.shared.stopPostListener()

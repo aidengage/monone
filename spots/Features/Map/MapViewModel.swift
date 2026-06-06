@@ -24,7 +24,20 @@ extension MapView {
         @Published var selectedPost: Post?
         var selectedPostID: String?
         
-        @AppStorage(.settingsMapStyleKey) var style: MapStyleSetting = .standard
+        @Published var style: MapStyleSetting = .standard {
+            didSet {
+                UserDefaults.standard.set(style.rawValue, forKey: .settingsMapStyleKey)
+            }
+        }
+        
+        init() {
+            if let saved = UserDefaults.standard.string(forKey: .settingsMapStyleKey),
+                let style = MapStyleSetting(rawValue: saved) {
+                    self.style = style
+                }
+            
+        }
+        
 //        @Published var selectedMapStyleType: MapStyleSetting = .standard
         var currentMapStyle: MapStyle {
             switch style {
