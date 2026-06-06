@@ -51,6 +51,7 @@ struct MapView: View {
                                     
                                 }
                             }
+//                            .animation(.easeInOut(duration: 0.6), value: viewModel.cameraPosition) // made rotation super slow
                             .allowsHitTesting(viewModel.touchToggle)
                             .mapStyle(viewModel.currentMapStyle) // Apply the reactive style
                             .overlay(alignment: .bottomTrailing) {
@@ -102,7 +103,10 @@ struct MapView: View {
                             .onMapCameraChange { mapCameraUpdateContext in
                                 viewModel.update(centerLat: mapCameraUpdateContext.camera.centerCoordinate.latitude)
                                 viewModel.update(centerLong: mapCameraUpdateContext.camera.centerCoordinate.longitude)
-                                print("\(viewModel.centerLat): \(viewModel.centerLong)")
+//                                print("\(viewModel.centerLat): \(viewModel.centerLong)")
+                                if !viewModel.isViewingPost {
+                                    viewModel.lastKnownCamera = mapCameraUpdateContext.camera
+                                }
                                 //later used by Add Button to create a post at the center of the screen
                             }
                             .safeAreaInset(edge: .bottom) {
@@ -131,10 +135,10 @@ struct MapView: View {
         }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             buttonsViewModel.startPostListenerForMode()
+            viewModel.exitPost()
             viewModel.touchToggle.toggle()
             withAnimation(.easeInOut(duration: 0.2)) {
                 buttonsViewModel.showAll.toggle()
-                viewModel.stopRotation()
             }
         }) { post in
             PostDetailView(post: post)

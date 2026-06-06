@@ -84,6 +84,10 @@ extension MapView {
 //            )
 //        )
         @Published var cameraPosition: MapCameraPosition = .automatic
+        private var oldCameraPosition: MapCameraPosition?
+        var isViewingPost: Bool = false
+        var lastKnownCamera: MapCamera?
+        
         private var rotationTimer: AnyCancellable?
         private var currentHeading: Double = 0
         
@@ -96,6 +100,15 @@ extension MapView {
         }
         
         func cameraZoomOnPost(post: Post) {
+            if !isViewingPost {
+                if let last = lastKnownCamera {
+                    oldCameraPosition = .camera(last)
+                } else {
+                    oldCameraPosition = cameraPosition
+                }
+//                print("saved cam pos: \(cameraPosition)")
+            }
+            isViewingPost = true
             let targetLocation = CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)
             stopRotation()
             let camera = MapCamera(
@@ -139,6 +152,18 @@ extension MapView {
                     // No animation wrapper here — the timer tick IS the animation
                     self.cameraPosition = .camera(camera)
                 }
+        }
+        
+        func exitPost() {
+            stopRotation()
+            isViewingPost = false
+            guard let savedCamera = oldCameraPosition else { return }
+            oldCameraPosition = nil
+            withAnimation(.easeInOut(duration: 0.6)) {
+                cameraPosition = savedCamera
+//                print("new/old camera position: \(cameraPosition)")
+            }
+                
         }
 
         
