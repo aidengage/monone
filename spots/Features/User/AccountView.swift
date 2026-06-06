@@ -10,6 +10,7 @@ import SwiftUI
 struct AccountView: View {
     @State private var followerUserIds: [String] = []
     @State private var followingUserIds: [String] = []
+    private var usernames: [String] = []
 
     var body: some View {
         List {
@@ -53,6 +54,7 @@ struct AccountView: View {
 struct SocialListView: View {
     let title: String
     let userIds: [String]
+    @State var names: [String: String] = [:]
 
     var body: some View {
         Group {
@@ -60,12 +62,32 @@ struct SocialListView: View {
                 ContentUnavailableView("No one yet", systemImage: "person.slash")
             } else {
                 List(userIds, id: \.self) { userId in
-                    Text(userId)
+                    Text(names[userId] ?? userId)
                         .font(.system(.body, design: .monospaced))
                 }
             }
         }
         .navigationTitle(title)
+//        .onAppear {
+            .task{
+                await loadNames(userIds: userIds)
+            }
+            
+//        }
+    }
+    
+    func loadNames(userIds: [String]) async {
+        for id in userIds {
+            do {
+                let name = try await Firebase.shared.getUsername(uid: id)
+                names[id] = name
+            } catch {
+//                names[id] = "unknown"
+                print("failed to get username for \(id): \(error)")
+            }
+            
+            
+        }
     }
 }
 

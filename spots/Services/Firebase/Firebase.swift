@@ -149,6 +149,23 @@ final class Firebase {
         }
     }
     
+    func getUsername(uid: String) async throws -> String {
+        try await withCheckedContinuation { continuation in
+            getStore().collection("users").document(uid).getDocument { snapshot, error in
+                if let error = error {
+                    print("error getting username: \(error)")
+                    return
+                }
+                if let user = try? snapshot?.data(as: User.self){
+                    continuation.resume(returning: user.username)
+                } else {
+                    continuation.resume(returning: "unknow")
+                }
+            }
+        }
+        
+    }
+    
     func updateBookmarkedPostIds(_ ids: [String]) {
         let uid = getCurrentUserID()
         if uid.isEmpty {
