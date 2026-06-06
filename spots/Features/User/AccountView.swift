@@ -68,19 +68,19 @@ struct SocialListView: View {
             }
         }
         .navigationTitle(title)
-//        .onAppear {
-            .task{
-                await loadNames(userIds: userIds)
-            }
-            
-//        }
+        .task{
+            await loadNames(userIds: userIds)
+        }
     }
     
     func loadNames(userIds: [String]) async {
         for id in userIds {
             do {
                 let name = try await Firebase.shared.getUsername(uid: id)
-                names[id] = name
+                if !name.isEmpty {
+                    names[id] = name
+                }
+                
             } catch {
 //                names[id] = "unknown"
                 print("failed to get username for \(id): \(error)")

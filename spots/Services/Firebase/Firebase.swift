@@ -158,8 +158,9 @@ final class Firebase {
                 }
                 if let user = try? snapshot?.data(as: User.self){
                     continuation.resume(returning: user.username)
-                } else {
-                    continuation.resume(returning: "unknow")
+                }
+                else {
+                    continuation.resume(returning: "")
                 }
             }
         }
