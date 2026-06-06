@@ -152,10 +152,6 @@ struct MapView: View {
     }
 }
 
-enum MapStyleType {
-    case standard, /*imagery ,*/ hybrid
-}
-
 #Preview {
     MapView()
 }
