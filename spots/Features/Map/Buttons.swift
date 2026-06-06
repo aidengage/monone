@@ -146,6 +146,25 @@ struct Buttons {
         }
     }
     
+    struct SettingsButton: View {
+        @State var showSettings: Bool = false
+        
+        var body: some View {
+            NavigationStack() {
+                Button(action: {
+                    showSettings.toggle()
+                }) {
+                    Label("settings", systemImage: "gear")
+                }
+                .buttonStyle(.glassProminent)
+                .tint(.teal)
+                .navigationDestination(isPresented: $showSettings) {
+                    SettingsView()
+                }
+            }
+        }
+    }
+    
 //     struct SmokeFilter: View {
 //         @ObservedObject var viewModel: ButtonsViewModel
 //         var body: some View {

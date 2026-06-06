@@ -121,6 +121,11 @@ struct MapView: View {
                     Buttons.ActivityFilter(viewModel: buttonsViewModel)
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                if Firebase.shared.getCurrentUser() != nil {
+                    Buttons.SettingsButton()
+                }
+            }
         }
    
         }
