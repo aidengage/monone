@@ -9,9 +9,9 @@
 import SwiftUI
 
 enum MapStyleSetting: String, CaseIterable, Identifiable {
-    case satellite
-    case hybrid
     case standard
+    case hybrid
+    case satellite
     case experimental
     
     var id: Self { self }
@@ -34,6 +34,7 @@ struct SettingsView: View {
                                 .tag(style)
                         }
                     }
+                    .pickerStyle(SegmentedPickerStyle())
                 }
             }
         }
