@@ -102,7 +102,8 @@ struct Buttons {
                         .font(.title)
                         .padding(1)
                 }
-                .tint(viewModel.showOnlyBookmarked ? .blue : .clear)
+//                .tint(viewModel.showOnlyBookmarked ? .blue : .clear)
+                .tint(.red)
                 .buttonStyle(.glassProminent)
                 .buttonBorderShape(.circle)
             
@@ -117,7 +118,7 @@ struct Buttons {
             }) {
                 Image(systemName: "arrow.right.square")
                     .font(.title)
-                    .padding(2)
+                    .padding(1)
             }
             .buttonStyle(.glassProminent)
             .buttonBorderShape(.circle)
@@ -315,6 +316,7 @@ extension Buttons {
         
         @Published var profileToggle: Bool = false
         @Published var showOnlyBookmarked: Bool = false
+        @Published var showFollowinger: Bool = false
         
         @Published var showSmoke: Bool = false
         @Published var showDate: Bool = false

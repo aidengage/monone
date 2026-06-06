@@ -10,28 +10,38 @@ import SwiftUI
 struct AccountView: View {
     @State private var followerUserIds: [String] = []
     @State private var followingUserIds: [String] = []
-    private var usernames: [String] = []
+    
+    var usernames: [String] = []
+    
+    @State private var showFollowers: Bool = false
+    @State private var showFollowing: Bool = false
+    
+    @Binding var path: NavigationPath
 
     var body: some View {
-        List {
-            Section {
-                Text("\(followerUserIds.count) followers · \(followingUserIds.count) following")
-                    .font(.headline)
-            }
-
-            Section {
-                NavigationLink {
-                    SocialListView(title: "Followers", userIds: followerUserIds)
-                } label: {
+        NavigationStack(path: $path) {
+            List {
+                Section {
+                    Text("\(followerUserIds.count) followers · \(followingUserIds.count) following")
+                        .font(.headline)
+                }
+                Button(action: {
+                    showFollowers.toggle()
+                }) {
                     Text("Followers")
                 }
-
-                NavigationLink {
-                    SocialListView(title: "Following", userIds: followingUserIds)
-                } label: {
+                Button(action: {
+                    showFollowing.toggle()
+                }) {
                     Text("Following")
                 }
             }
+        }
+        .navigationDestination(isPresented: $showFollowers) {
+            SocialListView(title: "Followers", userIds: followerUserIds)
+        }
+        .navigationDestination(isPresented: $showFollowing) {
+            SocialListView(title: "Following", userIds: followingUserIds)
         }
         .navigationTitle("Account")
         .onAppear {
@@ -57,7 +67,7 @@ struct SocialListView: View {
     @State var names: [String: String] = [:]
 
     var body: some View {
-        Group {
+        VStack {
             if userIds.isEmpty {
                 ContentUnavailableView("No one yet", systemImage: "person.slash")
             } else {
@@ -91,8 +101,8 @@ struct SocialListView: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        AccountView()
-    }
-}
+//#Preview {
+//    NavigationStack {
+//        AccountView()
+//    }
+//}

@@ -10,8 +10,10 @@ import SwiftUI
 struct VerticalDropdownToolbar: View {
     @State var dropdownToggle: Bool = false
     @ObservedObject var viewModel: Buttons.ButtonsViewModel
+    @Binding var path: NavigationPath
     
     var body: some View {
+        NavigationStack(path: $path) {
         VStack {
             if viewModel.showAll {
                 Buttons.ProfileButton(viewModel: viewModel)
@@ -21,15 +23,32 @@ struct VerticalDropdownToolbar: View {
                 if viewModel.profileToggle {
                     Buttons.BookmarkButton(viewModel: viewModel)
                     Buttons.LogoutButton()
-                    NavigationLink {
-                        AccountView()
-                    } label: {
-                        Image(systemName: "person.text.rectangle")
-                            .font(.title)
-                            .padding(1)
+                    
+                    
+                        Button(action: {
+                            viewModel.showFollowinger.toggle()
+                        }) {
+                            Image(systemName: "person.text.rectangle")
+                                .font(.title)
+                                .padding(1)
+                                
+                        }
+                        .tint(.purple)
+                        .buttonStyle(.glassProminent)
+                        .buttonBorderShape(.circle)
+                        .navigationDestination(isPresented: $viewModel.showFollowinger) {
+                            AccountView(path: $path)
+                        }
                     }
-                    .buttonStyle(.glassProminent)
-                    .buttonBorderShape(.circle)
+//                    NavigationLink {
+//                        AccountView()
+//                    } label: {
+//                        Image(systemName: "person.text.rectangle")
+//                            .font(.title)
+//                            .padding(1)
+//                    }
+//                    .buttonStyle(.glassProminent)
+//                    .buttonBorderShape(.circle)
                 }
             }
         }
@@ -37,6 +56,6 @@ struct VerticalDropdownToolbar: View {
     }
 }
 
-#Preview {
-    VerticalDropdownToolbar(viewModel: Buttons.ButtonsViewModel())
-}
+//#Preview {
+//    VerticalDropdownToolbar(viewModel: Buttons.ButtonsViewModel())
+//}

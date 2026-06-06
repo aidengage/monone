@@ -107,7 +107,7 @@ struct MapView: View {
                     Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
                         .padding(.bottom, 5)
                 }
-                VerticalDropdownToolbar(viewModel: buttonsViewModel)
+                VerticalDropdownToolbar(viewModel: buttonsViewModel, path: $viewModel.path)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
