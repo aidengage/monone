@@ -14,41 +14,17 @@ struct VerticalDropdownToolbar: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-        VStack {
-            if viewModel.showAll {
-                Buttons.ProfileButton(viewModel: viewModel)
-                    .buttonStyle(.glassProminent)
-                    .buttonBorderShape(.circle)
-                
-                if viewModel.profileToggle {
-                    Buttons.BookmarkButton(viewModel: viewModel)
-                    Buttons.LogoutButton()
-                    
-                    
-                        Button(action: {
-                            viewModel.showFollowinger.toggle()
-                        }) {
-                            Image(systemName: "person.text.rectangle")
-                                .font(.title)
-                                .padding(1)
-                                
-                        }
-                        .tint(.purple)
+            VStack {
+                if viewModel.showAll {
+                    Buttons.ProfileButton(viewModel: viewModel)
                         .buttonStyle(.glassProminent)
                         .buttonBorderShape(.circle)
-                        .navigationDestination(isPresented: $viewModel.showFollowinger) {
-                            AccountView(path: $path)
-                        }
+                    
+                    if viewModel.profileToggle {
+                        Buttons.BookmarkButton(viewModel: viewModel)
+                        Buttons.AccountButton(viewModel: viewModel, path: $path)
+                        Buttons.LogoutButton()
                     }
-//                    NavigationLink {
-//                        AccountView()
-//                    } label: {
-//                        Image(systemName: "person.text.rectangle")
-//                            .font(.title)
-//                            .padding(1)
-//                    }
-//                    .buttonStyle(.glassProminent)
-//                    .buttonBorderShape(.circle)
                 }
             }
         }

@@ -110,6 +110,28 @@ struct Buttons {
         }
     }
     
+    struct AccountButton: View {
+        @ObservedObject var viewModel: ButtonsViewModel
+        @Binding var path: NavigationPath
+        
+        var body: some View {
+            Button(action: {
+                viewModel.showFollowinger.toggle()
+            }) {
+                Image(systemName: "person.text.rectangle")
+                    .font(.title)
+                    .padding(1)
+                    
+            }
+            .tint(.purple)
+            .buttonStyle(.glassProminent)
+            .buttonBorderShape(.circle)
+            .navigationDestination(isPresented: $viewModel.showFollowinger) {
+                AccountView(path: $path)
+            }
+        }
+    }
+    
     struct LogoutButton: View {
         
         var body: some View {
