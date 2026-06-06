@@ -113,6 +113,7 @@ struct MapView: View {
                     Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
                         .padding(.bottom, 5)
                 }
+                // vertical dropdown toolbar doesnt go into toolbar item very well, tried to put it in top left kinda broke
                 VerticalDropdownToolbar(viewModel: buttonsViewModel, path: $viewModel.path)
         }
         .navigationBarTitleDisplayMode(.inline)
