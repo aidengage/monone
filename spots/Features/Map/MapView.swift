@@ -53,13 +53,15 @@ struct MapView: View {
                         .overlay(alignment: .bottomTrailing) {
                             Button(action: {
                                 // Action to cycle through the map styles
-                                switch viewModel.selectedMapStyleType {
+                                switch viewModel.style {
                                 case .standard:
-                                    viewModel.selectedMapStyleType = .hybrid
-//                                case .imagery:
-//                                    viewModel.selectedMapStyleType = .standard
+                                    viewModel.style = .hybrid
                                 case .hybrid:
-                                    viewModel.selectedMapStyleType = .standard
+                                    viewModel.style = .standard
+                                case .satellite:
+                                    viewModel.style = .standard
+                                case .experimental:
+                                    viewModel.style = .standard
                                 }
                             }) {
                                 Image(systemName: viewModel.currentMapIcon)

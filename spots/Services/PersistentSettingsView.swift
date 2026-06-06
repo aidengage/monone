@@ -18,7 +18,7 @@ enum MapStyleSetting: String, CaseIterable, Identifiable {
 }
 
 extension String {
-    static var settingsMapStyleKey: String { "settings.mapStyle"}
+    static var settingsMapStyleKey: String { ".settingsMapStyle"}
 }
 
 struct SettingsView: View {

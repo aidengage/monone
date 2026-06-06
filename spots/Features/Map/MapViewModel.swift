@@ -24,25 +24,30 @@ extension MapView {
         @Published var selectedPost: Post?
         var selectedPostID: String?
         
-        @Published var selectedMapStyleType: MapStyleType = .standard
+        @AppStorage(.settingsMapStyleKey) var style: MapStyleSetting = .standard
+//        @Published var selectedMapStyleType: MapStyleSetting = .standard
         var currentMapStyle: MapStyle {
-            switch selectedMapStyleType {
+            switch style {
             case .standard:
-                return .standard
-//            case .imagery:
-//                return .imagery(elevation: .realistic)
+                return .standard(elevation: .automatic, pointsOfInterest: .all)
             case .hybrid:
-                return .hybrid(elevation: .realistic)
+                return .hybrid(elevation: .realistic, pointsOfInterest: .excludingAll)
+            case .satellite:
+                return .imagery(elevation: .realistic)
+            case .experimental:
+                return .imagery(elevation: .realistic)
             }
         }
         var currentMapIcon: String {
-            switch selectedMapStyleType {
+            switch style {
             case .standard:
                 return "map"
             case .hybrid:
                 return "globe"
-//            case .imagery:
-//                return "bonjour"
+            case .satellite:
+                return "antenna.radiowaves.left.and.right"
+            case .experimental:
+                return "bonjour"
             }
         }
         
