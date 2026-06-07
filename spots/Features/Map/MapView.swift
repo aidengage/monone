@@ -109,7 +109,7 @@ struct MapView: View {
                                 }
                                 //later used by Add Button to create a post at the center of the screen
                             }
-                            .safeAreaInset(edge: .bottom) {
+                            .safeAreaInset(edge: .bottom) { // remove this later with custom sheet
                                 if !viewModel.touchToggle {
                                     Color.clear.frame(height: proxy.size.height * 0.70)
                                 }
