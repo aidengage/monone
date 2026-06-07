@@ -89,6 +89,7 @@ extension MapView {
         var lastKnownCamera: MapCamera?
         
         private var rotationTimer: AnyCancellable?
+        var rotation: Bool = false
         private var currentHeading: Double = 0
         
         func update(centerLat: Double) {
@@ -133,9 +134,10 @@ extension MapView {
         }
         
         private func startRotation(around coordinate: CLLocationCoordinate2D) {
+            rotation = true
             currentHeading = 0
 
-            rotationTimer = Timer.publish(every: 0.05, on: .main, in: .common)
+            rotationTimer = Timer.publish(every: 0.03, on: .main, in: .common)
                 .autoconnect()
                 .sink { [weak self] _ in
                     guard let self else { return }
@@ -168,6 +170,7 @@ extension MapView {
 
         
         func stopRotation() {
+            rotation = false
             rotationTimer?.cancel()
             rotationTimer = nil
         }

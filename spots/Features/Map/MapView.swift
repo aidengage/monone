@@ -51,7 +51,7 @@ struct MapView: View {
                                     
                                 }
                             }
-//                            .animation(.easeInOut(duration: 0.6), value: viewModel.cameraPosition) // made rotation super slow
+//                            .animation(viewModel.rotation ? .none : .easeInOut(duration: 0.6), value: viewModel.cameraPosition) // made rotation super slow
                             .allowsHitTesting(viewModel.touchToggle)
                             .mapStyle(viewModel.currentMapStyle) // Apply the reactive style
                             .overlay(alignment: .bottomTrailing) {
