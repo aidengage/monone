@@ -6,3 +6,25 @@
 //
 
 import SwiftUI
+
+struct PostView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        
+    }
+}
+
+struct TopPostSheet: View {
+    // photos
+    var body: some View {
+        
+    }
+}
+
+struct BottomPostSheet: View {
+    // other data
+    var body: some View {
+        
+    }
+}
