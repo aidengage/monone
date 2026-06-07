@@ -76,7 +76,7 @@ struct AddPostView: View {
             }
             // custom photo picker logic in AddPostView and FirebaseManager
             Section(header: Text("Image Upload")) {
-                PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images)
+                PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images, maxPhotos: 6)
                 Button("take a photo instead!") {
                     showCamera = true
                 }

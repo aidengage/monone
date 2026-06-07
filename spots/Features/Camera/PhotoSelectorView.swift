@@ -35,9 +35,10 @@ struct PhotoSelector: View {
     @Binding var imageUUIDs: [String]
     @State var selectedItem: [PhotosPickerItem] = []
     @Binding var images: [UIImage]
+    let maxPhotos: Int
 
     var body: some View {
-        PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
+        PhotosPicker(selection: $selectedItem, maxSelectionCount: maxPhotos, matching: .images, preferredItemEncoding: .automatic) {
             if !data.isEmpty {
                 ScrollView(.horizontal) {
                     HStack {
