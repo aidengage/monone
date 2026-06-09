@@ -49,6 +49,15 @@ struct RefineLocationPickerView: View {
         ZStack {
             Map(position: $position)
             
+                .simultaneousGesture(
+                    DragGesture()
+                        .onChanged { _ in
+                            if !isDragging { isDragging = true }
+                        }
+                        .onEnded { _ in
+                            isDragging = false
+                        }
+                )
                 
                 .frame(maxWidth: mapWidth, minHeight: mapHeight, maxHeight: mapHeight)
                 // can use .continuous but maxxes out the requests
@@ -66,14 +75,14 @@ struct RefineLocationPickerView: View {
                             .frame(width: 20, height: 20)
                             .overlay(Circle().fill(.white).frame(width: 9, height: 9))
                             .shadow(radius: 4)
-                        if isDragging {
-                            Circle()
-                                .stroke(Color.blue.opacity(0.2), lineWidth: 1)
-                                .frame(width: 48, height: 48)
-                        }
+                        
+                        Circle()
+                            .stroke(Color.blue.opacity(0.2), lineWidth: 1)
+                            .frame(width: 48, height: 48)
+                            .scaleEffect(isDragging ? 1 : 0.2)
                     }
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isDragging)
                 }
-//            .animation(.spring(response: 0.25), value: isDragging)
         
 //            if !isDragging {
                 VStack {
@@ -95,17 +104,7 @@ struct RefineLocationPickerView: View {
                 }
 //            }
         }
-        .gesture(
-            DragGesture()
-                .onChanged { _ in
-                    print("draggin val: \(isDragging)")
-                    isDragging = true
-                }
-                .onEnded { _ in
-                    print("draggin val: \(isDragging)")
-                    isDragging = false
-                }
-        )
+
         
         .background(.background)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
