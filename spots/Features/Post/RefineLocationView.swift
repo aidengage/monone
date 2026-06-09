@@ -20,6 +20,7 @@ struct RefineLocationPickerView: View {
     @State private var isDragging = false
     
     @State private var position: MapCameraPosition
+    @State private var oldPosition: MapCameraPosition? = nil
     
     var coordinateContinuation : AsyncStream<CLLocationCoordinate2D>.Continuation?
 //    lazy var coordinateStream: AsyncStream<CLLocationCoordinate2D> = {
@@ -67,8 +68,13 @@ struct RefineLocationPickerView: View {
                 // can use .continuous but maxxes out the requests
                 .onMapCameraChange(frequency: .onEnd) { mapCameraUpdateContext in
                     print("coords: \(mapCameraUpdateContext.camera.centerCoordinate.latitude), \(mapCameraUpdateContext.camera.centerCoordinate.longitude)")
-                        self.lat = mapCameraUpdateContext.camera.centerCoordinate.latitude
-                        self.lon = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                    
+                    if oldPosition == nil {
+                        oldPosition = position
+                    }
+                    
+                    self.lat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+                    self.lon = mapCameraUpdateContext.camera.centerCoordinate.longitude
                 }
             
             
@@ -91,7 +97,11 @@ struct RefineLocationPickerView: View {
             VStack {
                 Spacer()
                 Button(action: {
-                    print("reseting... not!")
+                    print("reseting...")
+                    if let original = oldPosition {
+                        position = original
+                        oldPosition = nil
+                    }
                 }) {
                     
                     Label("reset", systemImage: "arrow.2.circlepath")
