@@ -72,7 +72,7 @@ extension AddPostView {
     struct ReverseGeocoding {
         // gets address from coordinates
         func nearestAddress(location: CLLocation) async throws -> Place? {
-            print("geo coding.......")
+//            print("geo coding.......")
             if let request = MKReverseGeocodingRequest(location: location) {
                 let mapItems = try await request.mapItems
                 return mapItems.first.map(Place.init)

@@ -67,7 +67,7 @@ struct RefineLocationPickerView: View {
                 .frame(maxWidth: mapWidth, minHeight: mapHeight, maxHeight: mapHeight)
                 // can use .continuous but maxxes out the requests
                 .onMapCameraChange(frequency: .onEnd) { mapCameraUpdateContext in
-                    print("coords: \(mapCameraUpdateContext.camera.centerCoordinate.latitude), \(mapCameraUpdateContext.camera.centerCoordinate.longitude)")
+//                    print("coords: \(mapCameraUpdateContext.camera.centerCoordinate.latitude), \(mapCameraUpdateContext.camera.centerCoordinate.longitude)")
                     
                     if oldPosition == nil {
                         oldPosition = position
@@ -97,7 +97,7 @@ struct RefineLocationPickerView: View {
             VStack {
                 Spacer()
                 Button(action: {
-                    print("reseting...")
+//                    print("reseting...")
                     if let original = oldPosition {
                         position = original
                         oldPosition = nil
