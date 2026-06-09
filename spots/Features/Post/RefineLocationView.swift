@@ -32,6 +32,10 @@ struct RefineLocationPickerView: View {
         coordinateContinuation?.yield(CLLocationCoordinate2D(latitude: lat, longitude: lng))
     }
     
+    func resetUser() {
+        
+    }
+    
     init(lat: Binding<Double>, lon: Binding<Double>) {
         self._lat = lat
         self._lon = lon
@@ -68,41 +72,38 @@ struct RefineLocationPickerView: View {
                 }
             
             
-                VStack(spacing: 0) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 20, height: 20)
-                            .overlay(Circle().fill(.white).frame(width: 9, height: 9))
-                            .shadow(radius: 4)
-                        
-                        Circle()
-                            .stroke(Color.blue.opacity(0.2), lineWidth: 1)
-                            .frame(width: 48, height: 48)
-                            .scaleEffect(isDragging ? 1 : 0.2)
-                    }
-                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isDragging)
+            VStack(spacing: 0) {
+                ZStack {
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 20, height: 20)
+                        .overlay(Circle().fill(.white).frame(width: 9, height: 9))
+                        .shadow(radius: 4)
+                    
+                    Circle()
+                        .stroke(Color.blue.opacity(0.2), lineWidth: 1)
+                        .frame(width: 48, height: 48)
+                        .scaleEffect(isDragging ? 1 : 0.2)
                 }
+                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isDragging)
+            }
         
-//            if !isDragging {
-                VStack {
-                    Spacer()
-                    Button(action: {
-                        print("reseting... not!")
-                    }) {
+            VStack {
+                Spacer()
+                Button(action: {
+                    print("reseting... not!")
+                }) {
+                    
+                    Label("reset", systemImage: "arrow.2.circlepath")
                         
-                        Label("reset", systemImage: "arrow.2.circlepath")
-                            
-                    }
-                    .buttonStyle(.glass)
-                    .font(.caption2)
-                    .foregroundStyle(.black)
-//                    .background(.black.opacity(0.45), in: Capsule())
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .padding(.bottom, 8)
                 }
-//            }
+                .buttonStyle(.glass)
+                .font(.caption2)
+                .foregroundStyle(.black)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .padding(.bottom, 8)
+            }
         }
 
         
