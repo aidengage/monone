@@ -75,23 +75,36 @@ struct RefineLocationPickerView: View {
                 }
 //            .animation(.spring(response: 0.25), value: isDragging)
         
-            if !isDragging {
+//            if !isDragging {
                 VStack {
                     Spacer()
-                    Label("drag to refine", systemImage: "arrow.up.and.down.and.arrow.left.and.right")
-                        .font(.caption2)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(.black.opacity(0.45), in: Capsule())
-                        .padding(.bottom, 8)
+                    Button(action: {
+                        print("reseting... not!")
+                    }) {
+                        
+                        Label("reset", systemImage: "arrow.2.circlepath")
+                            
+                    }
+                    .buttonStyle(.glass)
+                    .font(.caption2)
+                    .foregroundStyle(.black)
+//                    .background(.black.opacity(0.45), in: Capsule())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .padding(.bottom, 8)
                 }
-            }
+//            }
         }
         .gesture(
             DragGesture()
-                .onChanged { _ in isDragging = true }
-                .onEnded { _ in isDragging = false }
+                .onChanged { _ in
+                    print("draggin val: \(isDragging)")
+                    isDragging = true
+                }
+                .onEnded { _ in
+                    print("draggin val: \(isDragging)")
+                    isDragging = false
+                }
         )
         
         .background(.background)
