@@ -24,6 +24,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>GIDClientID</key>
+	<string>141114891520-cejvrs7idcapakbt6t7t633hboiujl5b.apps.googleusercontent.com</string>
 	<key>MKDirectionsApplicationSupportedModes</key>
 	<array>
 		<string>MKDirectionsModeBike</string>

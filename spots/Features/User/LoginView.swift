@@ -27,6 +27,7 @@ struct LoginView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
                 }
+                GoogleSignIn()
                 Button(action: {
                     login(email: email, password: password)
                 }) {
