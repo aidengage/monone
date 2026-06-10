@@ -6,45 +6,45 @@ struct LoginView: View {
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var error: String? = nil
-    @State private var navigateToContentView = false
+//    @State private var navigateToContentView = false
     @State private var navigateToSignup = false
     
     var body: some View {
-        
-        // login form, needs visual feedback for what is wrong when user inputs incorrect form
-        Form {
-            Section(header: Text("Email")) {
-                TextField("Email", text: $email)
+        NavigationStack {
+            Form {
+                Section(header: Text("Email")) {
+                    TextField("Email", text: $email)
+                        .textCase(.lowercase)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+                Section(header: Text("Password")) {
+                    TextField("Password", text: $password)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+                Button(action: {
+                    login(email: email, password: password)
+                }) {
+                    Text("Login")
+                }
+                Button(action: {
+                    createAcc()
+                })
+                {
+                    Text("Don't have an account? Create one here")
+                }
             }
-            Section(header: Text("Password")) {
-                TextField("Password", text: $password)
-            }
-            Button(action: {
-                login(email: email, password: password)
-            }) { 
-                Text("Login")
-            }
-            Button(action: {
-                createAcc()
-            })
-            {
-                Text("Don't have an account? Create one here")
-            }
-        }
-        .navigationTitle("Log In")
-        .background(
+            .navigationTitle("Log In")
             
-            // rework navigation link to stack
-            NavigationLink(
-                destination: SignupView(),
-                isActive: $navigateToSignup
-            ) {
-                EmptyView()
+            .navigationDestination(isPresented: $navigateToSignup) {
+                SignupView()
             }
-        )
-        .scrollDismissesKeyboard(.interactively)
-        .onAppear() {
-            addTapGestureToDismissKeyboard()
+            
+            .scrollDismissesKeyboard(.interactively)
+            .onAppear() {
+                addTapGestureToDismissKeyboard()
+            }
         }
     }
     

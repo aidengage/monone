@@ -32,13 +32,20 @@ struct SignupView: View {
             Form {
                 Section(header: Text("Email")) {
                     TextField("Email", text: $email)
-                    TextField("Username (optional)", text: $username)
+                        .textCase(.lowercase)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    TextField("Username", text: $username)
                 }
                 Section(header: Text("Password")) {
                     TextField("Password", text: $password)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
                 Section(header: Text("Confirm Password")) {
                     TextField("Confirm Password", text: $confirmPassword)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
                 
                 // upload profile picture needs square crop
