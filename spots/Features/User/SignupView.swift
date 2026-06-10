@@ -12,6 +12,17 @@ import FirebaseFirestore
 import AVFoundation
 import AVKit
 
+// Source - https://stackoverflow.com/a/77912230
+// Posted by id1149103410
+// Retrieved 2026-06-09, License - CC BY-SA 4.0
+
+extension String {
+    var isValidEmail: Bool {
+        NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}").evaluate(with: self)
+    }
+}
+
+
 struct SignupView: View {
     @Environment(\.dismiss)private var dismiss
     @State private var email: String = ""
@@ -22,6 +33,7 @@ struct SignupView: View {
     @State private var selectedPhoto: [PhotosPickerItem] = []
     @State private var selectedImage: [UIImage] = []
     @State private var profileImage: UIImage?
+    
     @State private var showCamera: Bool = false
     
     @StateObject private var cameraManager = CameraManager()
@@ -32,20 +44,25 @@ struct SignupView: View {
             Form {
                 Section(header: Text("Email")) {
                     TextField("Email", text: $email)
+                        .textContentType(.emailAddress)
                         .textCase(.lowercase)
                         .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .autocorrectionDisabled(true)
+//                        .foregroundColor(email.isValidEmail ? .white : .red)
+//                        .background(email.isValidEmail ? .green : .black)
                     TextField("Username", text: $username)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
                 }
                 Section(header: Text("Password")) {
                     TextField("Password", text: $password)
                         .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .autocorrectionDisabled(true)
                 }
                 Section(header: Text("Confirm Password")) {
                     TextField("Confirm Password", text: $confirmPassword)
                         .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .autocorrectionDisabled(true)
                 }
                 
                 // upload profile picture needs square crop
@@ -112,23 +129,27 @@ struct SignupView: View {
             if password != confirmPassword {
                 error = "Passwords do not match"
             } else {
-                let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
-                
-                // setting user id
-                let uid = authResult.user.uid
-                
-                if let error = error {
-                    print(error)
+                if !email.isValidEmail {
+                    error = "invalid email"
                 } else {
-                    // creates corresponding user in firebase db to link to
-                    print("auth created, adding user and uploading pfp")
+                    let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
                     
-                    Task {
-                        Firebase.shared.addUser(uid: uid, email: email, username: username)
-                        await uploadPfp(userId: uid, photo: profileImage!)
+                    // setting user id
+                    let uid = authResult.user.uid
+                    
+                    if let error = error {
+                        print(error)
+                    } else {
+                        // creates corresponding user in firebase db to link to
+                        print("auth created, adding user and uploading pfp")
+                        
+                        Task {
+                            Firebase.shared.addUser(uid: uid, email: email, username: username)
+                            await uploadPfp(userId: uid, photo: profileImage!)
+                        }
+                        
+                        dismiss()
                     }
-                    
-                    dismiss()
                 }
             }
         } catch {

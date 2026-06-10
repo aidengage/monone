@@ -3,6 +3,7 @@ import FirebaseAuth
 
 struct LoginView: View {
     @Environment(\.dismiss)private var dismiss
+    
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var error: String? = nil
@@ -14,14 +15,17 @@ struct LoginView: View {
             Form {
                 Section(header: Text("Email")) {
                     TextField("Email", text: $email)
+                        .textContentType(.emailAddress)
                         .textCase(.lowercase)
                         .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .autocorrectionDisabled(true)
+//                        .foregroundColor(email.isValidEmail ? .white : .red)
+//                        .background(email.isValidEmail ? .green : .black)
                 }
                 Section(header: Text("Password")) {
                     TextField("Password", text: $password)
                         .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .autocorrectionDisabled(true)
                 }
                 Button(action: {
                     login(email: email, password: password)
