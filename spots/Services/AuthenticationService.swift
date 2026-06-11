@@ -13,11 +13,13 @@ import CryptoKit
 import GoogleSignIn
 import GoogleSignInSwift
 import FirebaseAuth
+import UIKit
 
 struct GoogleSignIn: View {
     var body: some View {
         VStack {
-            GoogleSignInButton(action: handleSignInButton).padding()
+            GoogleSignInButton(style: .standard, action: handleSignInButton)
+                
         }
     }
     
@@ -47,5 +49,12 @@ struct GoogleSignIn: View {
             // if sign in worked
             print("id token: \(result.user.idToken?.tokenString ?? "no id token")")
         }
+    }
+}
+
+struct AppleSignIn: View {
+    
+    var body: some View {
+        
     }
 }
