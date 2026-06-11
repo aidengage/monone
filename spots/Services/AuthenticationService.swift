@@ -6,6 +6,8 @@
 //
 //  https://firebase.google.com/docs/auth/ios/google-signin
 //  https://codelabs.developers.google.com/codelabs/sign-in-with-google-ios#4
+//  https://www.createwithswift.com/sign-in-with-apple-on-a-swiftui-application/ we need developer account now for this actually
+
 
 import SwiftUI
 import AuthenticationServices
@@ -16,6 +18,8 @@ import FirebaseAuth
 import UIKit
 
 struct GoogleSignIn: View {
+    @Environment(\.dismiss)private var dismiss
+    
     var body: some View {
         VStack {
             GoogleSignInButton(style: .standard, action: handleSignInButton)
@@ -46,8 +50,18 @@ struct GoogleSignIn: View {
                 return
             }
             
+            guard let idToken = result.user.idToken?.tokenString else {
+                print("missing id token from google: \(error?.localizedDescription ?? "unknown error")")
+                return
+            }
+            let accessToken = result.user.accessToken.tokenString
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+            Auth.auth().signIn(with: credential)
+            
             // if sign in worked
             print("id token: \(result.user.idToken?.tokenString ?? "no id token")")
+            print("signed in????")
+            dismiss()
         }
     }
 }
