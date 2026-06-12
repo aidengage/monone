@@ -193,7 +193,7 @@ extension MapView {
                         self.cameraPosition = .region(
                             MKCoordinateRegion(
                                 center: coordinates,
-                                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                             )
                         )
                         self.hasCenteredOnUser = true
