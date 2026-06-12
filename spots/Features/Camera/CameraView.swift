@@ -497,7 +497,7 @@ struct NoCameraView: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "camera.fill.badge.xmark")
+            Image(systemName: "video.slash.fill")
                 .font(.largeTitle)
                 .foregroundStyle(Color(.systemGray2))
             Text("Camera Permission Required")
