@@ -35,11 +35,12 @@ struct PhotoSelector: View {
     @Binding var imageUUIDs: [String]
     @State var selectedItem: [PhotosPickerItem] = []
     @Binding var images: [UIImage]
+    
     let maxPhotos: Int
 
     var body: some View {
         PhotosPicker(selection: $selectedItem, maxSelectionCount: maxPhotos, matching: .images, preferredItemEncoding: .automatic) {
-            if !data.isEmpty {
+            HStack {
                 ScrollView(.horizontal) {
                     HStack {
                         ForEach(data, id: \.self) { imageData in
@@ -47,15 +48,15 @@ struct PhotoSelector: View {
                                 Image(uiImage: image)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame( maxHeight: 300)
+                                    .frame( maxHeight: 150)
                             }
                         }
+                        Label("", systemImage: "photo.on.rectangle.angled")
                     }
                 }
-            } else {
-                Label("Select a picture", systemImage: "photo.on.rectangle.angled")
             }
-        }.onChange (of: selectedItem) {_, newValue in
+        }
+        .onChange (of: selectedItem) {_, newValue in
             for item in selectedItem {
                 Task {
                     if let imageData = try? await item.loadTransferable(type: Data.self) {

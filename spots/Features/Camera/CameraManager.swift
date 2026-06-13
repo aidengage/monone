@@ -165,6 +165,8 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
             return
         }
         
+//        let cropped = cropAspectRatio(uiImage, aspectWidth: 1, aspectHeight: 1)
+        
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 //            [weak self] in
@@ -190,6 +192,35 @@ class CameraManager: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, 
 //                self.showBatchPreview = true
 //            }
         }
+    }
+    
+    func cropAspectRatio(_ image: UIImage, aspectWidth: CGFloat, aspectHeight: CGFloat) -> UIImage {
+        let scale = image.scale
+        let imageWidth = image.size.width * scale
+        let imageHeight = image.size.height * scale
+        
+        let targetAspect = aspectWidth / aspectHeight
+        let imageAspect = imageWidth / imageHeight
+        
+        let cropWidth: CGFloat
+        let cropHeight: CGFloat
+        
+        if imageAspect > targetAspect {
+            cropHeight = imageHeight
+            cropWidth = imageHeight * targetAspect
+        } else {
+            cropWidth = imageWidth
+            cropHeight = imageWidth / targetAspect
+        }
+        
+        let origin = CGPoint(
+            x: (imageWidth - cropWidth) / 2,
+            y: (imageHeight - cropHeight) / 2
+        )
+        
+        let cropRect = CGRect(origin: origin, size: CGSize(width: cropWidth, height: cropHeight))
+        guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return image }
+        return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
     }
     
     func updateLibraryThumbnail(image: UIImage?) {
