@@ -30,6 +30,7 @@ struct MijickCameraView: View {
                     controller.reopenCameraScreen()
                 }
                 .setErrorScreen(CamError.init)
+                .setCapturedMediaScreen(CamCapturedMedia.init)
                 .startSession()
         }
     }
@@ -44,16 +45,43 @@ struct CamError: MCameraErrorScreen {
     }
 }
 
-struct CamCaptureMedia: MCapturedMediaScreen {
+struct CamCapturedMedia: MCapturedMediaScreen {
     var capturedMedia: MCameraMedia
     var namespace: Namespace.ID
     var retakeAction: () -> ()
     var acceptMediaAction: () -> ()
     
-    typealias Body = <#type#>
-    
     var body: some View {
-        
+        VStack(spacing: 0) {
+            Spacer()
+            createContentView()
+            Spacer()
+            createButtons()
+        }
+    }
+    
+    private func createContentView() -> some View { ZStack {
+        if let image = capturedMedia.getImage() { createImageView(image) }
+        else { EmptyView() }
+    }}
+    private func createButtons() -> some View {
+        HStack(spacing: 24) {
+            createRetakeButton()
+            createSaveButton()
+        }
+    }
+    
+    private func createImageView(_ image: UIImage) -> some View {
+        Image(uiImage: image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .ignoresSafeArea()
+    }
+    private func createRetakeButton() -> some View {
+        Button(action: retakeAction) { Text("Retake") }
+    }
+    private func createSaveButton() -> some View {
+        Button(action: acceptMediaAction) { Text("Save") }
     }
 }
 
@@ -61,8 +89,6 @@ struct CamScreen: MCameraScreen {
     var cameraManager: CameraManager
     var namespace: Namespace.ID
     var closeMCameraAction: () -> ()
-    
-    typealias Body = <#type#>
     
     var body: some View {
         
