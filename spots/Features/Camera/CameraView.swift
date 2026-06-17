@@ -4,6 +4,7 @@ import SwiftUI
 import PhotosUI
 import AVKit
 import AVFoundation
+
 import MijickCamera
 
 //    some ideas
@@ -75,8 +76,7 @@ struct CameraView: View {
     
     var body: some View {
         
-        MCamera()
-            .startSession()
+
         
 //        ZStack {
 //            if cameraManager.authorizationStatus == .authorized {
