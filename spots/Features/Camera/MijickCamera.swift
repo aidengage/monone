@@ -4,6 +4,7 @@
 //
 //  Created by Aiden Gage on 6/17/26.
 //
+//  https://github.com/Mijick/Camera/wiki/Customizing-MCamera-Screens
 
 import SwiftUI
 import PhotosUI
