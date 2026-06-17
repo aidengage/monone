@@ -25,12 +25,46 @@ struct MijickCameraView: View {
         NavigationStack {
             MCamera()
                 .onImageCaptured { image, controller in
-                    //                saveImageInGallery(image)
+//                saveImageInGallery(image)
                     selectedImages.append(image)
                     controller.reopenCameraScreen()
                 }
-            //            .setErrorScreen()
+                .setErrorScreen(CamError.init)
                 .startSession()
         }
+    }
+}
+
+struct CamError: MCameraErrorScreen {
+    var error: MCameraError
+    var closeMCameraAction: () -> ()
+    
+    var body: some View {
+        Button(action: openAppSettings) { Text("Open Settings") }
+    }
+}
+
+struct CamCaptureMedia: MCapturedMediaScreen {
+    var capturedMedia: MCameraMedia
+    var namespace: Namespace.ID
+    var retakeAction: () -> ()
+    var acceptMediaAction: () -> ()
+    
+    typealias Body = <#type#>
+    
+    var body: some View {
+        
+    }
+}
+
+struct CamScreen: MCameraScreen {
+    var cameraManager: CameraManager
+    var namespace: Namespace.ID
+    var closeMCameraAction: () -> ()
+    
+    typealias Body = <#type#>
+    
+    var body: some View {
+        
     }
 }
