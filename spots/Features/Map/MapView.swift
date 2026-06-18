@@ -93,6 +93,7 @@ struct MapView: View {
                             }
                             .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
+                            .onChange(of: buttonsViewModel.showOnlyFriends) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
                             .onDisappear {
                                 // stops post listener

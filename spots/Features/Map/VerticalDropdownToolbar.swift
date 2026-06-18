@@ -19,7 +19,11 @@ struct VerticalDropdownToolbar: View {
                     Buttons.ProfileButton(viewModel: viewModel)
                         .buttonStyle(.glassProminent)
                         .buttonBorderShape(.circle)
-                    
+
+                    Buttons.FriendsMapButton(viewModel: viewModel)
+                        .buttonStyle(.glassProminent)
+                        .buttonBorderShape(.circle)
+
                     if viewModel.profileToggle {
                         Buttons.BookmarkButton(viewModel: viewModel)
                         Buttons.AccountButton(viewModel: viewModel, path: $path)

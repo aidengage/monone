@@ -58,6 +58,28 @@ struct Buttons {
             }
         }
     }
+
+    struct FriendsMapButton: View {
+        @ObservedObject var viewModel: ButtonsViewModel
+        
+        var body: some View {
+            
+                Button(action: {
+                    viewModel.showOnlyFriends.toggle()
+                    if viewModel.showOnlyFriends {
+                        viewModel.showOnlyBookmarked = false
+                    }
+                }) {
+                    Image(systemName: viewModel.showOnlyFriends ? "person.2.fill" : "person.2")
+                        .font(.title)
+                        .padding(1)
+                }
+                .tint(viewModel.showOnlyFriends ? .blue : .clear)
+                .buttonStyle(.glassProminent)
+                .buttonBorderShape(.circle)
+            
+        }
+    }
     
     struct ProfileButton: View {
         @ObservedObject var viewModel: ButtonsViewModel
@@ -71,12 +93,10 @@ struct Buttons {
                     viewModel.showPhoto = false
                     viewModel.showTrain = false
                     viewModel.showUnknown = false
-                }
-
-                if viewModel.profileToggle {
-                    Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
-                } else {
-                    Firebase.shared.startPostListener()
+                    if !viewModel.profileToggle {
+                        viewModel.showOnlyBookmarked = false
+                        viewModel.showOnlyFriends = false
+                    }
                 }
             }) {
                 Image(systemName: "person.crop.circle")
@@ -95,6 +115,9 @@ struct Buttons {
             
                 Button(action: {
                     viewModel.showOnlyBookmarked.toggle()
+                    if viewModel.showOnlyBookmarked {
+                        viewModel.showOnlyFriends = false
+                    }
                 }) {
                     Image(systemName: viewModel.showOnlyBookmarked ? "bookmark.fill" : "bookmark")
                         .font(.title)
@@ -114,7 +137,7 @@ struct Buttons {
         
         var body: some View {
             Button(action: {
-                viewModel.showFollowinger.toggle()
+                viewModel.showFollowing.toggle()
             }) {
                 Image(systemName: "person.text.rectangle")
                     .font(.title)
@@ -124,7 +147,7 @@ struct Buttons {
             .tint(.purple)
             .buttonStyle(.glassProminent)
             .buttonBorderShape(.circle)
-            .navigationDestination(isPresented: $viewModel.showFollowinger) {
+            .navigationDestination(isPresented: $viewModel.showFollowing) {
                 AccountView(path: $path)
             }
         }
@@ -221,7 +244,8 @@ extension Buttons {
         
         @Published var profileToggle: Bool = false
         @Published var showOnlyBookmarked: Bool = false
-        @Published var showFollowinger: Bool = false
+        @Published var showFollowing: Bool = false
+        @Published var showOnlyFriends: Bool = false
         
         @Published var showSmoke: Bool = false
         @Published var showDate: Bool = false
@@ -230,12 +254,18 @@ extension Buttons {
         @Published var showUnknown: Bool = false
         
         func startPostListenerForMode() {
-            if !profileToggle {
-                Firebase.shared.startPostListener()
-            } else if showOnlyBookmarked {
-                Firebase.shared.startPostListener()
+            if profileToggle {
+                if showOnlyBookmarked {
+                    Firebase.shared.startPostListener()
+                } else if showOnlyFriends {
+                    Firebase.shared.startFollowingPostListener()
+                } else {
+                    Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                }
+            } else if showOnlyFriends {
+                Firebase.shared.startFollowingPostListener()
             } else {
-                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                Firebase.shared.startPostListener()
             }
         }
 
