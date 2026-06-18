@@ -45,6 +45,7 @@ struct GoogleSignIn: View {
         
         Task {
             do {
+                // start sign in process
                 let result = try await signInWithGoogle(presenting: rootViewController)
                 
                 guard let idToken = result.user.idToken?.tokenString else {
@@ -73,40 +74,6 @@ struct GoogleSignIn: View {
             } catch {
                 print("sign in failed :(")
             }
-            // start sign in process
-//            try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { signInResult, error in
-//                guard let result = signInResult else {
-//                    // error handle
-//                    print("error signing in: \(error?.localizedDescription ?? "unknown error")")
-//                    return
-//                }
-//                
-//                guard let idToken = result.user.idToken?.tokenString else {
-//                    print("missing id token from google: \(error?.localizedDescription ?? "unknown error")")
-//                    return
-//                }
-//                
-//                let accessToken = result.user.accessToken.tokenString
-//                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-//                
-//                Auth.auth().signIn(with: credential) { authResult, error in
-//                    guard let firebaseUser = authResult?.user else {
-//                        print("firebase sign in error: \(error?.localizedDescription ?? "unknown error")")
-//                        return
-//                    }
-//                    
-//                    // check if already exists
-//                    if try await !Firebase.shared.getStore().document(firebaseUser.uid).getDocument().exists {
-//                        Firebase.shared.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
-//                    }
-//                    
-//                }
-//                
-//                
-//                // if sign in worked
-//                print("id token: \(result.user.idToken?.tokenString ?? "no id token")")
-//                
-//            }
         }
     }
     
