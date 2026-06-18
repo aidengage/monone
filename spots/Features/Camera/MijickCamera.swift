@@ -32,6 +32,7 @@ struct MijickCameraView: View {
                 }
                 .setErrorScreen(CamError.init)
                 .setCapturedMediaScreen(CamCapturedMedia.init)
+                .setCameraScreen(CamScreen.init)
                 .startSession()
         }
     }
