@@ -15,6 +15,7 @@ import CryptoKit
 import GoogleSignIn
 import GoogleSignInSwift
 import FirebaseAuth
+import FirebaseFirestore
 import UIKit
 
 struct GoogleSignIn: View {
@@ -42,37 +43,84 @@ struct GoogleSignIn: View {
             return
         }
         
-        // start sign in process
-        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { signInResult, error in
-            guard let result = signInResult else {
-                // error handle
-                print("error signing in: \(error?.localizedDescription ?? "unknown error")")
-                return
-            }
-            
-            guard let idToken = result.user.idToken?.tokenString else {
-                print("missing id token from google: \(error?.localizedDescription ?? "unknown error")")
-                return
-            }
-            
-            let accessToken = result.user.accessToken.tokenString
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-            
-            Auth.auth().signIn(with: credential) { authResult, error in
-                guard let firebaseUser = authResult?.user else {
-                    print("firebase sign in error: \(error?.localizedDescription ?? "unknown error")")
+        Task {
+            do {
+                let result = try await signInWithGoogle(presenting: rootViewController)
+                
+                guard let idToken = result.user.idToken?.tokenString else {
+                    print("missing id token from google")
                     return
                 }
                 
-                // check if already exists
-                Firebase.shared.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
+                let accessToken = result.user.accessToken.tokenString
+                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+                
+                let authResult = try await Auth.auth().signIn(with: credential)
+                let firebaseUser = authResult.user
+                
+                let exists = try await Firebase.shared.getStore()
+                    .collection("users")
+                    .document(firebaseUser.uid)
+                    .getDocument()
+                    .exists
+                
+                if !exists {
+                    Firebase.shared.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
+                }
+                
+                print("signed in????")
+                dismiss()
+            } catch {
+                print("sign in failed :(")
             }
-            
-            
-            // if sign in worked
-            print("id token: \(result.user.idToken?.tokenString ?? "no id token")")
-            print("signed in????")
-            dismiss()
+            // start sign in process
+//            try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { signInResult, error in
+//                guard let result = signInResult else {
+//                    // error handle
+//                    print("error signing in: \(error?.localizedDescription ?? "unknown error")")
+//                    return
+//                }
+//                
+//                guard let idToken = result.user.idToken?.tokenString else {
+//                    print("missing id token from google: \(error?.localizedDescription ?? "unknown error")")
+//                    return
+//                }
+//                
+//                let accessToken = result.user.accessToken.tokenString
+//                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+//                
+//                Auth.auth().signIn(with: credential) { authResult, error in
+//                    guard let firebaseUser = authResult?.user else {
+//                        print("firebase sign in error: \(error?.localizedDescription ?? "unknown error")")
+//                        return
+//                    }
+//                    
+//                    // check if already exists
+//                    if try await !Firebase.shared.getStore().document(firebaseUser.uid).getDocument().exists {
+//                        Firebase.shared.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
+//                    }
+//                    
+//                }
+//                
+//                
+//                // if sign in worked
+//                print("id token: \(result.user.idToken?.tokenString ?? "no id token")")
+//                
+//            }
+        }
+    }
+    
+    func signInWithGoogle(presenting: UIViewController) async throws -> GIDSignInResult {
+        try await withCheckedThrowingContinuation { continuation in
+            GIDSignIn.sharedInstance.signIn(withPresenting: presenting) { signInResult, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let result = signInResult {
+                    continuation.resume(returning: result)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown sign-in error"]))
+                }
+            }
         }
     }
 }
@@ -88,7 +136,7 @@ extension Firebase {
         if !uid.isEmpty && !email.isEmpty && !username.isEmpty {
             Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "", bookmarkedPostIds: [], followers: [], following: [])
         } else {
-            print("uid, email, or password empty")
+            print("uid or email or username empty")
         }
         
     }
