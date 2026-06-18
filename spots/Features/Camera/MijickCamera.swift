@@ -87,11 +87,26 @@ struct CamCapturedMedia: MCapturedMediaScreen {
 }
 
 struct CamScreen: MCameraScreen {
-    var cameraManager: CameraManager
+    @ObservedObject var cameraManager: MijickCamera.CameraManager
     var namespace: Namespace.ID
     var closeMCameraAction: () -> ()
     
     var body: some View {
-        
+        VStack(spacing: 0) {
+            createNavigationBar()
+            createCameraOutputView()
+            createCaptureButton()
+        }
+    }
+    
+    private func createNavigationBar() -> some View {
+        Text("This is a custom camera view, replace later")
+            .padding(.top, 12)
+            .padding(.bottom, 12)
+    }
+    private func createCaptureButton() -> some View {
+        Button(action: captureOutput) { Text("click to capture")}
+            .padding(.top, 12)
+            .padding(.bottom, 12)
     }
 }
