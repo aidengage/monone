@@ -144,7 +144,7 @@ struct SignupView: View {
                         print("auth created, adding user and uploading pfp")
                         
                         Task {
-                            Firebase.shared.addUser(uid: uid, email: email, username: username)
+                            Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: "")
                             await uploadPfp(userId: uid, photo: profileImage!)
                         }
                         

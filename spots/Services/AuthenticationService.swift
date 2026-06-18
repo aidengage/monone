@@ -63,6 +63,8 @@ struct GoogleSignIn: View {
                     print("firebase sign in error: \(error?.localizedDescription ?? "unknown error")")
                     return
                 }
+                
+                // check if already exists
                 Firebase.shared.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
             }
             
@@ -81,9 +83,10 @@ extension Firebase {
         let uid = user.uid
         let email = user.email ?? gProfile?.email ?? ""
         let username = user.displayName ?? gProfile?.name ?? ""
+        let pfpURL = user.photoURL ?? gProfile?.imageURL(withDimension: 200)
         
         if !uid.isEmpty && !email.isEmpty && !username.isEmpty {
-            Firebase.shared.addUser(uid: uid, email: email, username: username, bookmarkedPostIds: [], followers: [], following: [])
+            Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "", bookmarkedPostIds: [], followers: [], following: [])
         } else {
             print("uid, email, or password empty")
         }
