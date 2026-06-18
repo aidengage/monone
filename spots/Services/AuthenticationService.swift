@@ -54,15 +54,40 @@ struct GoogleSignIn: View {
                 print("missing id token from google: \(error?.localizedDescription ?? "unknown error")")
                 return
             }
+            
             let accessToken = result.user.accessToken.tokenString
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-            Auth.auth().signIn(with: credential)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                guard let firebaseUser = authResult?.user else {
+                    print("firebase sign in error: \(error?.localizedDescription ?? "unknown error")")
+                    return
+                }
+                Firebase.shared.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
+            }
+            
             
             // if sign in worked
             print("id token: \(result.user.idToken?.tokenString ?? "no id token")")
             print("signed in????")
             dismiss()
         }
+    }
+}
+
+extension Firebase {
+    func addUserFromGoogle(user: FirebaseAuth.User, gProfile: GIDProfileData?) {
+        
+        let uid = user.uid
+        let email = user.email ?? gProfile?.email ?? ""
+        let username = user.displayName ?? gProfile?.name ?? ""
+        
+        if !uid.isEmpty && !email.isEmpty && !username.isEmpty {
+            Firebase.shared.addUser(uid: uid, email: email, username: username, bookmarkedPostIds: [], followers: [], following: [])
+        } else {
+            print("uid, email, or password empty")
+        }
+        
     }
 }
 
