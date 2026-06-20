@@ -75,7 +75,7 @@ struct CameraView: View {
     }
     
     var body: some View {
-        
+//        MijickCameraView(selectedImages: $selectedImages)
 
         
 //        ZStack {
