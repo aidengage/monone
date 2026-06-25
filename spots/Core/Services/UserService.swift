@@ -9,5 +9,7 @@ import SwiftUI
 
 @Observable
 class UserService {
-    
+    var bookmarkedPostIds: [String] = []
+    var followers: [String] = []
+    var following: [String] = []
 }

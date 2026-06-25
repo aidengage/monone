@@ -174,7 +174,7 @@ struct PostDetailView: View {
         window.addGestureRecognizer(tapGesture)
     }
     
-    private func bookmarkButtonTapped(post: Post) {
+    private func bookmarkButtonTapped(post: Post) { // re route this to user service maybe?
         if bookmarkedPostIds.contains(post.id) {
             bookmarkedPostIds.removeAll { $0 == post.id }
         } else {
@@ -183,7 +183,7 @@ struct PostDetailView: View {
         Firebase.shared.updateBookmarkedPostIds(bookmarkedPostIds)
     }
 
-    private func followToggleTapped(targetUserId: String) {
+    private func followToggleTapped(targetUserId: String) { // this too i guess
         if followingUserIds.contains(targetUserId) {
             followingUserIds.removeAll { $0 == targetUserId }
             Firebase.shared.unfollowUser(targetUserId: targetUserId)

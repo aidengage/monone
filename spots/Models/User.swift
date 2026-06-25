@@ -15,9 +15,9 @@ struct User: Codable, Identifiable {
     let email: String
     let username: String
     let pfpUrl: String?
-    var bookmarkedPostIds: [String]
-    var followers: [String]
-    var following: [String]
+    var bookmarkedPostIds: [String] // remove
+    var followers: [String] // remove
+    var following: [String] // remove
 
     init(id: String, email: String, username: String, pfpUrl: String, bookmarkedPostIds: [String] = [], followers: [String] = [], following: [String] = []) {
         self.id = id
@@ -34,6 +34,7 @@ struct User: Codable, Identifiable {
 //    }
 }
 
+// remove
 extension Firebase {
     func getCurrentUserID() -> String {
         let currentUser = getAuth().currentUser
