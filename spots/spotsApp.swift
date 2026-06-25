@@ -24,12 +24,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @State private var auth: authService = authService()
+    @State private var db: dbService = dbService()
+    @State private var storage: storageService = storageService()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }
+                .environment(auth)
+                .environment(db)
+                .environment(storage)
         }
     }
 }
