@@ -7,6 +7,7 @@
 
 import SwiftUI
 
-@Observable class UserService {
+@Observable
+class UserService {
     
 }

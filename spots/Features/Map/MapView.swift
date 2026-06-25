@@ -11,7 +11,7 @@ import Combine
 
 struct MapView: View {
     @StateObject private var viewModel = ViewModel()
-    @StateObject var buttonsViewModel = Buttons.ButtonsViewModel()
+    @StateObject var buttonsViewModel = ButtonsViewModel()
     
     @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
     
@@ -115,7 +115,7 @@ struct MapView: View {
                                 }
                             }
                         }
-                        Buttons.AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
+                        AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
                     }
                     // vertical dropdown toolbar doesnt go into toolbar item very well, tried to put it in top left kinda broke
                     VerticalDropdownToolbar(viewModel: buttonsViewModel, path: $viewModel.path)
@@ -124,9 +124,9 @@ struct MapView: View {
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         if Firebase.shared.getCurrentUser() != nil {
-                            Buttons.FeedbackButton()
-                            Buttons.ActivityFilter(viewModel: buttonsViewModel)
-                            Buttons.SettingsButton()
+                            FeedbackButton()
+                            ActivityFilter(viewModel: buttonsViewModel)
+                            SettingsButton()
                         }
                     }
                 }

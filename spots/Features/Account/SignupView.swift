@@ -77,7 +77,8 @@ struct SignupView: View {
                     
 //                    .fullScreenCover(isPresented: $showCamera) {
                     .sheet(isPresented: $showCamera) {
-                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
+//                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
+                        MijickCameraView(selectedImages: $selectedImage) // this camera is broken but working on it
                     }
                 }
                 

@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 import FirebaseAuth
 
-struct Buttons {
+
 
     struct AddButton: View {
         
@@ -212,9 +212,9 @@ struct Buttons {
             }
         }
     }
-}
 
-extension Buttons {
+
+
     
     class ButtonsViewModel: ObservableObject {
         @Published var showAll: Bool = true
@@ -300,4 +300,4 @@ extension Buttons {
         }
     }
     
-}
+
