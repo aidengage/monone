@@ -6,17 +6,29 @@
 //
 
 import SwiftUI
+import Firebase
+import FirebaseFirestore
+
+protocol UserServiceProtocol {
+    
+}
 
 @Observable
-class UserService {
-    @Environment
+class UserService: UserServiceProtocol {
+    private let authService: authServiceProtocol
+    private let dbService: dbServiceProtocol
     
-    var bookmarkedPostIds: [String] = []
+    init(authService: authServiceProtocol, dbService: dbServiceProtocol) {
+        self.authService = authService
+        self.dbService = dbService
+    }
+    
+    var bookmarked: [String] = []
     var followers: [String] = []
-    var followings: [String] = []
+    var following: [String] = []
     
     func isFollowingUser(userId: String) -> Bool {
-        return followings.contains(userId)
+        return following.contains(userId)
     }
     
     func isFollowedByUser(userId: String) -> Bool {
@@ -24,62 +36,116 @@ class UserService {
     }
     
     func getFollowingCount(userId: String) -> Int {
-        return followings.count
+        return following.count
     }
     
     func getFollowersCount(userId: String) -> Int {
         return followers.count
     }
     
-    func loadBookmarks() {
-        let uid = getCurrentUserID()
-        if uid.isEmpty {
-            return
-        }
-        else{
-            db.collection("users").document(uid).getDocument { [weak self] snapshot, error in
-                if let error = error {
-                    print("error loading bookmarks: \(error)")
-                    return
-                }
-                //snapshot fetches the raw json so this takes the raw json and converts it to a user object in Swift
-                if let user = try? snapshot?.data(as: User.self) {
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self = self else { return }
-                        //taking the bookmarks from Firestore and copying them here into our global var so our app can use it locally
-                        self.bookmarkedPostIds = user.bookmarkedPostIds
+    func loadBookmarks() async throws {
+        do {
+            let uid = try await authService.getCurrentUserID()
+            if uid.isEmpty {
+                return
+            }
+            else{
+                dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+                    if let error = error {
+                        print("error loading bookmarks: \(error)")
+                        return
+                    }
+                    //snapshot fetches the raw json so this takes the raw json and converts it to a user object in Swift
+                    if let user = try? snapshot?.data(as: User.self) {
+                        DispatchQueue.main.async { [weak self] in
+                            guard let self = self else { return }
+                            //taking the bookmarks from Firestore and copying them here into our global var so our app can use it locally
+                            self.bookmarked = user.bookmarkedPostIds
+                        }
                     }
                 }
             }
+            
+        } catch authServiceError.notAuthenticated {
+            print("AuthService failed: User is not logged in. Cannot load bookmarks.")
+        } catch {
+            print("An unexpected service error occurred: \(error)")
         }
+//        let uid = try await authService.getCurrentUserID()
+//        if authService.getCurrentUserID().isEmpty {
+//            return
+//        }
+//        else{
+//            dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+//                if let error = error {
+//                    print("error loading bookmarks: \(error)")
+//                    return
+//                }
+//                //snapshot fetches the raw json so this takes the raw json and converts it to a user object in Swift
+//                if let user = try? snapshot?.data(as: User.self) {
+//                    DispatchQueue.main.async { [weak self] in
+//                        guard let self = self else { return }
+//                        //taking the bookmarks from Firestore and copying them here into our global var so our app can use it locally
+//                        self.bookmarked = user.bookmarkedPostIds
+//                    }
+//                }
+//            }
+//        }
     }
     
     //load followers and following
-    func loadUserSocials(){
-        let uid = getCurrentUserID()
-        if uid.isEmpty {
-            return
-        }
-        else{
-            db.collection("users").document(uid).getDocument { [weak self] snapshot, error in
-                if let error = error {
-                    print("error loading user socials: \(error)")
-                    return
-                }
-                if let user = try? snapshot?.data(as: User.self){
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self = self else { return }
-                        self.followerUserIds = user.followers
-                        self.followingUserIds = user.following
+    func loadUserSocials() async throws {
+        
+        do {
+            let uid = try await authService.getCurrentUserID()
+            if uid.isEmpty {
+                return
+            }
+            else{
+                dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+                    if let error = error {
+                        print("error loading user socials: \(error)")
+                        return
+                    }
+                    if let user = try? snapshot?.data(as: User.self){
+                        DispatchQueue.main.async { [weak self] in
+                            guard let self = self else { return }
+                            self.followers = user.followers
+                            self.following = user.following
+                        }
                     }
                 }
             }
+        } catch authServiceError.notAuthenticated {
+            print("AuthService failed: User is not logged in. Cannot load bookmarks.")
+        } catch {
+            print("An unexpected service error occurred: \(error)")
         }
+        
+//        let uid = getCurrentUserID()
+//        if uid.isEmpty {
+//            return
+//        }
+//        else{
+//            dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+//                if let error = error {
+//                    print("error loading user socials: \(error)")
+//                    return
+//                }
+//                if let user = try? snapshot?.data(as: User.self){
+//                    DispatchQueue.main.async { [weak self] in
+//                        guard let self = self else { return }
+//                        self.followers = user.followers
+//                        self.following = user.following
+//                    }
+//                }
+//            }
+//        }
     }
     
     func getUsername(uid: String) async throws -> String {
         try await withCheckedContinuation { continuation in
-            db.collection("users").document(uid).getDocument { snapshot, error in
+            dbService.getDB().collection("users").document(uid).getDocument { snapshot, error in
                 if let error = error {
                     print("error getting username: \(error)")
                     return
@@ -95,24 +161,24 @@ class UserService {
         
     }
     
-    func updateBookmarkedPostIds(_ ids: [String]) {
+    func updateBookmarkedPostIds(_ ids: [String]) async throws {
         let uid = getCurrentUserID()
         if uid.isEmpty {
             return
         }
         else{
-            db.collection("users").document(uid).updateData(["bookmarkedPostIds": ids]) { [weak self] error in
+            dbService.getDB().collection("users").document(uid).updateData(["bookmarkedPostIds": ids]) { [weak self] error in
                 if let error = error {
                     print("error updating bookmarks: \(error)")
                     return
                 }
                 DispatchQueue.main.async {
-                    self?.bookmarkedPostIds = ids
+                    self?.bookmarked = ids
                 }
             }
         }
     }
-    func followUser(targetUserId: String){
+    func followUser(targetUserId: String) async throws {
         let uid = getCurrentUserID()
         if uid.isEmpty {
             return
@@ -124,22 +190,22 @@ class UserService {
                 
                 //add to curr user's following list
                 //also only add if not already following
-                if !followingUserIds.contains(targetUserId) {
-                    db.collection("users").document(uid).updateData(["following": FieldValue.arrayUnion([targetUserId])]) { [weak self] error in
+                if !following.contains(targetUserId) {
+                    dbService.getDB().collection("users").document(uid).updateData(["following": FieldValue.arrayUnion([targetUserId])]) { [weak self] error in
                         if let error = error {
                             print("error adding to following list: \(error)")
                             return
                         }
                         else{
                             DispatchQueue.main.async {
-                                self?.followingUserIds.append(targetUserId)
+                                self?.following.append(targetUserId)
                             }
                             print("user followed")
                         }
                     }
                 }
                 
-                db.collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayUnion([uid])]) { error in
+                dbService.getDB().collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayUnion([uid])]) { error in
                     if let error = error {
                         print("error adding to followers list: \(error)")
                     }
@@ -149,29 +215,29 @@ class UserService {
             
         }
     }
-    func unfollowUser(targetUserId: String){
+    func unfollowUser(targetUserId: String) async throws{
         let uid = getCurrentUserID()
         if uid.isEmpty {
             return
         }
         else{
             //remove from curr user's following list
-            if followingUserIds.contains(targetUserId) {
-                db.collection("users").document(uid).updateData(["following": FieldValue.arrayRemove([targetUserId])]) { [weak self] error in
+            if following.contains(targetUserId) {
+                dbService.getDB().collection("users").document(uid).updateData(["following": FieldValue.arrayRemove([targetUserId])]) { [weak self] error in
                     if let error = error {
                         print("error removing from following list: \(error)")
                         return
                     }
                     else{
                         DispatchQueue.main.async {
-                            self?.followingUserIds.removeAll { $0 == targetUserId }
+                            self?.following.removeAll { $0 == targetUserId }
                         }
                         print("user unfollowed")
                     }
                 }
             }
             
-            db.collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayRemove([uid])]) { error in
+            dbService.getDB().collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayRemove([uid])]) { error in
                 if let error = error {
                     print("error removing from followers list: \(error)")
                 }

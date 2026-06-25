@@ -9,7 +9,12 @@ import SwiftUI
 import FirebaseStorage
 
 protocol storageServiceProtocol {
-    
+    func getStorage() -> Storage
+    func uploadImage(uuidArray: [String], data: [Data]) async throws
+    func getImagesByUUID(uuids: [String]) async throws -> [UIImage]
+    func getImageURLs(uuids: [String]) -> [URL]
+    func getFileSize(ref: StorageReference) async throws -> Int64
+    func downloadData(ref: StorageReference, size: Int64) async throws -> Data
 }
 
 @Observable
