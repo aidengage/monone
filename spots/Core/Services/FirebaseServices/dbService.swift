@@ -7,18 +7,47 @@
 
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
+import GoogleSignIn
+import GoogleSignInSwift
 
 protocol dbServiceProtocol {
-    func getDB() -> Firestore
+    func getStore() -> Firestore
+//    func getCurrentUser() -> User?
+    func stopPostListener()
+    func stopRatingListener()
+    func stopFeedbackListener()
+    func startPostListener()
+    func startPostListenerById(postId: String)
+    func startPostActivityListener(activity: ActivityType)
+    func startUserPostListener(userId: String)
+    func startRatingListener(postId: String)
+    func startFeedbackListener(userId: String)
+    func docUpdatedAt(docRef: DocumentReference) async
+    func addUser(uid: String, email: String, username: String, pfpUrl: String, bookmarkedPostIds: [String], followers: [String], following: [String])
+    func addUserFromGoogle(user: FirebaseAuth.User, gProfile: GIDProfileData?)
+    func addUserFromApple()
 }
 
 @Observable
 class dbService: dbServiceProtocol {
     private let db = Firestore.firestore()
     
-    func getDB() -> Firestore {
+    private var posts: [Post] = [] // map handled
+    private var postListener: ListenerRegistration?
+    private var post: Post? /*= Post()*/ // broke
+    private var ratings: [Rating] = [] // post handled
+    private var ratingListener: ListenerRegistration?
+    private var feedbacks: [Feedback] = [] // user handled??
+    private var feedbackListener: ListenerRegistration?
+    
+    func getStore() -> Firestore {
         return db
     }
+    
+//    func getCurrentUser() -> User? {
+//        
+//    }
     
     func stopPostListener() {
         postListener?.remove()
@@ -69,7 +98,7 @@ class dbService: dbServiceProtocol {
         let pfpURL = user.photoURL ?? gProfile?.imageURL(withDimension: 200)
         
         if !uid.isEmpty && !email.isEmpty && !username.isEmpty {
-            Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "", bookmarkedPostIds: [], followers: [], following: [])
+            addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "", bookmarkedPostIds: [], followers: [], following: [])
         } else {
             print("uid or email or username empty")
         }
@@ -82,9 +111,9 @@ class dbService: dbServiceProtocol {
     
     // post listeners
     func startPostListenerById(postId: String) {
-        Firebase.shared.stopPostListener()
+        stopPostListener()
 
-        Firebase.shared.postListener = Firebase.shared.getStore().collection("posts").document(postId).addSnapshotListener { [weak self] (snapshot, error) in
+        postListener = db.collection("posts").document(postId).addSnapshotListener { [weak self] (snapshot, error) in
             guard let self = self else { return }
 
             if let error = error {
@@ -110,7 +139,7 @@ class dbService: dbServiceProtocol {
     func startUserPostListener(userId: String) {
         stopPostListener()
         
-        postListener = getStore().collection("posts").whereField("userId", isEqualTo: userId).addSnapshotListener { [weak self] (snapshot, error) in
+        postListener = db.collection("posts").whereField("userId", isEqualTo: userId).addSnapshotListener { [weak self] (snapshot, error) in
             guard let self = self else { return }
             
             if let error = error {
@@ -141,7 +170,7 @@ class dbService: dbServiceProtocol {
     func startPostListener() {
         stopPostListener()
         
-        postListener = getStore().collection("posts").addSnapshotListener { [weak self] (snapshot, error) in
+        postListener = db.collection("posts").addSnapshotListener { [weak self] (snapshot, error) in
             guard let self = self else { return }
             
             if let error = error {
@@ -175,7 +204,7 @@ class dbService: dbServiceProtocol {
         stopPostListener()
 //        print("activity: \(activity)")
 //        print("display activity: \(activity.displayActivity)")
-        postListener = getStore().collection("posts")
+        postListener = db.collection("posts")
             .whereField("selectedActivity", isEqualTo: activity.displayActivity)
             .addSnapshotListener { [weak self] (snapshot, error) in
             guard let self = self else { return }
@@ -206,7 +235,7 @@ class dbService: dbServiceProtocol {
     func startRatingListener(postId: String) {
         stopRatingListener()
         
-        ratingListener = getStore().collection("ratings")
+        ratingListener = db.collection("ratings")
             .whereField("postId", isEqualTo: postId)
             .addSnapshotListener { [weak self] (snapshot, error) in
             guard let self = self else { return }
@@ -235,11 +264,11 @@ class dbService: dbServiceProtocol {
     }
     
     func startFeedbackListener(userId: String) {
-        Firebase.shared.stopFeedbackListener()
+        stopFeedbackListener()
         
         if getCurrentUser() != nil {
             
-            Firebase.shared.feedbackListener = Firebase.shared.getStore().collection("feedback")
+            feedbackListener = db.collection("feedback")
                 .whereField("userId", isEqualTo: userId)
                 .addSnapshotListener { [weak self] (snapshot, error) in
                 guard let self = self else { return }

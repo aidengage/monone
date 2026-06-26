@@ -8,19 +8,29 @@
 import SwiftUI
 import Firebase
 import FirebaseFirestore
+import FirebaseAuth
+import FirebaseStorage
+import UniformTypeIdentifiers
 
 protocol FeedbackServiceProtocol {
-    
+    func submitFeedback(message: String, feedbackType: FeedbackType, screenshots: [UIImage]) async throws
+    func uploadFeedbackScreenshot(screenshot: UIImage, path: String, format: ImageFormat) async throws -> String
+//    func smartFormat(image: UIImage, path: String) async throws -> String
+    func deleteFeedbackBatch(feedbackId: String) async
+    func deleteFeedback(feedbackId: String) async
+    func deleteScreenshots(feedbackId: String) async
 }
 
 @Observable
 class FeedbackService: FeedbackServiceProtocol {
     private let authService: authServiceProtocol
     private let dbService: dbServiceProtocol
+    private let storageService: storageServiceProtocol
     
-    init(authService: authServiceProtocol, dbService: dbServiceProtocol) {
+    init(authService: authServiceProtocol, dbService: dbServiceProtocol, storageService: storageServiceProtocol) {
         self.authService = authService
         self.dbService = dbService
+        self.storageService = storageService
     }
     
     
@@ -34,8 +44,8 @@ class FeedbackService: FeedbackServiceProtocol {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
         let appBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
         
-        let userId = getCurrentUserID()
-        let userEmail = getCurrentUser()?.email
+        let userId = try await authService.getCurrentUserID()
+        let userEmail = /*try await*/ authService.getCurrentUser()?.email
         
         let feedbackId = UUID().uuidString
         
@@ -49,7 +59,7 @@ class FeedbackService: FeedbackServiceProtocol {
             }
         }
         
-        let feedbackRef = getStore().collection("feedback").document(feedbackId)
+        let feedbackRef = dbService.getStore().collection("feedback").document(feedbackId)
         
         let newFeedback = Feedback(
             id: feedbackId,
@@ -104,7 +114,7 @@ class FeedbackService: FeedbackServiceProtocol {
             return "shit broke"
         }
         
-        let storageRef = getStorage().reference().child(path + format.fileExtension)
+        let storageRef = storageService.getStorage().reference().child(path + format.fileExtension)
         let metadata = StorageMetadata()
         metadata.contentType = contentType
         
@@ -144,8 +154,8 @@ class FeedbackService: FeedbackServiceProtocol {
     func deleteFeedback(feedbackId: String) async {
         do {
 //            let feedbackRef = try await getStore().collection("feedback").document(feedbackId).getDocument()
-            let batch = getStore().batch()
-            batch.deleteDocument(getStore().collection("feedback").document(feedbackId))
+            let batch = dbService.getStore().batch()
+            batch.deleteDocument(dbService.getStore().collection("feedback").document(feedbackId))
             try await batch.commit()
             
             
@@ -156,9 +166,9 @@ class FeedbackService: FeedbackServiceProtocol {
     
     func deleteScreenshots(feedbackId: String) async {
         do {
-            let scUrls: [String] = try await getStore().collection("feedback").document(feedbackId).getDocument()["screenshotUrls"] as? [String] ?? []
+            let scUrls: [String] = try await dbService.getStore().collection("feedback").document(feedbackId).getDocument()["screenshotUrls"] as? [String] ?? []
             for url in scUrls {
-                try await storage.storage.reference(forURL: url).delete()
+                try await storageService.getStorage().reference(forURL: url).delete()
             }
         } catch {
             

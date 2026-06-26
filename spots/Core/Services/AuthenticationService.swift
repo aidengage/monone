@@ -21,6 +21,13 @@ import UIKit
 struct GoogleSignIn: View {
     @Environment(\.dismiss)private var dismiss
     
+    private let dbService: dbServiceProtocol
+    private let authService: authServiceProtocol
+    
+    init(authService: authServiceProtocol) {
+        self.authService = authService
+    }
+    
     var body: some View {
         VStack {
             GoogleSignInButton(style: .standard, action: handleSignInButton)
@@ -46,7 +53,7 @@ struct GoogleSignIn: View {
         Task {
             do {
                 // start sign in process
-                let result = try await signInWithGoogle(presenting: rootViewController)
+                let result = try await authService.signInWithGoogle(presenting: rootViewController)
                 
                 guard let idToken = result.user.idToken?.tokenString else {
                     print("missing id token from google")
@@ -59,14 +66,14 @@ struct GoogleSignIn: View {
                 let authResult = try await Auth.auth().signIn(with: credential)
                 let firebaseUser = authResult.user
                 
-                let exists = try await Firebase.shared.getStore()
+                let exists = try await dbService.getDB()
                     .collection("users")
                     .document(firebaseUser.uid)
                     .getDocument()
                     .exists
                 
                 if !exists {
-                    Firebase.shared.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
+                    dbService.addUserFromGoogle(user: firebaseUser, gProfile: result.user.profile)
                 }
                 
                 print("signed in????")

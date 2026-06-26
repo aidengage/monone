@@ -14,6 +14,10 @@ protocol authServiceProtocol {
     func getAuth() -> Auth
     func getAuthStatus() -> Bool
     func getCurrentUserID() async throws -> String
+    func getCurrentUser() -> FirebaseAuth.User?
+    func signInWithGoogle(presenting: UIViewController) async throws -> GIDSignInResult
+//    func signInWithApple()
+    func logout()
 }
 
 enum authServiceError: Error {
@@ -75,7 +79,7 @@ class authService: authServiceProtocol {
         }
     }
     
-    func signInWithApple() {
-        
-    }
+//    func signInWithApple() {
+//        
+//    }
 }

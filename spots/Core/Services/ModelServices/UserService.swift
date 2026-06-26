@@ -10,7 +10,16 @@ import Firebase
 import FirebaseFirestore
 
 protocol UserServiceProtocol {
-    
+    func isFollowingUser(userId: String) -> Bool
+    func isFollowedByUser(userId: String) -> Bool
+    func getFollowingCount(userId: String) -> Int
+    func getFollowersCount(userId: String) -> Int
+    func loadBookmarks() async throws
+    func loadUserSocials() async throws
+    func fetchUsername(userId: String) async -> String?
+    func updateBookmarkedPostIds(_ ids: [String]) async throws
+    func followUser(targetUserId: String) async throws
+    func unfollowUser(targetUserId: String) async throws
 }
 
 @Observable
@@ -50,7 +59,7 @@ class UserService: UserServiceProtocol {
                 return
             }
             else{
-                dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+                dbService.getStore().collection("users").document(uid).getDocument { [weak self] snapshot, error in
                     if let error = error {
                         print("error loading bookmarks: \(error)")
                         return
@@ -82,7 +91,7 @@ class UserService: UserServiceProtocol {
                 return
             }
             else {
-                let snapshot = try await dbService.getDB().collection("users").document(uid).getDocument()
+                let snapshot = try await dbService.getStore().collection("users").document(uid).getDocument()
                 
                 if let data = snapshot.data(),
                     let followers = data["followers"] as? [String],
@@ -114,7 +123,7 @@ class UserService: UserServiceProtocol {
     func fetchUsername(userId: String) async -> String? {
         guard !userId.isEmpty else { return nil }
         do {
-            let snapshot = try await dbService.getDB().collection("users").document(userId).getDocument()
+            let snapshot = try await dbService.getStore().collection("users").document(userId).getDocument()
 
             if let data = snapshot.data(),
                let name = data["username"] as? String {
@@ -140,7 +149,7 @@ class UserService: UserServiceProtocol {
             return
         }
         else{
-            dbService.getDB().collection("users").document(uid).updateData(["bookmarkedPostIds": ids]) { [weak self] error in
+            dbService.getStore().collection("users").document(uid).updateData(["bookmarkedPostIds": ids]) { [weak self] error in
                 if let error = error {
                     print("error updating bookmarks: \(error)")
                     return
@@ -151,6 +160,7 @@ class UserService: UserServiceProtocol {
             }
         }
     }
+    
     func followUser(targetUserId: String) async throws {
         let uid = try await authService.getCurrentUserID()
         if uid.isEmpty {
@@ -164,7 +174,7 @@ class UserService: UserServiceProtocol {
                 //add to curr user's following list
                 //also only add if not already following
                 if !following.contains(targetUserId) {
-                    dbService.getDB().collection("users").document(uid).updateData(["following": FieldValue.arrayUnion([targetUserId])]) { [weak self] error in
+                    dbService.getStore().collection("users").document(uid).updateData(["following": FieldValue.arrayUnion([targetUserId])]) { [weak self] error in
                         if let error = error {
                             print("error adding to following list: \(error)")
                             return
@@ -178,7 +188,7 @@ class UserService: UserServiceProtocol {
                     }
                 }
                 
-                dbService.getDB().collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayUnion([uid])]) { error in
+                dbService.getStore().collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayUnion([uid])]) { error in
                     if let error = error {
                         print("error adding to followers list: \(error)")
                     }
@@ -188,7 +198,8 @@ class UserService: UserServiceProtocol {
             
         }
     }
-    func unfollowUser(targetUserId: String) async throws{
+    
+    func unfollowUser(targetUserId: String) async throws {
         let uid = try await authService.getCurrentUserID()
         if uid.isEmpty {
             return
@@ -196,7 +207,7 @@ class UserService: UserServiceProtocol {
         else{
             //remove from curr user's following list
             if following.contains(targetUserId) {
-                dbService.getDB().collection("users").document(uid).updateData(["following": FieldValue.arrayRemove([targetUserId])]) { [weak self] error in
+                dbService.getStore().collection("users").document(uid).updateData(["following": FieldValue.arrayRemove([targetUserId])]) { [weak self] error in
                     if let error = error {
                         print("error removing from following list: \(error)")
                         return
@@ -210,7 +221,7 @@ class UserService: UserServiceProtocol {
                 }
             }
             
-            dbService.getDB().collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayRemove([uid])]) { error in
+            dbService.getStore().collection("users").document(targetUserId).updateData(["followers": FieldValue.arrayRemove([uid])]) { error in
                 if let error = error {
                     print("error removing from followers list: \(error)")
                 }

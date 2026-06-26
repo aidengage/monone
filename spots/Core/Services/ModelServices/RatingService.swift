@@ -10,7 +10,12 @@ import Firebase
 import FirebaseFirestore
 
 protocol RatingServiceProtocol {
-    
+    func getPostRatings(postOwner: String, postId: String, completion: @escaping ([Rating]) -> Void)
+    func getPostAverageRatings(postId: String) async throws -> Decimal
+    func ratingUpdateAvg(postId: String) async
+    func ratingUpdateComment(ratingId: String, newComment: String) async
+    func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async
+    func removeRatingFromPost(postId: String) async
 }
 
 @Observable
@@ -25,7 +30,7 @@ class RatingService: RatingServiceProtocol {
     
     func getPostRatings(postOwner: String, postId: String, completion: @escaping ([Rating]) -> Void) {
 
-        getStore().collection("ratings")
+        dbService.getStore().collection("ratings")
             .whereField("postId", isEqualTo: postId)
             .getDocuments { (querySnapshot, error) in
                 
@@ -49,7 +54,7 @@ class RatingService: RatingServiceProtocol {
     
     func getPostAverageRatings(postId: String) async throws -> Decimal {
 
-        let queryRating = try await getStore().collection("ratings")
+        let queryRating = try await dbService.getStore().collection("ratings")
             .whereField("postId", isEqualTo: postId)
             .getDocuments()
         
@@ -74,7 +79,7 @@ class RatingService: RatingServiceProtocol {
     func ratingUpdateAvg(postId: String) async {
         do {
             let avgRating = try await getPostAverageRatings(postId: postId)
-            let postRef = getStore().collection("posts").document(postId)
+            let postRef = dbService.getStore().collection("posts").document(postId)
             try await postRef.updateData(["avgRating": avgRating])
         } catch {
             print("error handling average rating: \(error)")
@@ -83,7 +88,7 @@ class RatingService: RatingServiceProtocol {
     
     func ratingUpdateComment(ratingId: String, newComment: String) async {
         do {
-            let ratingRef = getStore().collection("ratings").document(ratingId)
+            let ratingRef = dbService.getStore().collection("ratings").document(ratingId)
             try await ratingRef.updateData(["comment": newComment])
         } catch {
             print("error updating rating comment...")
@@ -94,8 +99,8 @@ class RatingService: RatingServiceProtocol {
     func addRatingToPost(postOwner: String, postId: String, userId: String, rating: Decimal, comment: String) async {
         let newRating = Rating(id: UUID().uuidString, userId: userId, postId: postId, rating: rating, comment: comment)
         do {
-            let snapshot = try await getStore().collection("ratings")
-                .whereField("userId", isEqualTo: getCurrentUserID())
+            let snapshot = try await dbService.getStore().collection("ratings")
+                .whereField("userId", isEqualTo: authService.getCurrentUserID())
                 .whereField("postId", isEqualTo: postId)
                 .getDocuments()
     
@@ -103,10 +108,10 @@ class RatingService: RatingServiceProtocol {
                 print("Document exists")
             } else {
                 print("Document does not exist, adding rating")
-                let ratingRef = getStore().collection("ratings").document(newRating.id)
+                let ratingRef = dbService.getStore().collection("ratings").document(newRating.id)
                 try ratingRef.setData(from: newRating)
                 try await ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
-                let postRef = getStore().collection("posts").document(postId)
+                let postRef = dbService.getStore().collection("posts").document(postId)
                 await ratingUpdateAvg(postId: postId)
                 
                 try await postRef.updateData(["ratingCount": FieldValue.increment(Int64(1))])
@@ -118,44 +123,21 @@ class RatingService: RatingServiceProtocol {
         
     }
     
-    func deleteRatingsOfPost(postId: String) async {
-        do {
-            let query = try await getStore().collection("ratings")
-                .whereField("postId", isEqualTo: postId)
-                .getDocuments()
-            
-            guard !query.documents.isEmpty else {
-                print("no ratings found")
-                return
-            }
-            
-            let batch = getStore().batch()
-            
-            for ratings in query.documents {
-                batch.deleteDocument(ratings.reference)
-            }
-            
-            try await batch.commit()
-            print("successfully deleted \(query.documents.count) ratings associated with post...")
-        } catch {
-            print(" deleting ratings: \(error.localizedDescription)")
-        }
-    }
     
     func removeRatingFromPost(postId: String) async {
         do {
-            let query = try await getStore().collection("ratings")
+            let query = try await dbService.getStore().collection("ratings")
                 .whereField("postId", isEqualTo: postId)
-                .whereField("userId", isEqualTo: Firebase.shared.getCurrentUserID())
+                .whereField("userId", isEqualTo: authService.getCurrentUserID())
                 .getDocuments()
             
-            let batch = getStore().batch()
+            let batch = dbService.getStore().batch()
             
             for rating in query.documents {
                 batch.deleteDocument(rating.reference)
             }
             
-            let postRef = getStore().collection("posts").document(postId)
+            let postRef = dbService.getStore().collection("posts").document(postId)
             
             batch.updateData(["ratingCount": FieldValue.increment(Int64(-1))], forDocument: postRef)
             

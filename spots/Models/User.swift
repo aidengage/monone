@@ -30,7 +30,7 @@ struct User: Codable, Identifiable {
     }
     
 //    init(user: FirebaseAuth.User?) {
-//        self.id =
+//        self.id = user.uid
 //    }
 }
 
