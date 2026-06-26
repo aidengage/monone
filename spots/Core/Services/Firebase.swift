@@ -13,47 +13,49 @@ import FirebaseFirestore
 
 @Observable
 final class Firebase {
-    static let shared = Firebase()
+//    static let shared = Firebase()
     
 //    private let store = Firestore.firestore()
 //    private let auth = Auth.auth()
 //    let storage = FireStorage()
     
-    var posts: [Post] = []
+    var posts: [Post] = [] // map handled
     var postListener: ListenerRegistration?
     var post: Post? /*= Post()*/ // broke
-    var ratings: [Rating] = []
+    var ratings: [Rating] = [] // post handled
     var ratingListener: ListenerRegistration?
-    var feedbacks: [Feedback] = []
+    var feedbacks: [Feedback] = [] // user handled??
     var feedbackListener: ListenerRegistration?
-    // Current user's bookmarked post IDs (loaded from user doc)
-    var bookmarkedPostIds: [String] = []
-    //Current user's followers and following IDs (loaded from user doc)
-    var followerUserIds: [String] = []
-    var followingUserIds: [String] = []
-    private init() {}
     
-    enum ImageFormat {
-        case jpeg(compressionQuality: CGFloat)
-        case png
-        case heic
-        
-        var fileExtension: String {
-            switch self {
-            case .jpeg: return ".jpg"
-            case .png: return ".png"
-            case .heic: return ".heic"
-            }
-        }
-        
-        var mimeType: String {
-            switch self {
-            case .jpeg: return "image/jpeg"
-            case .png: return "image/png"
-            case .heic: return "image/heic"
-            }
-        }
-    }
+    
+    // Current user's bookmarked post IDs (loaded from user doc)
+//    var bookmarkedPostIds: [String] = []
+    //Current user's followers and following IDs (loaded from user doc)
+//    var followerUserIds: [String] = []
+//    var followingUserIds: [String] = []
+//    private init() {}
+    
+//    enum ImageFormat {
+//        case jpeg(compressionQuality: CGFloat)
+//        case png
+//        case heic
+//        
+//        var fileExtension: String {
+//            switch self {
+//            case .jpeg: return ".jpg"
+//            case .png: return ".png"
+//            case .heic: return ".heic"
+//            }
+//        }
+//        
+//        var mimeType: String {
+//            switch self {
+//            case .jpeg: return "image/jpeg"
+//            case .png: return "image/png"
+//            case .heic: return "image/heic"
+//            }
+//        }
+//    }
     
 //    func getStore() -> Firestore {
 //        return store
@@ -68,14 +70,14 @@ final class Firebase {
 //    }
 //    
     // already tested
-    func docUpdatedAt(docRef: DocumentReference) async {
-        do {
-            try await docRef.updateData(["updatedAt": FieldValue.serverTimestamp()])
-        } catch {
-            print("error updating at...")
-            print(error.localizedDescription)
-        }
-    }
+//    func docUpdatedAt(docRef: DocumentReference) async {
+//        do {
+//            try await docRef.updateData(["updatedAt": FieldValue.serverTimestamp()])
+//        } catch {
+//            print("error updating at...")
+//            print(error.localizedDescription)
+//        }
+//    }
     
 //    // storage
 //    func uploadImage(uuidArray: [String], data: [Data]) async throws {

@@ -29,6 +29,28 @@ import UniformTypeIdentifiers
 //    }
 //}
 
+enum ImageFormat {
+    case jpeg(compressionQuality: CGFloat)
+    case png
+    case heic
+    
+    var fileExtension: String {
+        switch self {
+        case .jpeg: return ".jpg"
+        case .png: return ".png"
+        case .heic: return ".heic"
+        }
+    }
+    
+    var mimeType: String {
+        switch self {
+        case .jpeg: return "image/jpeg"
+        case .png: return "image/png"
+        case .heic: return "image/heic"
+        }
+    }
+}
+
 // photo selector view, maybe move this to add post view??
 struct PhotoSelector: View {
     @Binding var data: [Data]
@@ -75,9 +97,9 @@ struct PhotoSelector: View {
         }
     }
     
-    func printFormat(image: UIImage) -> Firebase.ImageFormat {
+    func printFormat(image: UIImage) -> ImageFormat {
         
-        let format: Firebase.ImageFormat
+        let format: ImageFormat
         
         if let _cgImage = image.cgImage,
             let source = CGImageSourceCreateWithData(UIImage.heicData(image)() as CFData? ?? Data() as CFData, nil),

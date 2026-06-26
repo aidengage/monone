@@ -7,6 +7,8 @@
 
 import SwiftUI
 import FirebaseAuth
+import GoogleSignIn
+import GoogleSignInSwift
 
 protocol authServiceProtocol {
     func getAuth() -> Auth
@@ -32,6 +34,16 @@ class authService: authServiceProtocol {
         return auth.currentUser != nil
     }
     
+    func getCurrentUser() -> FirebaseAuth.User? {
+        if Auth.auth().currentUser != nil {
+//            let user = User(user: Auth.auth().currentUser)
+            return Auth.auth().currentUser
+        } else {
+            print("no current user")
+            return nil
+        }
+    }
+    
     func getCurrentUserID() async throws -> String {
         let user = auth.currentUser
         guard let uid = user?.uid else {
@@ -39,5 +51,31 @@ class authService: authServiceProtocol {
         }
         
         return uid
+    }
+    
+    func logout() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+        }
+    }
+    
+    func signInWithGoogle(presenting: UIViewController) async throws -> GIDSignInResult {
+        try await withCheckedThrowingContinuation { continuation in
+            GIDSignIn.sharedInstance.signIn(withPresenting: presenting) { signInResult, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let result = signInResult {
+                    continuation.resume(returning: result)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown sign-in error"]))
+                }
+            }
+        }
+    }
+    
+    func signInWithApple() {
+        
     }
 }

@@ -77,37 +77,37 @@ struct GoogleSignIn: View {
         }
     }
     
-    func signInWithGoogle(presenting: UIViewController) async throws -> GIDSignInResult {
-        try await withCheckedThrowingContinuation { continuation in
-            GIDSignIn.sharedInstance.signIn(withPresenting: presenting) { signInResult, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else if let result = signInResult {
-                    continuation.resume(returning: result)
-                } else {
-                    continuation.resume(throwing: NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown sign-in error"]))
-                }
-            }
-        }
-    }
+//    func signInWithGoogle(presenting: UIViewController) async throws -> GIDSignInResult {
+//        try await withCheckedThrowingContinuation { continuation in
+//            GIDSignIn.sharedInstance.signIn(withPresenting: presenting) { signInResult, error in
+//                if let error = error {
+//                    continuation.resume(throwing: error)
+//                } else if let result = signInResult {
+//                    continuation.resume(returning: result)
+//                } else {
+//                    continuation.resume(throwing: NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown sign-in error"]))
+//                }
+//            }
+//        }
+//    }
 }
 
-extension Firebase {
-    func addUserFromGoogle(user: FirebaseAuth.User, gProfile: GIDProfileData?) {
-        
-        let uid = user.uid
-        let email = user.email ?? gProfile?.email ?? ""
-        let username = user.displayName ?? gProfile?.name ?? ""
-        let pfpURL = user.photoURL ?? gProfile?.imageURL(withDimension: 200)
-        
-        if !uid.isEmpty && !email.isEmpty && !username.isEmpty {
-            Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "", bookmarkedPostIds: [], followers: [], following: [])
-        } else {
-            print("uid or email or username empty")
-        }
-        
-    }
-}
+//extension Firebase {
+//    func addUserFromGoogle(user: FirebaseAuth.User, gProfile: GIDProfileData?) {
+//        
+//        let uid = user.uid
+//        let email = user.email ?? gProfile?.email ?? ""
+//        let username = user.displayName ?? gProfile?.name ?? ""
+//        let pfpURL = user.photoURL ?? gProfile?.imageURL(withDimension: 200)
+//        
+//        if !uid.isEmpty && !email.isEmpty && !username.isEmpty {
+//            Firebase.shared.addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "", bookmarkedPostIds: [], followers: [], following: [])
+//        } else {
+//            print("uid or email or username empty")
+//        }
+//        
+//    }
+//}
 
 struct AppleSignIn: View {
     

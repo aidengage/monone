@@ -71,26 +71,6 @@ class UserService: UserServiceProtocol {
         } catch {
             print("An unexpected service error occurred: \(error)")
         }
-//        let uid = try await authService.getCurrentUserID()
-//        if authService.getCurrentUserID().isEmpty {
-//            return
-//        }
-//        else{
-//            dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
-//                if let error = error {
-//                    print("error loading bookmarks: \(error)")
-//                    return
-//                }
-//                //snapshot fetches the raw json so this takes the raw json and converts it to a user object in Swift
-//                if let user = try? snapshot?.data(as: User.self) {
-//                    DispatchQueue.main.async { [weak self] in
-//                        guard let self = self else { return }
-//                        //taking the bookmarks from Firestore and copying them here into our global var so our app can use it locally
-//                        self.bookmarked = user.bookmarkedPostIds
-//                    }
-//                }
-//            }
-//        }
     }
     
     //load followers and following
@@ -101,68 +81,61 @@ class UserService: UserServiceProtocol {
             if uid.isEmpty {
                 return
             }
-            else{
-                dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
-                    if let error = error {
-                        print("error loading user socials: \(error)")
-                        return
+            else {
+                let snapshot = try await dbService.getDB().collection("users").document(uid).getDocument()
+                
+                if let data = snapshot.data(),
+                    let followers = data["followers"] as? [String],
+                    let following = data["following"] as? [String] {
+                        self.followers = followers
+                        self.following = following
                     }
-                    if let user = try? snapshot?.data(as: User.self){
-                        DispatchQueue.main.async { [weak self] in
-                            guard let self = self else { return }
-                            self.followers = user.followers
-                            self.following = user.following
-                        }
-                    }
-                }
+//                dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
+//                    if let error = error {
+//                        print("error loading user socials: \(error)")
+//                        return
+//                    }
+//                    if let user = try? snapshot?.data(as: User.self){
+//                        DispatchQueue.main.async { [weak self] in
+//                            guard let self = self else { return }
+//                            self.followers = user.followers
+//                            self.following = user.following
+//                        }
+//                    }
+//                }
             }
         } catch authServiceError.notAuthenticated {
             print("AuthService failed: User is not logged in. Cannot load bookmarks.")
         } catch {
             print("An unexpected service error occurred: \(error)")
         }
-        
-//        let uid = getCurrentUserID()
-//        if uid.isEmpty {
-//            return
-//        }
-//        else{
-//            dbService.getDB().collection("users").document(uid).getDocument { [weak self] snapshot, error in
-//                if let error = error {
-//                    print("error loading user socials: \(error)")
-//                    return
-//                }
-//                if let user = try? snapshot?.data(as: User.self){
-//                    DispatchQueue.main.async { [weak self] in
-//                        guard let self = self else { return }
-//                        self.followers = user.followers
-//                        self.following = user.following
-//                    }
-//                }
-//            }
-//        }
     }
     
-    func getUsername(uid: String) async throws -> String {
-        try await withCheckedContinuation { continuation in
-            dbService.getDB().collection("users").document(uid).getDocument { snapshot, error in
-                if let error = error {
-                    print("error getting username: \(error)")
-                    return
-                }
-                if let user = try? snapshot?.data(as: User.self){
-                    continuation.resume(returning: user.username)
-                }
-                else {
-                    continuation.resume(returning: "")
-                }
+    func fetchUsername(userId: String) async -> String? {
+        guard !userId.isEmpty else { return nil }
+        do {
+            let snapshot = try await dbService.getDB().collection("users").document(userId).getDocument()
+
+            if let data = snapshot.data(),
+               let name = data["username"] as? String {
+                let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty { return trimmed }
             }
+
+            if let user = try? snapshot.data(as: User.self) {
+                let trimmed = user.username.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty { return trimmed }
+            }
+
+            return nil
+        } catch {
+            print("fetchUsername error for \(userId): \(error)")
+            return nil
         }
-        
     }
     
     func updateBookmarkedPostIds(_ ids: [String]) async throws {
-        let uid = getCurrentUserID()
+        let uid = try await authService.getCurrentUserID()
         if uid.isEmpty {
             return
         }
@@ -179,7 +152,7 @@ class UserService: UserServiceProtocol {
         }
     }
     func followUser(targetUserId: String) async throws {
-        let uid = getCurrentUserID()
+        let uid = try await authService.getCurrentUserID()
         if uid.isEmpty {
             return
         }
@@ -216,7 +189,7 @@ class UserService: UserServiceProtocol {
         }
     }
     func unfollowUser(targetUserId: String) async throws{
-        let uid = getCurrentUserID()
+        let uid = try await authService.getCurrentUserID()
         if uid.isEmpty {
             return
         }
