@@ -10,6 +10,18 @@ import FirebaseCore
 import FirebaseAuth
 import GoogleSignIn
 
+
+final class DependencyContainer {
+    lazy var authService: authServiceProtocol = spots.authService()
+    lazy var dbService: dbServiceProtocol = spots.dbService()
+    lazy var storageService: storageServiceProtocol = spots.storageService()
+    
+    lazy var UserService: UserServiceProtocol = spots.UserService(authService: authService, dbService: dbService)
+    lazy var PostService: PostServiceProtocol = spots.PostService(authService: authService, dbService: dbService, storageService: storageService)
+    lazy var RatingService: RatingServiceProtocol = spots.RatingService(authService: authService, dbService: dbService)
+    lazy var FeedbackService: FeedbackServiceProtocol = spots.FeedbackService(authService: authService, dbService: dbService, storageService: storageService)
+}
+
 class AppDelegate: NSObject, UIApplicationDelegate {
     
     // essentially the main function of our app, configures firebase and return true
@@ -25,9 +37,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-    @State private var auth: authService = authService()
-    @State private var db: dbService = dbService()
-    @State private var storage: storageService = storageService()
+//    @State private var auth: authService = authService()
+//    @State private var db: dbService = dbService()
+//    @State private var storage: storageService = storageService()
     
     var body: some Scene {
         WindowGroup {
@@ -35,9 +47,9 @@ struct spotsApp: App {
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }
-                .environment(auth)
-                .environment(db)
-                .environment(storage)
+//                .environment(auth)
+//                .environment(db)
+//                .environment(storage)
         }
     }
 }
