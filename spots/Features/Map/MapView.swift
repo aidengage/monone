@@ -11,6 +11,12 @@ import Combine
 
 struct MapView: View {
     @StateObject private var viewModel = ViewModel()
+    
+    
+    @Environment(UserID.self) private var currentUser
+    @Environment(\.db) private var dbService
+    @Environment(\.user) private var userService
+    
     @StateObject var buttonsViewModel = ButtonsViewModel()
     
     @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
@@ -39,9 +45,9 @@ struct MapView: View {
                                 // Explore = all posts. Profile = my posts, or (when bookmark tapped) my bookmarked posts from all users.
                                 //lowkey neat because you're setting a variable based on an if condition
                                 let postsToShow: [Post] = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
-                                    Firebase.shared.posts.filter { Firebase.shared.bookmarkedPostIds.contains($0.id) }
+                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
                                 } else {
-                                    Firebase.shared.posts
+                                    dbService.getPosts()
                                 }
                                 
                                 ForEach(postsToShow.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
@@ -87,16 +93,19 @@ struct MapView: View {
                                     viewModel.observersSetUp = true
                                 }
                                 viewModel.deviceLocationService.requestLocationUpdates()
-                                Firebase.shared.loadBookmarks()
-                                //testing this out
-                                Firebase.shared.loadUserSocials()
+                                Task {
+                                    try await userService.loadBookmarks()
+                                    //testing this out
+                                    try await userService.loadUserSocials()
+                                }
+                                
                             }
                             .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
                             .onDisappear {
                                 // stops post listener
-                                Firebase.shared.stopPostListener()
+                                dbService.stopPostListener()
                                 print("map disappeared, stopping post listener")
                             }
                             // when map camera changes, update center coords with new center
@@ -123,7 +132,7 @@ struct MapView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
-                        if Firebase.shared.getCurrentUser() != nil {
+                        if currentUser.uid != nil {
                             FeedbackButton()
                             ActivityFilter(viewModel: buttonsViewModel)
                             SettingsButton()

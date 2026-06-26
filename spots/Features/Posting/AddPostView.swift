@@ -14,15 +14,19 @@ import PhotosUI
 import FirebaseStorage
 
 struct AddPostView: View {
-    
+    @Environment(\.post) private var postService
     @State private var viewModel = ViewModel()
     
     @State private var showCamera: Bool = false
-    @StateObject private var cameraManager = CameraManager()
+//    @StateObject private var cameraManager = CameraManager()
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(UserID.self) private var currentUser
     
     @FocusState private var focusedField: KeyboardField?
+    
+    
+    
     
 //    lazy var coordinateStream: AsyncStream<CLLocationCoordinate2D> = {
 //        AsyncStream { continuation in
@@ -35,6 +39,7 @@ struct AddPostView: View {
         // center x and y for post location
         viewModel.centerLat = centerLat
         viewModel.centerLong = centerLong
+        
     }
     
     var body: some View {
@@ -111,7 +116,7 @@ struct AddPostView: View {
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
                         Task {
-                            await Firebase.shared.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivity.displayActivity)
+                            try await postService.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivity.displayActivity)
                         }
                         
                         dismiss()

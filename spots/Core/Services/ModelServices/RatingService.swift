@@ -9,7 +9,7 @@ import SwiftUI
 import Firebase
 import FirebaseFirestore
 
-protocol RatingServiceProtocol {
+protocol ratingServiceProtocol {
     func getPostRatings(postOwner: String, postId: String, completion: @escaping ([Rating]) -> Void)
     func getPostAverageRatings(postId: String) async throws -> Decimal
     func ratingUpdateAvg(postId: String) async
@@ -19,7 +19,7 @@ protocol RatingServiceProtocol {
 }
 
 @Observable
-class RatingService: RatingServiceProtocol {
+class RatingService: ratingServiceProtocol {
     private let authService: authServiceProtocol
     private let dbService: dbServiceProtocol
     

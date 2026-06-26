@@ -9,21 +9,27 @@ import SwiftUI
 import Firebase
 import FirebaseFirestore
 
-protocol UserServiceProtocol {
+protocol userServiceProtocol {
     func isFollowingUser(userId: String) -> Bool
     func isFollowedByUser(userId: String) -> Bool
+    
     func getFollowingCount(userId: String) -> Int
     func getFollowersCount(userId: String) -> Int
+    func getBookmarkCount(userId: String) -> Int
+    func getBookmarks() -> [String]
+    func getFollowers() -> [String]
+    func getFollowing() -> [String]
+    
     func loadBookmarks() async throws
+    func updateBookmarkedPostIds(_ ids: [String]) async throws
     func loadUserSocials() async throws
     func fetchUsername(userId: String) async -> String?
-    func updateBookmarkedPostIds(_ ids: [String]) async throws
     func followUser(targetUserId: String) async throws
     func unfollowUser(targetUserId: String) async throws
 }
 
 @Observable
-class UserService: UserServiceProtocol {
+class UserService: userServiceProtocol {
     private let authService: authServiceProtocol
     private let dbService: dbServiceProtocol
     
@@ -50,6 +56,22 @@ class UserService: UserServiceProtocol {
     
     func getFollowersCount(userId: String) -> Int {
         return followers.count
+    }
+    
+    func getBookmarkCount(userId: String) -> Int {
+        return bookmarked.count
+    }
+    
+    func getBookmarks() -> [String] {
+        return bookmarked
+    }
+    
+    func getFollowers() -> [String] {
+        return followers
+    }
+    
+    func getFollowing() -> [String] {
+        return following
     }
     
     func loadBookmarks() async throws {

@@ -12,6 +12,15 @@ struct PostDetailView: View {
     let post: Post
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(UserID.self) private var currentUser
+    
+    @Environment(\.db) private var dbService
+    @Environment(\.auth) private var authService
+    @Environment(\.storage) private var storageService
+    @Environment(\.post) private var postService
+    @Environment(\.rating) private var ratingService
+    @Environment(\.user) private var userService
+    
     
     @State private var displayView: DisplayPost = .main
     @State private var bookmarkedPostIds: [String] = [] 
@@ -49,8 +58,13 @@ struct PostDetailView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             //if it is not your own post, show follow button 
-                            if post.userId != Firebase.shared.getCurrentUserID() {
-                                Button(action: { followToggleTapped(targetUserId: post.userId) }) {
+                            if post.userId != currentUser.uid {
+                                Button(action: {
+                                    Task {
+                                        try await followToggleTapped(targetUserId: post.userId)
+                                    }
+                                    
+                                }) {
                                     Label(
                                         followingUserIds.contains(post.userId) ? "Following" : "Follow",
                                         systemImage: followingUserIds.contains(post.userId) ? "person.fill.checkmark" : "person.badge.plus"
@@ -64,10 +78,10 @@ struct PostDetailView: View {
                         }
                         .padding(.horizontal, 10)
                         
-                        if post.userId == Firebase.shared.getCurrentUserID() {
+                        if post.userId == currentUser.uid {
                             Button(action: {
                                 Task {
-                                    await Firebase.shared.deletePostBatch(postId: post.id)
+                                    await postService.deletePostBatch(postId: post.id)
                                 }
                                 dismiss()
                             }) {
@@ -77,9 +91,13 @@ struct PostDetailView: View {
                         }
                         
                         HStack(spacing: 16) {
-                            StarRatingViewStatic(rating: Firebase.shared.post?.avgRating ?? 0.0, numStars: 5)
+                            StarRatingViewStatic(rating: dbService.getPost()?.avgRating ?? 0.0, numStars: 5)
                             Spacer()
-                            Button(action: { bookmarkButtonTapped(post: post) }) {
+                            Button(action: {
+                                Task {
+                                    try await bookmarkButtonTapped(post: post)
+                                }
+                            }) {
                                 Label(
                                     bookmarkedPostIds.contains(post.id) ? "Bookmarked" : "Bookmark",
                                     systemImage: bookmarkedPostIds.contains(post.id) ? "bookmark.fill" : "bookmark"
@@ -114,8 +132,8 @@ struct PostDetailView: View {
                         )
                         
                         if !post.selectedActivity.isEmpty{
-                            if post.userId == Firebase.shared.getCurrentUserID() {
-                                EditActivityCard(post: post)
+                            if post.userId == currentUser.uid {
+                                EditActivityCard(post: post, PostService: postService)
                             } else {
                                 InfoCard(
                                     icon: "leaf",
@@ -132,7 +150,7 @@ struct PostDetailView: View {
                         
                         if !post.id.isEmpty {
                             Text("comments go here")
-                            RatingCards(ratings: Firebase.shared.ratings)
+                            RatingCards(ratings: dbService.getRatings(), RatingService: ratingService)
                         }
                     }
                 } else {
@@ -147,17 +165,17 @@ struct PostDetailView: View {
 //                    }
         .onAppear {
             // also start single post listener?
-            Firebase.shared.startPostListenerById(postId: post.id)
-            Firebase.shared.startRatingListener(postId: post.id)
+            dbService.startPostListenerById(postId: post.id)
+            dbService.startRatingListener(postId: post.id)
             addTapGestureToDismissKeyboard()
-            bookmarkedPostIds = Firebase.shared.bookmarkedPostIds
-            followingUserIds = Firebase.shared.followingUserIds
+            bookmarkedPostIds = userService.getBookmarks()
+            followingUserIds = userService.getFollowing()
         }
         .task(id: post.userId) {
-            owner = await Firebase.shared.fetchUsername(userId: post.userId) ?? "Unknown user"
+            owner = await userService.fetchUsername(userId: post.userId) ?? "Unknown user"
         }
         .onDisappear {
-            Firebase.shared.stopRatingListener()
+            dbService.stopRatingListener()
         }
         .scrollDismissesKeyboard(.interactively)
         
@@ -174,22 +192,22 @@ struct PostDetailView: View {
         window.addGestureRecognizer(tapGesture)
     }
     
-    private func bookmarkButtonTapped(post: Post) { // re route this to user service maybe?
+    private func bookmarkButtonTapped(post: Post) async throws { // re route this to user service maybe?
         if bookmarkedPostIds.contains(post.id) {
             bookmarkedPostIds.removeAll { $0 == post.id }
         } else {
             bookmarkedPostIds.append(post.id)
         }
-        Firebase.shared.updateBookmarkedPostIds(bookmarkedPostIds)
+        try await userService.updateBookmarkedPostIds(bookmarkedPostIds)
     }
 
-    private func followToggleTapped(targetUserId: String) { // this too i guess
+    private func followToggleTapped(targetUserId: String) async throws { // this too i guess
         if followingUserIds.contains(targetUserId) {
             followingUserIds.removeAll { $0 == targetUserId }
-            Firebase.shared.unfollowUser(targetUserId: targetUserId)
+            try await userService.unfollowUser(targetUserId: targetUserId)
         } else {
             followingUserIds.append(targetUserId)
-            Firebase.shared.followUser(targetUserId: targetUserId)
+            try await userService.followUser(targetUserId: targetUserId)
         }
     }
 }
@@ -281,9 +299,12 @@ struct EditActivityCard: View {
     @State private var activity: ActivityType
     private var postId: String
     
-    init(post: Post) {
+    private let PostService: postServiceProtocol
+    
+    init(post: Post, PostService: postServiceProtocol) {
         self.postId = post.id
         self._activity = State(initialValue: ActivityType.from(post.selectedActivity))
+        self.PostService = PostService
     }
     
     var body: some View {
@@ -307,7 +328,7 @@ struct EditActivityCard: View {
         .padding(.horizontal, 20)
         .onDisappear {
             Task {
-                await Firebase.shared.postUpdateActivity(postId: postId, newActivity: activity)
+                await PostService.postUpdateActivity(postId: postId, newActivity: activity)
             }
         }
     }
@@ -387,12 +408,14 @@ struct PhotoCard: View {
 struct RatingCards: View {
     var ratings: [Rating]
     
+    let RatingService: ratingServiceProtocol
+    
     var body: some View {
         ScrollView(.vertical) {
             VStack {
                 Text("user ratings go here...")
                 ForEach(ratings) { rating in
-                    CommentCard(rating: rating)
+                    CommentCard(RatingService: RatingService, rating: rating)
                 }
             }
         }
@@ -400,15 +423,18 @@ struct RatingCards: View {
 }
 
 struct CommentCard: View {
+    @Environment(UserID.self) private var currentUser
+    let RatingService: ratingServiceProtocol
+    
     var rating: Rating
     
     var body: some View {
         VStack {
             Text(rating.userId)
-            if rating.userId == Firebase.shared.getCurrentUserID() {
+            if rating.userId == currentUser.uid {
                 Button(action: {
                     Task {
-                        await Firebase.shared.removeRatingFromPost(postId: rating.postId)
+                        await RatingService.removeRatingFromPost(postId: rating.postId)
                     }
                 }) {
                     Label("delete rating", systemImage: "trash")

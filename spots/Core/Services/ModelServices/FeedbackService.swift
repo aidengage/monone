@@ -10,11 +10,10 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 import FirebaseStorage
-import UniformTypeIdentifiers
 
-protocol FeedbackServiceProtocol {
+protocol feedbackServiceProtocol {
     func submitFeedback(message: String, feedbackType: FeedbackType, screenshots: [UIImage]) async throws
-    func uploadFeedbackScreenshot(screenshot: UIImage, path: String, format: ImageFormat) async throws -> String
+//    func uploadFeedbackScreenshot(screenshot: UIImage, path: String, format: ImageFormat) async throws -> String
 //    func smartFormat(image: UIImage, path: String) async throws -> String
     func deleteFeedbackBatch(feedbackId: String) async
     func deleteFeedback(feedbackId: String) async
@@ -22,15 +21,18 @@ protocol FeedbackServiceProtocol {
 }
 
 @Observable
-class FeedbackService: FeedbackServiceProtocol {
+class FeedbackService: feedbackServiceProtocol {
     private let authService: authServiceProtocol
     private let dbService: dbServiceProtocol
     private let storageService: storageServiceProtocol
     
-    init(authService: authServiceProtocol, dbService: dbServiceProtocol, storageService: storageServiceProtocol) {
+    private let imageService: imageServiceProtocol
+    
+    init(authService: authServiceProtocol, dbService: dbServiceProtocol, storageService: storageServiceProtocol, imageService: imageServiceProtocol) {
         self.authService = authService
         self.dbService = dbService
         self.storageService = storageService
+        self.imageService = imageService
     }
     
     
@@ -54,7 +56,7 @@ class FeedbackService: FeedbackServiceProtocol {
             for (index, screenshot) in screenshots.enumerated() {
                 let path = "feedback/\(feedbackId)/screenshot_\(index)"
 //                let url = try await uploadFeedbackScreenshot(screenshot: screenshot, path: path, format: .png)
-                let url = try await smartFormat(image: screenshot, path: path)
+                let url = try await imageService.smartFormat(image: screenshot, path: path)
                 screenshotUrls.append(url)
             }
         }
@@ -86,66 +88,7 @@ class FeedbackService: FeedbackServiceProtocol {
         }
     }
     
-    func uploadFeedbackScreenshot(screenshot: UIImage, path: String, format: ImageFormat) async throws -> String {
-        let imageData: Data?
-        let contentType: String
         
-        switch format {
-        case .png:
-            imageData = screenshot.pngData()
-            contentType = "image/png"
-            
-        case .jpeg(let quality):
-            imageData = screenshot.jpegData(compressionQuality: quality)
-            contentType = "image/jpeg"
-            
-        case .heic:
-            if #available(iOS 17.0, *){
-                imageData = screenshot.heicData()
-                contentType = "image/heic"
-            } else {
-                imageData = screenshot.jpegData(compressionQuality: 0.7)
-                contentType = "image/jpeg"
-            }
-        }
-        
-        guard let imageData = imageData else {
-            print("image failed to compress")
-            return "shit broke"
-        }
-        
-        let storageRef = storageService.getStorage().reference().child(path + format.fileExtension)
-        let metadata = StorageMetadata()
-        metadata.contentType = contentType
-        
-        _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
-        let downloadUrl = try await storageRef.downloadURL()
-        print("download url: \(downloadUrl.absoluteString)")
-        
-        return downloadUrl.absoluteString
-    }
-    
-    func smartFormat(image: UIImage, path: String) async throws -> String {
-        let format: ImageFormat
-        if let _cgImage = image.cgImage,
-            let source = CGImageSourceCreateWithData(UIImage.heicData(image)() as CFData? ?? Data() as CFData, nil),
-            let uti = CGImageSourceGetType(source) as? String {
-            let type = UTType(uti)
-            if type?.conforms(to: .heif) == true || type?.conforms(to: .heic) == true {
-                format = .heic
-            } else if type?.conforms(to: .png) == true {
-                format = .png
-            } else {
-                format = .jpeg(compressionQuality: 0.7)
-            }
-        } else {
-            format = .jpeg(compressionQuality: 0.7)
-        }
-        print("smart format is: \(format)")
-        
-        return try await uploadFeedbackScreenshot(screenshot: image, path: path, format: format)
-    }
-    
     func deleteFeedbackBatch(feedbackId: String) async {
         await deleteFeedback(feedbackId: feedbackId)
         await deleteScreenshots(feedbackId: feedbackId)

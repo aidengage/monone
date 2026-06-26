@@ -20,13 +20,8 @@ import UIKit
 
 struct GoogleSignIn: View {
     @Environment(\.dismiss)private var dismiss
-    
-    private let dbService: dbServiceProtocol
-    private let authService: authServiceProtocol
-    
-    init(authService: authServiceProtocol) {
-        self.authService = authService
-    }
+    @Environment(\.db) private var dbService
+    @Environment(\.auth) private var authService
     
     var body: some View {
         VStack {
@@ -66,7 +61,7 @@ struct GoogleSignIn: View {
                 let authResult = try await Auth.auth().signIn(with: credential)
                 let firebaseUser = authResult.user
                 
-                let exists = try await dbService.getDB()
+                let exists = try await dbService.getStore()
                     .collection("users")
                     .document(firebaseUser.uid)
                     .getDocument()

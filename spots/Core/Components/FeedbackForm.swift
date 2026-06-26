@@ -10,6 +10,9 @@ import PhotosUI
 
 struct FeedbackForm: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(UserID.self) private var currentUser
+    @Environment(\.feedback) private var feedbackService
+    @Environment(\.db) private var dbService
     
 //    @Binding var path: NavigationPath
     @State var isFeedbackSheet: Bool = false
@@ -132,15 +135,15 @@ struct FeedbackForm: View {
         }
         
         .onAppear {
-            if Firebase.shared.getCurrentUser() != nil {
+            if currentUser.uid != nil {
                 // start feedback listener
-                Firebase.shared.startFeedbackListener(userId: Firebase.shared.getCurrentUserID())
+                dbService.startFeedbackListener(userId: currentUser.uid ?? "")
             } else {
                 // dont
             }
         }
         .onDisappear {
-            Firebase.shared.stopFeedbackListener()
+            dbService.stopFeedbackListener()
         }
     }
     
@@ -160,7 +163,7 @@ struct FeedbackForm: View {
         
         Task {
             do {
-                _ = try await Firebase.shared.submitFeedback(
+                _ = try await feedbackService.submitFeedback(
                     message: message,
                     feedbackType: feedbackType,
                     screenshots: selectedImages

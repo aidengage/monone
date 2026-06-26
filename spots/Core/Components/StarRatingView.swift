@@ -8,6 +8,9 @@
 import SwiftUI
 
 public struct RateSpotView: View {
+    @Environment(UserID.self) private var currentUser
+    @Environment(\.rating) private var ratingService
+    
     let post: Post
     @State var rating: Decimal = 0
     @State var comment: String = ""
@@ -18,8 +21,8 @@ public struct RateSpotView: View {
                 StarRatingViewDynamic(rating: $rating, numStars: 5)
                 Button(action: {
                     Task {
-                        if Firebase.shared.getCurrentUserID() != "" {
-                            await Firebase.shared.addRatingToPost(postOwner: post.userId, postId: post.id, userId: Firebase.shared.getCurrentUserID(), rating: rating, comment: comment)
+                        if currentUser.uid != "" {
+                            await ratingService.addRatingToPost(postOwner: post.userId, postId: post.id, userId: currentUser.uid ?? "", rating: rating, comment: comment)
                         } else {
                             print("please login")
                         }

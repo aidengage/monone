@@ -17,6 +17,10 @@ import FirebaseAuth
         @State private var showLogin = false
         
         @Binding var path: NavigationPath
+        
+//        @Environment(UserID.self) private var currentUser
+        @Environment(\.auth) private var authService
+        @Environment(\.post) private var postService
     //    This lets Add​Button use the same navigation stack as its parent (your Map​View). When it appends to path, it navigates to another screen within the same stack.
 
         
@@ -28,7 +32,7 @@ import FirebaseAuth
                 
                 
                 Button(action: {
-                    let currentUser = Firebase.shared.getCurrentUser()
+                    let currentUser = authService.getCurrentUser()
                     print("Current user: \(currentUser?.email ?? "nil")")
                     print("User ID: \(currentUser?.uid ?? "nil")")
                     
@@ -61,6 +65,8 @@ import FirebaseAuth
     
     struct ProfileButton: View {
         @ObservedObject var viewModel: ButtonsViewModel
+        @Environment(UserID.self) private var currentUser
+        @Environment(\.db) private var dbService
         
         var body: some View {
             Button(action: {
@@ -74,9 +80,9 @@ import FirebaseAuth
                 }
 
                 if viewModel.profileToggle {
-                    Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                    dbService.startUserPostListener(userId: currentUser.uid ?? "")
                 } else {
-                    Firebase.shared.startPostListener()
+                    dbService.startPostListener()
                 }
             }) {
                 Image(systemName: "person.crop.circle")
@@ -131,10 +137,11 @@ import FirebaseAuth
     }
     
     struct LogoutButton: View {
+        @Environment(\.auth) private var authService
         
         var body: some View {
             Button(action: {
-                Firebase.shared.logout()
+                authService.logout()
             }) {
                 Image(systemName: "arrow.right.square")
                     .font(.title)
@@ -217,6 +224,9 @@ import FirebaseAuth
 
     
     class ButtonsViewModel: ObservableObject {
+        @Environment(UserID.self) private var currentUser
+        @Environment(\.db) private var dbService
+        
         @Published var showAll: Bool = true
         
         @Published var profileToggle: Bool = false
@@ -231,11 +241,11 @@ import FirebaseAuth
         
         func startPostListenerForMode() {
             if !profileToggle {
-                Firebase.shared.startPostListener()
+                dbService.startPostListener()
             } else if showOnlyBookmarked {
-                Firebase.shared.startPostListener()
+                dbService.startPostListener()
             } else {
-                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                dbService.startUserPostListener(userId: currentUser.uid ?? "")
             }
         }
 
@@ -248,7 +258,7 @@ import FirebaseAuth
                 showTrain = false
                 showUnknown = false
                 if showSmoke {
-                    Firebase.shared.startPostActivityListener(activity: .smoke)
+                    dbService.startPostActivityListener(activity: .smoke)
                 } else {
                     startPostListenerForMode()
                 }
@@ -259,7 +269,7 @@ import FirebaseAuth
                 showTrain = false
                 showUnknown = false
                 if showDate {
-                    Firebase.shared.startPostActivityListener(activity: .date)
+                    dbService.startPostActivityListener(activity: .date)
                 } else {
                     startPostListenerForMode()
                 }
@@ -270,7 +280,7 @@ import FirebaseAuth
                 showTrain = false
                 showUnknown = false
                 if showPhoto {
-                    Firebase.shared.startPostActivityListener(activity: .photography)
+                    dbService.startPostActivityListener(activity: .photography)
                 } else {
                     startPostListenerForMode()
                 }
@@ -281,7 +291,7 @@ import FirebaseAuth
                 showTrain.toggle()
                 showUnknown = false
                 if showTrain {
-                    Firebase.shared.startPostActivityListener(activity: .trainStation)
+                    dbService.startPostActivityListener(activity: .trainStation)
                 } else {
                     startPostListenerForMode()
                 }
@@ -292,7 +302,7 @@ import FirebaseAuth
                 showTrain = false
                 showUnknown.toggle()
                 if showUnknown {
-                    Firebase.shared.startPostActivityListener(activity: .unknown)
+                    dbService.startPostActivityListener(activity: .unknown)
                 } else {
                     startPostListenerForMode()
                 }

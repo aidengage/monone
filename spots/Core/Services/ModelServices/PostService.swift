@@ -10,7 +10,7 @@ import Firebase
 import FirebaseFirestore
 import FirebaseStorage
 
-protocol PostServiceProtocol {
+protocol postServiceProtocol {
     func addPost(images: [UIImage], imagesUUIDs: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async throws
     func postUpdateActivity(postId: String, newActivity: ActivityType) async
     func postUpdateName(postId: String, newName: String) async
@@ -23,15 +23,18 @@ protocol PostServiceProtocol {
 }
 
 @Observable
-class PostService: PostServiceProtocol {
+class PostService: postServiceProtocol {
     private let authService: authServiceProtocol
     private let dbService: dbServiceProtocol
     private let storageService: storageServiceProtocol
     
-    init(authService: authServiceProtocol, dbService: dbServiceProtocol, storageService: storageServiceProtocol) {
+    private let imageService: imageServiceProtocol
+    
+    init(authService: authServiceProtocol, dbService: dbServiceProtocol, storageService: storageServiceProtocol, imageService: imageServiceProtocol) {
         self.authService = authService
         self.dbService = dbService
         self.storageService = storageService
+        self.imageService = imageService
     }
     
     func addPost(images: [UIImage], imagesUUIDs: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async throws {
@@ -72,8 +75,8 @@ class PostService: PostServiceProtocol {
             }
             
             for (index, image) in images.enumerated() {
-                let path = "posts/\(authService.getCurrentUserID())/\(postId)/user_photo_\(index)"
-                let url = try await smartFormat(image: image, path: path)
+                let path = try await "posts/\(authService.getCurrentUserID())/\(postId)/user_photo_\(index)"
+                let url = try await imageService.smartFormat(image: image, path: path)
                 imageURLs.append(url)
             }
             

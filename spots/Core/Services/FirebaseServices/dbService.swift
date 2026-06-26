@@ -13,20 +13,32 @@ import GoogleSignInSwift
 
 protocol dbServiceProtocol {
     func getStore() -> Firestore
+    func getPost() -> Post?
+    func getPosts() -> [Post]
+    func getRatings() -> [Rating]
+    func getFeedbacks() -> [Feedback]
+    
 //    func getCurrentUser() -> User?
     func stopPostListener()
     func stopRatingListener()
     func stopFeedbackListener()
+    
     func startPostListener()
     func startPostListenerById(postId: String)
     func startPostActivityListener(activity: ActivityType)
     func startUserPostListener(userId: String)
     func startRatingListener(postId: String)
     func startFeedbackListener(userId: String)
+    
     func docUpdatedAt(docRef: DocumentReference) async
-    func addUser(uid: String, email: String, username: String, pfpUrl: String, bookmarkedPostIds: [String], followers: [String], following: [String])
+    
+    func addUser(uid: String, email: String, username: String, pfpUrl: String)
     func addUserFromGoogle(user: FirebaseAuth.User, gProfile: GIDProfileData?)
     func addUserFromApple()
+}
+
+private struct dbServiceKey: EnvironmentKey {
+    static let defaultValue: dbServiceProtocol = dbService()
 }
 
 @Observable
@@ -43,6 +55,22 @@ class dbService: dbServiceProtocol {
     
     func getStore() -> Firestore {
         return db
+    }
+    
+    func getPost() -> Post? {
+        return post
+    }
+    
+    func getPosts() -> [Post] {
+        return posts
+    }
+    
+    func getRatings() -> [Rating] {
+        return ratings
+    }
+    
+    func getFeedbacks() -> [Feedback] {
+        return feedbacks
     }
     
 //    func getCurrentUser() -> User? {
@@ -73,8 +101,8 @@ class dbService: dbServiceProtocol {
         }
     }
     
-    func addUser(uid: String, email: String, username: String, pfpUrl: String, bookmarkedPostIds: [String] = [], followers: [String] = [], following: [String] = []) {
-        let newUser = User(id: uid, email: email, username: username, pfpUrl: pfpUrl, bookmarkedPostIds: bookmarkedPostIds, followers: followers, following: following)
+    func addUser(uid: String, email: String, username: String, pfpUrl: String) {
+        let newUser = User(id: uid, email: email, username: username, pfpUrl: pfpUrl, bookmarkedPostIds: [], followers: [], following: [])
         do {
             let userRef = db.collection("users").document(uid)
             try userRef.setData(from: newUser) { error in
@@ -98,7 +126,7 @@ class dbService: dbServiceProtocol {
         let pfpURL = user.photoURL ?? gProfile?.imageURL(withDimension: 200)
         
         if !uid.isEmpty && !email.isEmpty && !username.isEmpty {
-            addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "", bookmarkedPostIds: [], followers: [], following: [])
+            addUser(uid: uid, email: email, username: username, pfpUrl: pfpURL?.absoluteString ?? "")
         } else {
             print("uid or email or username empty")
         }
@@ -266,43 +294,31 @@ class dbService: dbServiceProtocol {
     func startFeedbackListener(userId: String) {
         stopFeedbackListener()
         
-        if getCurrentUser() != nil {
+        feedbackListener = db.collection("feedback")
+            .whereField("userId", isEqualTo: userId)
+            .addSnapshotListener { [weak self] (snapshot, error) in
+            guard let self = self else { return }
             
-            feedbackListener = db.collection("feedback")
-                .whereField("userId", isEqualTo: userId)
-                .addSnapshotListener { [weak self] (snapshot, error) in
-                guard let self = self else { return }
-                
-                if let error = error {
-                    print("Error getting feedback: \(error.localizedDescription)")
-                    return
-                }
-                
-                guard let documents = snapshot?.documents else {
-                    print("No feedbacks found")
-                    self.feedbacks = []
-                    return
-                }
-                
-                self.feedbacks = documents.compactMap { document in
-                    do {
-                        let feedback = try document.data(as: Feedback.self)
-                        return feedback
-                    } catch {
-                        print("Error decoding feedback \(document.documentID): \(error)")
-                        return nil
-                    }
-                }
+            if let error = error {
+                print("Error getting feedback: \(error.localizedDescription)")
+                return
             }
             
-            //        print("starting user feedback listener")
-        } else {
-            print("           need to sign in")
+            guard let documents = snapshot?.documents else {
+                print("No feedbacks found")
+                self.feedbacks = []
+                return
+            }
+            
+            self.feedbacks = documents.compactMap { document in
+                do {
+                    let feedback = try document.data(as: Feedback.self)
+                    return feedback
+                } catch {
+                    print("Error decoding feedback \(document.documentID): \(error)")
+                    return nil
+                }
+            }
         }
-
     }
-
-    
-    
-    
 }
