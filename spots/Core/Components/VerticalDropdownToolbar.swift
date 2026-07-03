@@ -9,7 +9,8 @@ import SwiftUI
 
 struct VerticalDropdownToolbar: View {
     @State var dropdownToggle: Bool = false
-    @ObservedObject var viewModel: ButtonsViewModel
+//    @ObservedObject var viewModel: ButtonsViewModel
+    @Environment(\.buttonsViewModel) private var viewModel
     @Binding var path: NavigationPath
     
     var body: some View {

@@ -10,7 +10,7 @@ import PhotosUI
 
 struct FeedbackForm: View {
     @Environment(\.dismiss) var dismiss
-    @Environment(UserID.self) private var currentUser
+    @Environment(\.currentUser) private var currentUser
     @Environment(\.feedback) private var feedbackService
     @Environment(\.db) private var dbService
     

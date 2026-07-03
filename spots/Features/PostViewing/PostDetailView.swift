@@ -12,7 +12,7 @@ struct PostDetailView: View {
     let post: Post
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(UserID.self) private var currentUser
+    @Environment(\.currentUser) private var currentUser
     
     @Environment(\.db) private var dbService
     @Environment(\.auth) private var authService
@@ -423,7 +423,7 @@ struct RatingCards: View {
 }
 
 struct CommentCard: View {
-    @Environment(UserID.self) private var currentUser
+    @Environment(\.currentUser) private var currentUser
     let RatingService: ratingServiceProtocol
     
     var rating: Rating

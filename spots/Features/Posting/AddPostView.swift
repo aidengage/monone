@@ -21,7 +21,7 @@ struct AddPostView: View {
 //    @StateObject private var cameraManager = CameraManager()
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(UserID.self) private var currentUser
+    @Environment(\.currentUser) private var currentUser
     
     @FocusState private var focusedField: KeyboardField?
     

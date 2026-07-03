@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import FirebaseAuth
+import Observation
 
 
 
@@ -18,7 +19,6 @@ import FirebaseAuth
         
         @Binding var path: NavigationPath
         
-//        @Environment(UserID.self) private var currentUser
         @Environment(\.auth) private var authService
         @Environment(\.post) private var postService
     //    This lets Add​Button use the same navigation stack as its parent (your Map​View). When it appends to path, it navigates to another screen within the same stack.
@@ -64,8 +64,8 @@ import FirebaseAuth
     }
     
     struct ProfileButton: View {
-        @ObservedObject var viewModel: ButtonsViewModel
-        @Environment(UserID.self) private var currentUser
+        @State var viewModel: ButtonsViewModel
+        @Environment(\.currentUser) private var currentUser
         @Environment(\.db) private var dbService
         
         var body: some View {
@@ -80,7 +80,7 @@ import FirebaseAuth
                 }
 
                 if viewModel.profileToggle {
-                    dbService.startUserPostListener(userId: currentUser.uid ?? "")
+                    dbService.startUserPostListener(userId: currentUser.getId() ?? "")
                 } else {
                     dbService.startPostListener()
                 }
@@ -95,7 +95,7 @@ import FirebaseAuth
     }
     
     struct BookmarkButton: View {
-        @ObservedObject var viewModel: ButtonsViewModel
+        @State var viewModel: ButtonsViewModel
         
         var body: some View {
             
@@ -115,7 +115,10 @@ import FirebaseAuth
     }
     
     struct AccountButton: View {
-        @ObservedObject var viewModel: ButtonsViewModel
+//        var viewModel: ButtonsViewModel
+//        @Environment(\.buttonsViewModel) private var viewModel
+        @Bindable var viewModel: ButtonsViewModel
+//        @Environment(\.user) private var userService
         @Binding var path: NavigationPath
         
         var body: some View {
@@ -193,7 +196,7 @@ import FirebaseAuth
     }
     
     struct ActivityFilter: View {
-        @ObservedObject var viewModel: ButtonsViewModel
+        var viewModel: ButtonsViewModel
         var body: some View {
             Menu {
                 filterRow("Smoke", chosen: .smoke, isOn: viewModel.showSmoke)
@@ -222,22 +225,36 @@ import FirebaseAuth
 
 
 
-    
-    class ButtonsViewModel: ObservableObject {
-        @Environment(UserID.self) private var currentUser
-        @Environment(\.db) private var dbService
+    @Observable
+    class ButtonsViewModel {
         
-        @Published var showAll: Bool = true
+//        @Environment(\.currentUser) private var currentUser
+//        @Environment(\.db) private var dbService
         
-        @Published var profileToggle: Bool = false
-        @Published var showOnlyBookmarked: Bool = false
-        @Published var showFollowinger: Bool = false
+        private var dbService: dbServiceProtocol
+        private var currentUser: uidProtocol
         
-        @Published var showSmoke: Bool = false
-        @Published var showDate: Bool = false
-        @Published var showPhoto: Bool = false
-        @Published var showTrain: Bool = false
-        @Published var showUnknown: Bool = false
+        var showAll: Bool = true
+        
+        var profileToggle: Bool = false
+        var showOnlyBookmarked: Bool = false
+        var showFollowinger: Bool = false
+        
+        var showSmoke: Bool = false
+        var showDate: Bool = false
+        var showPhoto: Bool = false
+        var showTrain: Bool = false
+        var showUnknown: Bool = false
+        
+        init(currentUser: uidProtocol, dbService: dbServiceProtocol) {
+            self.currentUser = currentUser
+            self.dbService = dbService
+        }
+        
+        func bind(currentUser: uidProtocol, dbService: dbServiceProtocol) {
+            self.currentUser = currentUser
+            self.dbService = dbService
+        }
         
         func startPostListenerForMode() {
             if !profileToggle {
@@ -245,7 +262,7 @@ import FirebaseAuth
             } else if showOnlyBookmarked {
                 dbService.startPostListener()
             } else {
-                dbService.startUserPostListener(userId: currentUser.uid ?? "")
+                dbService.startUserPostListener(userId: currentUser.getId() ?? "")
             }
         }
 

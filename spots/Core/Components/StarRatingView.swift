@@ -8,7 +8,7 @@
 import SwiftUI
 
 public struct RateSpotView: View {
-    @Environment(UserID.self) private var currentUser
+    @Environment(\.currentUser) private var currentUser
     @Environment(\.rating) private var ratingService
     
     let post: Post

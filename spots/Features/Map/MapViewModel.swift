@@ -15,16 +15,18 @@ import FirebaseFirestore
 
 extension MapView {
 // observable makes sure VieModel's stored properties can automatically publish changes so SwiftUI views can react
-    class ViewModel: ObservableObject {
+    @Observable
+    class ViewModel {
         var hasValidLocation = false
         var hasCenteredOnUser = false
         //*what is this?
         var observersSetUp = false
 
-        @Published var selectedPost: Post?
+        /*@Published */var selectedPost: Post?
         var selectedPostID: String?
+        var postsToShow: [Post] = []
         
-        @Published var style: MapStyleSetting = .standard {
+        /*@Published*/ var style: MapStyleSetting = .standard {
             didSet {
                 UserDefaults.standard.set(style.rawValue, forKey: .settingsMapStyleKey)
             }
@@ -64,7 +66,7 @@ extension MapView {
             }
         }
         
-        @Published var touchToggle: Bool = true
+        /*@Published */var touchToggle: Bool = true
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
@@ -83,7 +85,7 @@ extension MapView {
 //                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
 //            )
 //        )
-        @Published var cameraPosition: MapCameraPosition = .automatic
+        /*@Published */var cameraPosition: MapCameraPosition = .automatic
         private var oldCameraPosition: MapCameraPosition?
         var isViewingPost: Bool = false
         var lastKnownCamera: MapCamera?

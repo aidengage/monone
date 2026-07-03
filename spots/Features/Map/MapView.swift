@@ -10,14 +10,17 @@ import MapKit
 import Combine
 
 struct MapView: View {
-    @StateObject private var viewModel = ViewModel()
+    @State private var viewModel = ViewModel()
     
     
-    @Environment(UserID.self) private var currentUser
+    @Environment(\.currentUser) private var currentUser
+    @Environment(\.buttonsViewModel) private var buttonsViewModel
+//    @State var buttonsViewModel: ButtonsViewModel
+    
     @Environment(\.db) private var dbService
     @Environment(\.user) private var userService
     
-    @StateObject var buttonsViewModel = ButtonsViewModel()
+//    @StateObject var buttonsViewModel = ButtonsViewModel()
     
     @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
     
@@ -31,31 +34,36 @@ struct MapView: View {
                             
                             Map(position: $viewModel.cameraPosition, selection: $viewModel.selectedPost) {
                                 
-                                // for curr location, display a marker (only when we have valid coordinates)
-                                if viewModel.hasValidLocation {
-                                    Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)) {
-                                        Image(systemName: "mappin.circle.fill")
-                                            .foregroundColor(.green)
-                                            .font(.title2)
-                                            .background(Color.white)
-                                            .clipShape(Circle())
-                                    }
-                                }
+                                MapCurrentLocation(hasValidLocation: viewModel.hasValidLocation, latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)
                                 
+                                // for curr location, display a marker (only when we have valid coordinates)
+//                                if viewModel.hasValidLocation {
+//                                    Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)) {
+//                                        Image(systemName: "mappin.circle.fill")
+//                                            .foregroundColor(.green)
+//                                            .font(.title2)
+//                                            .background(Color.white)
+//                                            .clipShape(Circle())
+//                                    }
+//                                }
+                                PostFilter(profileToggle: buttonsViewModel.profileToggle, showOnlyBookmarked: buttonsViewModel.showOnlyBookmarked, postsToShow: $viewModel.postsToShow)
                                 // Explore = all posts. Profile = my posts, or (when bookmark tapped) my bookmarked posts from all users.
                                 //lowkey neat because you're setting a variable based on an if condition
-                                let postsToShow: [Post] = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
-                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
-                                } else {
-                                    dbService.getPosts()
-                                }
-                                
-                                ForEach(postsToShow.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
-                                    Marker(post.name, systemImage: ActivityType.from(post.selectedActivity).icon, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude))
-                                        .tag(post)
-                                        .tint(ActivityType.from(post.selectedActivity).color) // throws the warning for some reason for unknown even when it is not unknown
-                                    
-                                }
+//                                let postsToShow: [Post] = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
+//                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
+//                                } else {
+//                                    dbService.getPosts()
+//                                }
+//                                
+//                                ForEach(postsToShow.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
+//                                    Marker(post.name, systemImage: ActivityType.from(post.selectedActivity).icon, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude))
+//                                        .tag(post)
+//                                        .tint(ActivityType.from(post.selectedActivity).color) // throws the warning for some reason for unknown even when it is not unknown
+//                                }
+                            }
+                            .task { // idk if this does anything
+                                buttonsViewModel.bind(currentUser: currentUser, dbService: dbService)
+                                await currentUser.storeId()
                             }
 //                            .animation(viewModel.rotation ? .none : .easeInOut(duration: 0.6), value: viewModel.cameraPosition) // made rotation super slow
                             .allowsHitTesting(viewModel.touchToggle)
@@ -97,8 +105,14 @@ struct MapView: View {
                                     try await userService.loadBookmarks()
                                     //testing this out
                                     try await userService.loadUserSocials()
+                                    
+//                                    await currentUser.storeId()
                                 }
-                                
+                                viewModel.postsToShow = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
+                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
+                                } else {
+                                    dbService.getPosts()
+                                }
                             }
                             .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
@@ -127,7 +141,7 @@ struct MapView: View {
                         AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
                     }
                     // vertical dropdown toolbar doesnt go into toolbar item very well, tried to put it in top left kinda broke
-                    VerticalDropdownToolbar(viewModel: buttonsViewModel, path: $viewModel.path)
+                    VerticalDropdownToolbar(path: $viewModel.path)
                 }
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {

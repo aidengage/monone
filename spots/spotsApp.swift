@@ -24,7 +24,7 @@ import GoogleSignIn
 //    lazy var feedbackService: feedbackServiceProtocol = spots.FeedbackService(authService: authService, dbService: dbService, storageService: storageService, imageService: imageService)
 //}
 
-private struct AppContainer {
+private struct DependencyContainer {
     let db: dbServiceProtocol
     let auth: authServiceProtocol
     let storage: storageServiceProtocol
@@ -34,6 +34,9 @@ private struct AppContainer {
     let post: postServiceProtocol
     let rating: ratingServiceProtocol
     let feedback: feedbackServiceProtocol
+    
+    let currentUser: uidProtocol
+    let buttonsViewModel: ButtonsViewModel
     
     init() {
         let db = dbService()
@@ -46,6 +49,9 @@ private struct AppContainer {
         let rating = RatingService(authService: auth, dbService: db)
         let feedback = FeedbackService(authService: auth, dbService: db, storageService: storage, imageService: image)
         
+        let currentUser = UserID()
+        let buttonsViewModel = ButtonsViewModel(currentUser: currentUser, dbService: db)
+        
         self.db = db
         self.auth = auth
         self.storage = storage
@@ -55,11 +61,14 @@ private struct AppContainer {
         self.post = post
         self.rating = rating
         self.feedback = feedback
+        
+        self.currentUser = currentUser
+        self.buttonsViewModel = buttonsViewModel
     }
 }
 
 extension EnvironmentValues {
-    private static let vault = AppContainer()
+    private static let vault = DependencyContainer()
     
     @Entry var db: dbServiceProtocol = vault.db
     @Entry var auth: authServiceProtocol = vault.auth
@@ -70,6 +79,9 @@ extension EnvironmentValues {
     @Entry var post: postServiceProtocol = vault.post
     @Entry var rating: ratingServiceProtocol = vault.rating
     @Entry var feedback: feedbackServiceProtocol = vault.feedback
+    
+    @Entry var currentUser: uidProtocol = vault.currentUser
+    @Entry var buttonsViewModel: ButtonsViewModel = vault.buttonsViewModel
 }
 //
 //    @Entry var imageService: imageServiceProtocol
@@ -81,17 +93,28 @@ extension EnvironmentValues {
 //    }
 //}
 
+protocol uidProtocol {
+    var uid: String? { get set }
+    func storeId() async
+    func getId() -> String?
+}
 
 @Observable
-class UserID {
-    var uid: String?
+class UserID: uidProtocol {
+    var uid: String? = Auth.auth().currentUser?.uid
     var isLoading: Bool = false
     
-    func fetchUserID() async {
+    func storeId() async {
         isLoading = true
+        print("fetching user id: \(String(describing: uid))")
         defer { isLoading = false }
         uid = Auth.auth().currentUser?.uid
+        print("user id: \(String(describing: uid))")
         isLoading = false
+    }
+    
+    func getId() -> String? {
+        return uid
     }
 }
 
@@ -110,7 +133,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-    @State private var session = UserID()
+//    @State private var session = UserID()
     
 //    let auth: authService = authService()
 //    let db: dbService = dbService()
@@ -122,7 +145,7 @@ struct spotsApp: App {
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }
-                .environment(session)
+//                .environment(session)
 //                .environment(\.auth, auth)
 //                .environment(\.db, db)
 //                .environment(\.storage, storage)
