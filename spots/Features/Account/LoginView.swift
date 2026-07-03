@@ -10,6 +10,10 @@ struct LoginView: View {
 //    @State private var navigateToContentView = false
     @State private var navigateToSignup = false
     
+    
+    @Environment(\.db) private var dbService
+    @Environment(\.auth) private var authService
+    
     var body: some View {
         NavigationStack {
             Form {

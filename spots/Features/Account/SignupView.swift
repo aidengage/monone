@@ -37,6 +37,11 @@ struct SignupView: View {
     @State private var showCamera: Bool = false
     
     @StateObject private var cameraManager = CameraManager()
+    
+//    let ImageService: ImageServiceProtocol
+//    let dbService: dbServiceProtocol
+    @Environment(\.db) private var dbService
+    @Environment(\.image) private var imageService
 
     var body: some View {
 //        NavigationStack {
@@ -77,7 +82,8 @@ struct SignupView: View {
                     
 //                    .fullScreenCover(isPresented: $showCamera) {
                     .sheet(isPresented: $showCamera) {
-                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
+//                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
+                        MijickCameraView(selectedImages: $selectedImage) // this camera is broken but working on it
                     }
                 }
                 
@@ -114,8 +120,8 @@ struct SignupView: View {
         do {
             if profileImage != nil {
                 let path = "users/\(userId)/\(userId)"
-                let url = try await Firebase.shared.smartFormat(image: photo, path: path)
-                try await Firebase.shared.getStore().collection("users").document(userId).updateData(["pfpUrl": url])
+                let url = try await imageService.smartFormat(image: photo, path: path)
+                try await dbService.getStore().collection("users").document(userId).updateData(["pfpUrl": url])
             }
         } catch {
             print("error: \(error.localizedDescription)")
@@ -144,7 +150,7 @@ struct SignupView: View {
                         print("auth created, adding user and uploading pfp")
                         
                         Task {
-                            Firebase.shared.addUser(uid: uid, email: email, username: username)
+                            dbService.addUser(uid: uid, email: email, username: username, pfpUrl: "")
                             await uploadPfp(userId: uid, photo: profileImage!)
                         }
                         

@@ -8,8 +8,9 @@
 import SwiftUI
 import Combine
 import FirebaseAuth
+import Observation
 
-struct Buttons {
+
 
     struct AddButton: View {
         
@@ -17,6 +18,9 @@ struct Buttons {
         @State private var showLogin = false
         
         @Binding var path: NavigationPath
+        
+        @Environment(\.auth) private var authService
+        @Environment(\.post) private var postService
     //    This lets Add​Button use the same navigation stack as its parent (your Map​View). When it appends to path, it navigates to another screen within the same stack.
 
         
@@ -28,7 +32,7 @@ struct Buttons {
                 
                 
                 Button(action: {
-                    let currentUser = Firebase.shared.getCurrentUser()
+                    let currentUser = authService.getCurrentUser()
                     print("Current user: \(currentUser?.email ?? "nil")")
                     print("User ID: \(currentUser?.uid ?? "nil")")
                     
@@ -60,7 +64,9 @@ struct Buttons {
     }
     
     struct ProfileButton: View {
-        @ObservedObject var viewModel: ButtonsViewModel
+        @State var viewModel: ButtonsViewModel
+        @Environment(\.currentUser) private var currentUser
+        @Environment(\.db) private var dbService
         
         var body: some View {
             Button(action: {
@@ -74,9 +80,9 @@ struct Buttons {
                 }
 
                 if viewModel.profileToggle {
-                    Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                    dbService.startUserPostListener(userId: currentUser.getId() ?? "")
                 } else {
-                    Firebase.shared.startPostListener()
+                    dbService.startPostListener()
                 }
             }) {
                 Image(systemName: "person.crop.circle")
@@ -89,7 +95,7 @@ struct Buttons {
     }
     
     struct BookmarkButton: View {
-        @ObservedObject var viewModel: ButtonsViewModel
+        @State var viewModel: ButtonsViewModel
         
         var body: some View {
             
@@ -109,7 +115,10 @@ struct Buttons {
     }
     
     struct AccountButton: View {
-        @ObservedObject var viewModel: ButtonsViewModel
+//        var viewModel: ButtonsViewModel
+//        @Environment(\.buttonsViewModel) private var viewModel
+        @Bindable var viewModel: ButtonsViewModel
+//        @Environment(\.user) private var userService
         @Binding var path: NavigationPath
         
         var body: some View {
@@ -131,10 +140,11 @@ struct Buttons {
     }
     
     struct LogoutButton: View {
+        @Environment(\.auth) private var authService
         
         var body: some View {
             Button(action: {
-                Firebase.shared.logout()
+                authService.logout()
             }) {
                 Image(systemName: "arrow.right.square")
                     .font(.title)
@@ -186,7 +196,7 @@ struct Buttons {
     }
     
     struct ActivityFilter: View {
-        @ObservedObject var viewModel: ButtonsViewModel
+        var viewModel: ButtonsViewModel
         var body: some View {
             Menu {
                 filterRow("Smoke", chosen: .smoke, isOn: viewModel.showSmoke)
@@ -212,30 +222,50 @@ struct Buttons {
             }
         }
     }
-}
 
-extension Buttons {
-    
-    class ButtonsViewModel: ObservableObject {
-        @Published var showAll: Bool = true
+
+
+    @Observable
+    class ButtonsViewModel {
         
-        @Published var profileToggle: Bool = false
-        @Published var showOnlyBookmarked: Bool = false
-        @Published var showFollowinger: Bool = false
+//        @Environment(\.currentUser) private var currentUser
+//        @Environment(\.db) private var dbService
         
-        @Published var showSmoke: Bool = false
-        @Published var showDate: Bool = false
-        @Published var showPhoto: Bool = false
-        @Published var showTrain: Bool = false
-        @Published var showUnknown: Bool = false
+        private var dbService: dbServiceProtocol
+        private var currentUser: uidProtocol
+        
+        var showAll: Bool = true
+        
+        var profileToggle: Bool = false
+        var showOnlyBookmarked: Bool = false
+        var showFollowinger: Bool = false
+        
+        var showSmoke: Bool = false
+        var showDate: Bool = false
+        var showPhoto: Bool = false
+        var showTrain: Bool = false
+        var showUnknown: Bool = false
+        
+        init(currentUser: uidProtocol, dbService: dbServiceProtocol) {
+            self.currentUser = currentUser
+            self.dbService = dbService
+        }
+        
+        func bind(currentUser: uidProtocol, dbService: dbServiceProtocol) {
+            self.currentUser = currentUser
+            self.dbService = dbService
+        }
         
         func startPostListenerForMode() {
             if !profileToggle {
-                Firebase.shared.startPostListener()
+                dbService.startPostListener()
+                print("started post listener")
             } else if showOnlyBookmarked {
-                Firebase.shared.startPostListener()
+                dbService.startPostListener()
+                print("bookmark post listener")
             } else {
-                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
+                dbService.startUserPostListener(userId: currentUser.uid ?? "")
+                print("user posts listener")
             }
         }
 
@@ -248,7 +278,7 @@ extension Buttons {
                 showTrain = false
                 showUnknown = false
                 if showSmoke {
-                    Firebase.shared.startPostActivityListener(activity: .smoke)
+                    dbService.startPostActivityListener(activity: .smoke)
                 } else {
                     startPostListenerForMode()
                 }
@@ -259,7 +289,7 @@ extension Buttons {
                 showTrain = false
                 showUnknown = false
                 if showDate {
-                    Firebase.shared.startPostActivityListener(activity: .date)
+                    dbService.startPostActivityListener(activity: .date)
                 } else {
                     startPostListenerForMode()
                 }
@@ -270,7 +300,7 @@ extension Buttons {
                 showTrain = false
                 showUnknown = false
                 if showPhoto {
-                    Firebase.shared.startPostActivityListener(activity: .photography)
+                    dbService.startPostActivityListener(activity: .photography)
                 } else {
                     startPostListenerForMode()
                 }
@@ -281,7 +311,7 @@ extension Buttons {
                 showTrain.toggle()
                 showUnknown = false
                 if showTrain {
-                    Firebase.shared.startPostActivityListener(activity: .trainStation)
+                    dbService.startPostActivityListener(activity: .trainStation)
                 } else {
                     startPostListenerForMode()
                 }
@@ -292,7 +322,7 @@ extension Buttons {
                 showTrain = false
                 showUnknown.toggle()
                 if showUnknown {
-                    Firebase.shared.startPostActivityListener(activity: .unknown)
+                    dbService.startPostActivityListener(activity: .unknown)
                 } else {
                     startPostListenerForMode()
                 }
@@ -300,4 +330,4 @@ extension Buttons {
         }
     }
     
-}
+

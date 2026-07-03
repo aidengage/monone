@@ -29,17 +29,40 @@ import UniformTypeIdentifiers
 //    }
 //}
 
+enum ImageFormat {
+    case jpeg(compressionQuality: CGFloat)
+    case png
+    case heic
+    
+    var fileExtension: String {
+        switch self {
+        case .jpeg: return ".jpg"
+        case .png: return ".png"
+        case .heic: return ".heic"
+        }
+    }
+    
+    var mimeType: String {
+        switch self {
+        case .jpeg: return "image/jpeg"
+        case .png: return "image/png"
+        case .heic: return "image/heic"
+        }
+    }
+}
+
 // photo selector view, maybe move this to add post view??
 struct PhotoSelector: View {
     @Binding var data: [Data]
     @Binding var imageUUIDs: [String]
     @State var selectedItem: [PhotosPickerItem] = []
     @Binding var images: [UIImage]
+    
     let maxPhotos: Int
 
     var body: some View {
         PhotosPicker(selection: $selectedItem, maxSelectionCount: maxPhotos, matching: .images, preferredItemEncoding: .automatic) {
-            if !data.isEmpty {
+            HStack {
                 ScrollView(.horizontal) {
                     HStack {
                         ForEach(data, id: \.self) { imageData in
@@ -47,15 +70,15 @@ struct PhotoSelector: View {
                                 Image(uiImage: image)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame( maxHeight: 300)
+                                    .frame( maxHeight: 150)
                             }
                         }
+                        Label("", systemImage: "photo.on.rectangle.angled")
                     }
                 }
-            } else {
-                Label("Select a picture", systemImage: "photo.on.rectangle.angled")
             }
-        }.onChange (of: selectedItem) {_, newValue in
+        }
+        .onChange (of: selectedItem) {_, newValue in
             for item in selectedItem {
                 Task {
                     if let imageData = try? await item.loadTransferable(type: Data.self) {
@@ -74,9 +97,9 @@ struct PhotoSelector: View {
         }
     }
     
-    func printFormat(image: UIImage) -> Firebase.ImageFormat {
+    func printFormat(image: UIImage) -> ImageFormat {
         
-        let format: Firebase.ImageFormat
+        let format: ImageFormat
         
         if let _cgImage = image.cgImage,
             let source = CGImageSourceCreateWithData(UIImage.heicData(image)() as CFData? ?? Data() as CFData, nil),

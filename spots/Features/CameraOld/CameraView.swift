@@ -5,6 +5,8 @@ import PhotosUI
 import AVKit
 import AVFoundation
 
+import MijickCamera
+
 //    some ideas
 //
 //  i want to allow a way to limit how many photos a user can take
@@ -51,9 +53,11 @@ struct IdentifiableURL: Identifiable {
 struct CameraView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var cameraManager: CameraManager
+    
     @State private var captureMode: CaptureMode = .photo
-    var photoLimit: Int
     @State private var numCaptures: Int = 0
+    
+    var photoLimit: Int
     var enablePhoto: Bool
     var enableVideo: Bool
     var showConfirmation: Bool = false
@@ -71,48 +75,51 @@ struct CameraView: View {
     }
     
     var body: some View {
-        ZStack {
-            if cameraManager.authorizationStatus == .authorized {
-                CameraPreview(session: cameraManager.session, cameraManager: cameraManager)
-                    .ignoresSafeArea()
-                    .simultaneousGesture(swipeGesture, isEnabled: enablePhoto && enableVideo)
-            } else {
-                NoCameraView(authorizationStatus: cameraManager.authorizationStatus)
-            }
-            
-            VStack {
-                CameraControlTop(captureMode: $captureMode, cameraManager: cameraManager)
-                Spacer()
-                CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager, /*numCaptures: $numCaptures,*/ enablePhoto: enablePhoto, enableVideo: enableVideo)
-            }
-            .sheet(isPresented: $cameraManager.showBatchPreview) {
-//                PhotoPreviewView(cameraManager: cameraManager, item: item, onDismiss: {
-//                    cameraManager.capturedImages = []
-////                    cameraManager.capturedImage = nil
-//                }, numCaptures: $numCaptures)
-                BatchPhotoPreviewView(
-                    images: cameraManager.capturedImages,
-                    onDismiss: {
-                        cameraManager.clearCapturedPhotos()
-                    },
-                    onSave: { images in
-                        selectedImages = images
-                        dismiss()
-                    })
-                .onDisappear {
-                    cameraManager.clearCapturedPhotos()
-                }
-            }
-            .sheet(item: $cameraManager.recordedVideoURL) { item in
-                VideoPreviewView(item: item, onDismiss: {
-                    cameraManager.recordedVideoURL = nil
-                })
-            }
-        }
-        .onAppear {
-            cameraManager.checkAuth()
-            cameraManager.updateLibraryThumbnail(image: nil)
-        }
+//        MijickCameraView(selectedImages: $selectedImages)
+
+        
+//        ZStack {
+//            if cameraManager.authorizationStatus == .authorized {
+//                CameraPreview(session: cameraManager.session, cameraManager: cameraManager)
+//                    .ignoresSafeArea()
+//                    .simultaneousGesture(swipeGesture, isEnabled: enablePhoto && enableVideo)
+//            } else {
+//                NoCameraView(authorizationStatus: cameraManager.authorizationStatus)
+//            }
+//            
+//            VStack {
+//                CameraControlTop(captureMode: $captureMode, cameraManager: cameraManager)
+//                Spacer()
+//                CameraControlBottom(captureMode: $captureMode, cameraManager: cameraManager, /*numCaptures: $numCaptures,*/ enablePhoto: enablePhoto, enableVideo: enableVideo)
+//            }
+//            .sheet(isPresented: $cameraManager.showBatchPreview) {
+////                PhotoPreviewView(cameraManager: cameraManager, item: item, onDismiss: {
+////                    cameraManager.capturedImages = []
+//////                    cameraManager.capturedImage = nil
+////                }, numCaptures: $numCaptures)
+//                BatchPhotoPreviewView(
+//                    images: cameraManager.capturedImages,
+//                    onDismiss: {
+//                        cameraManager.clearCapturedPhotos()
+//                    },
+//                    onSave: { images in
+//                        selectedImages = images
+//                        dismiss()
+//                    })
+//                .onDisappear {
+//                    cameraManager.clearCapturedPhotos()
+//                }
+//            }
+//            .sheet(item: $cameraManager.recordedVideoURL) { item in
+//                VideoPreviewView(item: item, onDismiss: {
+//                    cameraManager.recordedVideoURL = nil
+//                })
+//            }
+//        }
+//        .onAppear {
+//            cameraManager.checkAuth()
+//            cameraManager.updateLibraryThumbnail(image: nil)
+//        }
     }
 }
 
@@ -344,6 +351,15 @@ struct CameraControlTop: View {
                     .background(Color.black.opacity(0.6))
                     .cornerRadius(20)
             }
+            Spacer()
+            Button {
+                cameraManager.switchCamera()
+            } label: {
+                Image(systemName: "arrow.triangle.2.circlepath.camera")
+                    .font(.largeTitle)
+                    .foregroundStyle(.white)
+            }
+            .padding()
         }
     }
 }
@@ -422,43 +438,11 @@ struct CameraControlBottom: View {
                     .padding()
                     
                     if captureMode == .photo {
-                        
                         // photo button
                         PhotoCaptureButton(cameraManager: cameraManager/*, numCaptures: $numCaptures*/)
-//                        Button {
-//                            cameraManager.capturePhoto()
-//                            numCaptures += 1
-//                        } label: {
-//                            Circle()
-//                                .strokeBorder(.white, lineWidth: 3)
-//                                .frame(width: 70, height: 70)
-//                                .overlay {
-//                                    Circle()
-//                                        .fill(.white)
-//                                        .frame(width: 60, height: 60)
-//                                }
-//                        }
-//                        .ignoresSafeArea()
                     } else {
                         // video button
                         VideoCaptureButton(cameraManager: cameraManager)
-//                        Button {
-//                            if cameraManager.isRecording {
-//                                cameraManager.stopRecording()
-//                            } else {
-//                                cameraManager.startRecording()
-//                            }
-//                        } label: {
-//                            Circle()
-//                                .strokeBorder(.white, lineWidth: 3)
-//                                .frame(width: 70, height: 70)
-//                                .overlay {
-//                                    RoundedRectangle(cornerRadius: cameraManager.isRecording ? 6 : 30)
-//                                        .fill(.red)
-//                                        .frame(width: cameraManager.isRecording ? 30 : 60, height: cameraManager.isRecording ? 30 : 60)
-//                                }
-//                        }
-//                        .ignoresSafeArea()
                     }
                     
                     if cameraManager.isRecording {
@@ -479,14 +463,7 @@ struct CameraControlBottom: View {
             HStack {
                 ThumbnailButton(cameraManager: cameraManager)
                 Spacer()
-                Button {
-                    cameraManager.switchCamera()
-                } label: {
-                    Image(systemName: "arrow.triangle.2.circlepath.camera")
-                        .font(.largeTitle)
-                        .foregroundStyle(.white)
-                }
-                .padding()
+                
             }
         }
     }
@@ -497,7 +474,7 @@ struct NoCameraView: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "camera.fill.badge.xmark")
+            Image(systemName: "video.slash.fill")
                 .font(.largeTitle)
                 .foregroundStyle(Color(.systemGray2))
             Text("Camera Permission Required")

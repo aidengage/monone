@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AccountView: View {
+    @Environment(\.user) private var userService
+    
     @State private var followerUserIds: [String] = []
     @State private var followingUserIds: [String] = []
     
@@ -50,18 +52,22 @@ struct AccountView: View {
     }
 
     private func refreshSocials() {
-        followerUserIds = Firebase.shared.followerUserIds
-        followingUserIds = Firebase.shared.followingUserIds
-        Firebase.shared.loadUserSocials()
+        followerUserIds = userService.getFollowers()
+        followingUserIds = userService.getFollowing()
+        Task {
+            try await userService.loadUserSocials()
+        }
+        
         // Firestore callback is async; sync again shortly so counts/lists update after load.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            followerUserIds = Firebase.shared.followerUserIds
-            followingUserIds = Firebase.shared.followingUserIds
+            followerUserIds = userService.getFollowers()
+            followingUserIds = userService.getFollowing()
         }
     }
 }
 
 struct SocialListView: View {
+    @Environment(\.user) private var userService
     let title: String
     let userIds: [String]
     @State var names: [String: String] = [:]
@@ -85,16 +91,16 @@ struct SocialListView: View {
     
     func loadNames(userIds: [String]) async {
         for id in userIds {
-            do {
-                let name = try await Firebase.shared.getUsername(uid: id)
-                if !name.isEmpty {
+//            do {
+                let name = await userService.fetchUsername(userId: id)
+                if let namename = name {
                     names[id] = name
                 }
                 
-            } catch {
-//                names[id] = "unknown"
-                print("failed to get username for \(id): \(error)")
-            }
+//            } catch {
+////                names[id] = "unknown"
+//                print("failed to get username for \(id): \(error)")
+//            }
             
             
         }

@@ -50,6 +50,7 @@ struct FeedbackView: View {
 }
 
 struct FeedbackCardPreview: View {
+    @Environment(\.feedback) private var feedbackService
     let type: FeedbackType
     let status: FeedbackStatus
     let feedbackId: String
@@ -64,7 +65,7 @@ struct FeedbackCardPreview: View {
                 Text(status.rawValue)
                 Button(action: {
                     Task {
-                        await Firebase.shared.deleteFeedbackBatch(feedbackId: feedbackId)
+                        await feedbackService.deleteFeedbackBatch(feedbackId: feedbackId)
                     }
                     
                 }) {
@@ -84,6 +85,7 @@ struct FeedbackInfoView: View {
 }
 
 struct FeedbackViewButton: View {
+    @Environment(\.db) private var dbService
     
 //    @Binding var path: NavigationPath
     @State var showFeedbackList: Bool = false
@@ -108,7 +110,7 @@ struct FeedbackViewButton: View {
 //            FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
 //        }
         .sheet(isPresented: $showFeedbackList) {
-            FeedbackView(/*path: $path,*/ feedback: Firebase.shared.feedbacks)
+            FeedbackView(/*path: $path,*/ feedback: dbService.getFeedbacks())
         }
     }
 }

@@ -9,21 +9,22 @@ import SwiftUI
 
 struct VerticalDropdownToolbar: View {
     @State var dropdownToggle: Bool = false
-    @ObservedObject var viewModel: Buttons.ButtonsViewModel
+//    @ObservedObject var viewModel: ButtonsViewModel
+    @Environment(\.buttonsViewModel) private var viewModel
     @Binding var path: NavigationPath
     
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
                 if viewModel.showAll {
-                    Buttons.ProfileButton(viewModel: viewModel)
+                    ProfileButton(viewModel: viewModel)
                         .buttonStyle(.glassProminent)
                         .buttonBorderShape(.circle)
                     
                     if viewModel.profileToggle {
-                        Buttons.BookmarkButton(viewModel: viewModel)
-                        Buttons.AccountButton(viewModel: viewModel, path: $path)
-                        Buttons.LogoutButton()
+                        BookmarkButton(viewModel: viewModel)
+                        AccountButton(viewModel: viewModel, path: $path)
+                        LogoutButton()
                     }
                 }
             }
