@@ -10,8 +10,18 @@ import FirebaseFirestore
 import FirebaseAuth
 import GoogleSignIn
 import GoogleSignInSwift
+import Foundation
 
 protocol dbServiceProtocol {
+    var posts: [Post] { get set }
+    var post: Post? { get set }
+    var ratings: [Rating] { get set }
+    var feedbacks: [Feedback] { get set }
+    
+    var postListener: ListenerRegistration? { get set }
+    var ratingListener: ListenerRegistration? { get set }
+    var feedbackListener: ListenerRegistration? { get set }
+    
     func getStore() -> Firestore
     func getPost() -> Post?
     func getPosts() -> [Post]
@@ -45,13 +55,13 @@ private struct dbServiceKey: EnvironmentKey {
 class dbService: dbServiceProtocol {
     private let db = Firestore.firestore()
     
-    private var posts: [Post] = [] // map handled
-    private var postListener: ListenerRegistration?
-    private var post: Post? /*= Post()*/ // broke
-    private var ratings: [Rating] = [] // post handled
-    private var ratingListener: ListenerRegistration?
-    private var feedbacks: [Feedback] = [] // user handled??
-    private var feedbackListener: ListenerRegistration?
+    internal var posts: [Post] = [] // map handled
+    internal var postListener: ListenerRegistration?
+    internal var post: Post? /*= Post()*/ // broke
+    internal var ratings: [Rating] = [] // post handled
+    internal var ratingListener: ListenerRegistration?
+    internal var feedbacks: [Feedback] = [] // user handled??
+    internal var feedbackListener: ListenerRegistration?
     
     func getStore() -> Firestore {
         return db
@@ -212,7 +222,7 @@ class dbService: dbServiceProtocol {
                 return
             }
             
-//            print("inside postlistener: \(documents.count)")
+            print("inside postlistener: \(documents.count)")
             
             self.posts = documents.compactMap { document in
                 do {

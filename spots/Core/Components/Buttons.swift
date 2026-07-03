@@ -259,10 +259,13 @@ import Observation
         func startPostListenerForMode() {
             if !profileToggle {
                 dbService.startPostListener()
+                print("started post listener")
             } else if showOnlyBookmarked {
                 dbService.startPostListener()
+                print("bookmark post listener")
             } else {
-                dbService.startUserPostListener(userId: currentUser.getId() ?? "")
+                dbService.startUserPostListener(userId: currentUser.uid ?? "")
+                print("user posts listener")
             }
         }
 

@@ -14,7 +14,6 @@ import PhotosUI
 import FirebaseStorage
 
 struct AddPostView: View {
-    @Environment(\.post) private var postService
     @State private var viewModel = ViewModel()
     
     @State private var showCamera: Bool = false
@@ -22,6 +21,7 @@ struct AddPostView: View {
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.currentUser) private var currentUser
+    @Environment(\.post) private var postService
     
     @FocusState private var focusedField: KeyboardField?
     
@@ -82,7 +82,7 @@ struct AddPostView: View {
                 }
                 // custom photo picker logic in AddPostView and FirebaseManager
                 //            Section(header: Text("Image Upload")) {
-                //                PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images, maxPhotos: 6)
+                PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images, maxPhotos: 6)
                 Button(action: {
                     showCamera.toggle()
                     print("show camera bool: \(showCamera)")

@@ -12,6 +12,7 @@ import Combine
 struct MapView: View {
     @State private var viewModel = ViewModel()
     
+//    @Environment(\.scenePhase) private var scenePhase
     
     @Environment(\.currentUser) private var currentUser
     @Environment(\.buttonsViewModel) private var buttonsViewModel
@@ -108,15 +109,35 @@ struct MapView: View {
                                     
 //                                    await currentUser.storeId()
                                 }
-                                viewModel.postsToShow = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
-                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
-                                } else {
-                                    dbService.getPosts()
-                                }
+//                                viewModel.postsToShow = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
+//                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
+//                                } else {
+//                                    dbService.getPosts()
+//                                }
                             }
                             .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
+                            .onChange(of: dbService.posts) { _, newPosts in
+                                viewModel.postsToShow = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
+                                    newPosts.filter { userService.getBookmarks().contains($0.id) }
+                                } else {
+                                    newPosts
+                                }
+                            }
+//                            .onChange(of: scenePhase) { oldPhase, newPhase in
+//                                switch newPhase {
+//                                case .active:
+//                                    print("app active !")
+//                                    buttonsViewModel.startPostListenerForMode()
+//                                case .inactive:
+//                                    print("app inactive")
+//                                case .background:
+//                                    print("app in background")
+//                                @unknown default:
+//                                    print("unexpected future lifecycle reached")
+//                                }
+//                            }
                             .onDisappear {
                                 // stops post listener
                                 dbService.stopPostListener()
