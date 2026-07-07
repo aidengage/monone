@@ -22,11 +22,11 @@ extension MapView {
         //*what is this?
         var observersSetUp = false
 
-        /*@Published */var selectedPost: Post?
+        var selectedPost: Post?
         var selectedPostID: String?
         var postsToShow: [Post] = []
         
-        /*@Published*/ var style: MapStyleSetting = .standard {
+        var style: MapStyleSetting = .standard {
             didSet {
                 UserDefaults.standard.set(style.rawValue, forKey: .settingsMapStyleKey)
             }

@@ -16,10 +16,12 @@ struct MapView: View {
     
     @Environment(\.currentUser) private var currentUser
     @Environment(\.buttonsViewModel) private var buttonsViewModel
+    @Environment(\.tracker) private var tracker
     
     @Environment(\.db) private var dbService
     @Environment(\.user) private var userService
     
+//    @Environment(\.modelContext) private var modelContext
     
     @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
     
@@ -30,7 +32,6 @@ struct MapView: View {
                 ZStack(alignment: .topLeading) {
                     ZStack(alignment: .bottomLeading) {
                         ZStack {
-                            
                             Map(position: $viewModel.cameraPosition, selection: $viewModel.selectedPost) {
                                 
                                 MapCurrentLocation(hasValidLocation: viewModel.hasValidLocation, latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)
@@ -67,6 +68,10 @@ struct MapView: View {
                                 }
                                 .padding()
                             }
+                            .overlay(alignment: .topTrailing) {
+                                TrackerWidget()
+                                    .padding()
+                            }
                             // loads posts when the map appears
                             .onAppear {
                                 viewModel.style = settingMapStyle
@@ -100,8 +105,10 @@ struct MapView: View {
 //                                    buttonsViewModel.startPostListenerForMode()
                                 case .inactive:
                                     print("app inactive")
+//                                    tracker.syncItems(context: scenePhase)
                                 case .background:
                                     print("app in background")
+//                                    tracker.syncItems(context: newPhase) // test this, also maybe do debounce .onChange instead of app activity mode
                                 @unknown default:
                                     print("unexpected future lifecycle reached")
                                 }
