@@ -12,16 +12,14 @@ import Combine
 struct MapView: View {
     @State private var viewModel = ViewModel()
     
-//    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.scenePhase) private var scenePhase // this handles what happens when the app is in the background
     
     @Environment(\.currentUser) private var currentUser
     @Environment(\.buttonsViewModel) private var buttonsViewModel
-//    @State var buttonsViewModel: ButtonsViewModel
     
     @Environment(\.db) private var dbService
     @Environment(\.user) private var userService
     
-//    @StateObject var buttonsViewModel = ButtonsViewModel()
     
     @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
     
@@ -37,30 +35,7 @@ struct MapView: View {
                                 
                                 MapCurrentLocation(hasValidLocation: viewModel.hasValidLocation, latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)
                                 
-                                // for curr location, display a marker (only when we have valid coordinates)
-//                                if viewModel.hasValidLocation {
-//                                    Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)) {
-//                                        Image(systemName: "mappin.circle.fill")
-//                                            .foregroundColor(.green)
-//                                            .font(.title2)
-//                                            .background(Color.white)
-//                                            .clipShape(Circle())
-//                                    }
-//                                }
                                 PostFilter(profileToggle: buttonsViewModel.profileToggle, showOnlyBookmarked: buttonsViewModel.showOnlyBookmarked, postsToShow: $viewModel.postsToShow)
-                                // Explore = all posts. Profile = my posts, or (when bookmark tapped) my bookmarked posts from all users.
-                                //lowkey neat because you're setting a variable based on an if condition
-//                                let postsToShow: [Post] = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
-//                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
-//                                } else {
-//                                    dbService.getPosts()
-//                                }
-//                                
-//                                ForEach(postsToShow.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
-//                                    Marker(post.name, systemImage: ActivityType.from(post.selectedActivity).icon, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude))
-//                                        .tag(post)
-//                                        .tint(ActivityType.from(post.selectedActivity).color) // throws the warning for some reason for unknown even when it is not unknown
-//                                }
                             }
                             .task { // idk if this does anything
                                 buttonsViewModel.bind(currentUser: currentUser, dbService: dbService)
@@ -106,14 +81,7 @@ struct MapView: View {
                                     try await userService.loadBookmarks()
                                     //testing this out
                                     try await userService.loadUserSocials()
-                                    
-//                                    await currentUser.storeId()
                                 }
-//                                viewModel.postsToShow = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
-//                                    dbService.getPosts().filter { userService.getBookmarks().contains($0.id) }
-//                                } else {
-//                                    dbService.getPosts()
-//                                }
                             }
                             .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
                             .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
@@ -125,19 +93,19 @@ struct MapView: View {
                                     newPosts
                                 }
                             }
-//                            .onChange(of: scenePhase) { oldPhase, newPhase in
-//                                switch newPhase {
-//                                case .active:
-//                                    print("app active !")
+                            .onChange(of: scenePhase) { oldPhase, newPhase in
+                                switch newPhase {
+                                case .active:
+                                    print("app active !")
 //                                    buttonsViewModel.startPostListenerForMode()
-//                                case .inactive:
-//                                    print("app inactive")
-//                                case .background:
-//                                    print("app in background")
-//                                @unknown default:
-//                                    print("unexpected future lifecycle reached")
-//                                }
-//                            }
+                                case .inactive:
+                                    print("app inactive")
+                                case .background:
+                                    print("app in background")
+                                @unknown default:
+                                    print("unexpected future lifecycle reached")
+                                }
+                            }
                             .onDisappear {
                                 // stops post listener
                                 dbService.stopPostListener()
