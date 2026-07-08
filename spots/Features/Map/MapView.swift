@@ -88,6 +88,8 @@ struct MapView: View {
                                     try await userService.loadBookmarks()
                                     //testing this out
                                     try await userService.loadUserSocials()
+                                    
+//                                    await tracker.syncItems(context: swiftModelContainer.mainContext)
                                 }
                             }
                             .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
@@ -105,12 +107,17 @@ struct MapView: View {
                                 case .active:
                                     print("app active !")
 //                                    buttonsViewModel.startPostListenerForMode()
+//                                    Task {
+//                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
+//                                    }
                                 case .inactive:
                                     print("app inactive")
-//                                    tracker.syncItems(context: scenePhase)
+                                    Task {
+                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
+                                    }
                                 case .background:
                                     print("app in background")
-//                                    tracker.syncItems(context: newPhase) // test this, also maybe do debounce .onChange instead of app activity mode
+//                                    try tracker.syncItems(context: swiftModelContainer.mainContext) // test this, also maybe do debounce .onChange instead of app activity mode
                                 @unknown default:
                                     print("unexpected future lifecycle reached")
                                 }

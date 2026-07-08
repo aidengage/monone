@@ -71,16 +71,15 @@ class TrackerSyncService: trackerProtocol {
         let batch = dbService.getBatch()
         
         for item in items {
-            let docRef = dbService.getStore().collection("user").document(userId)
+            let docRef = dbService.getStore().collection("users").document(userId)
                 .collection("trackedItems").document(item.id)
             batch.setData([
                 "name": item.name,
                 "icon": item.icon,
-                "color": item.color,
+                "colorHex": item.colorHex,
                 "lastSyncedAt": Timestamp(date: item.lastSyncedAt ?? Date.now),
                 "sortOrder": item.sortOrder,
                 "isPinned": item.isPinned,
-//                "count": item.count
                 
             ], forDocument: docRef)
         }
@@ -91,7 +90,7 @@ class TrackerSyncService: trackerProtocol {
     // fresh install / new login stuff
     func restoreFromBackup(context: ModelContext) async throws {
         guard let userId = try? authService.getCurrentUserID() else { return }
-        let snapshot = try await dbService.getStore().collection("user").document(userId)
+        let snapshot = try await dbService.getStore().collection("users").document(userId)
             .collection("trackedItems").getDocuments()
         
         for doc in snapshot.documents {
