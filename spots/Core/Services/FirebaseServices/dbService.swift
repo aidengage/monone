@@ -22,7 +22,6 @@ protocol dbServiceProtocol {
     var ratingListener: ListenerRegistration? { get set }
     var feedbackListener: ListenerRegistration? { get set }
     
-    var batch: WriteBatch { get set }
     
     func getStore() -> Firestore
     func getPost() -> Post?
@@ -32,7 +31,6 @@ protocol dbServiceProtocol {
     
     func getBatch() -> WriteBatch
     
-//    func getCurrentUser() -> User?
     func stopPostListener()
     func stopRatingListener()
     func stopFeedbackListener()
@@ -66,7 +64,6 @@ class dbService: dbServiceProtocol {
     internal var ratingListener: ListenerRegistration?
     internal var feedbacks: [Feedback] = [] // user handled??
     internal var feedbackListener: ListenerRegistration?
-    internal var batch: WriteBatch
     
     func getStore() -> Firestore {
         return db
@@ -89,16 +86,8 @@ class dbService: dbServiceProtocol {
     }
     
     func getBatch() -> WriteBatch {
-        return batch
+        return db.batch()
     }
-    
-    init() {
-        self.batch = db.batch()
-    }
-    
-//    func getCurrentUser() -> User? {
-//        
-//    }
     
     func stopPostListener() {
         postListener?.remove()

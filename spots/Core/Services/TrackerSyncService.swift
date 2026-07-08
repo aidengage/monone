@@ -119,7 +119,7 @@ class TrackerSyncService: trackerProtocol {
               let userId = try? authService.getCurrentUserID() else { return }
         let batch = dbService.getBatch() // keep eye on this
         for snapshot in unsynced {
-            let docRef = dbService.getStore().collection("user").document(userId)
+            let docRef = dbService.getStore().collection("users").document(userId)
                 .collection("dailySnapshots").document(snapshot.id)
             batch.setData([
                 "trackedItemId": snapshot.trackedItemId,

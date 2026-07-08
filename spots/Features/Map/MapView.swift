@@ -108,16 +108,19 @@ struct MapView: View {
                                     print("app active !")
 //                                    buttonsViewModel.startPostListenerForMode()
 //                                    Task {
-//                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
+//                                        await tracker.syncSnapshots(context: swiftModelContainer.mainContext)
 //                                    }
                                 case .inactive:
                                     print("app inactive")
-                                    Task {
-                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
-                                    }
+//                                    Task {
+//                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
+//                                    }
                                 case .background:
                                     print("app in background")
-//                                    try tracker.syncItems(context: swiftModelContainer.mainContext) // test this, also maybe do debounce .onChange instead of app activity mode
+                                    Task {
+                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
+                                        await tracker.syncSnapshots(context: swiftModelContainer.mainContext)
+                                    }
                                 @unknown default:
                                     print("unexpected future lifecycle reached")
                                 }
