@@ -106,20 +106,18 @@ struct MapView: View {
                                 switch newPhase {
                                 case .active:
                                     print("app active !")
-//                                    buttonsViewModel.startPostListenerForMode()
-//                                    Task {
-//                                        await tracker.syncSnapshots(context: swiftModelContainer.mainContext)
-//                                    }
                                 case .inactive:
                                     print("app inactive")
-//                                    Task {
-//                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
-//                                    }
                                 case .background:
                                     print("app in background")
+                                    let backgroundContext = ModelContext(swiftModelContainer)
+                                    
                                     Task {
-                                        await tracker.syncItems(context: swiftModelContainer.mainContext)
-                                        await tracker.syncSnapshots(context: swiftModelContainer.mainContext)
+                                        async let itemSync: () = tracker.syncItems(context: backgroundContext)
+                                        async let snapshotSync: () = tracker.syncSnapshots(context: backgroundContext)
+                                        
+                                        await itemSync
+                                        await snapshotSync
                                     }
                                 @unknown default:
                                     print("unexpected future lifecycle reached")
