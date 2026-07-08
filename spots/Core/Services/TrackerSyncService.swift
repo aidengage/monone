@@ -10,6 +10,7 @@ import SwiftData
 import FirebaseFirestore
 
 protocol trackerProtocol {
+    func seedDefaultTrackedItems(context: ModelContext)
     func addItemsToContext(items: [ItemData], context: ModelContext)
     func syncItems(context: ModelContext) async
     func syncSnapshots(context: ModelContext) async
@@ -39,6 +40,26 @@ class TrackerSyncService: trackerProtocol {
             }
             
         }
+        try? context.save()
+    }
+    
+    func seedDefaultTrackedItems(context: ModelContext) {
+        let descriptor = FetchDescriptor<ItemData>()
+        let existingItems = (try? context.fetch(descriptor)) ?? []
+        
+        let defaultItems = [
+            ItemData(id: UUID().uuidString, name: "joint", icon: "leaf.circle.fill", colorHex: "red", sortOrder: 1, incrementStep: 1.0, isPinned: true, trackingType: .daily),
+            ItemData(id: UUID().uuidString, name: "bowl", icon: "heat.waves.circle.fill", colorHex: "purple", sortOrder: 0, incrementStep: 0.5, isPinned: true, trackingType: .daily)
+        ]
+        
+        for item in defaultItems {
+            let alreadyExists = existingItems.contains { $0.name == item.name }
+
+            if !alreadyExists {
+                context.insert(item)
+            }
+        }
+        
         try? context.save()
     }
     

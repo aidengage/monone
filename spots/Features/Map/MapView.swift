@@ -8,10 +8,12 @@
 import SwiftUI
 import MapKit
 import Combine
+import SwiftData
 
 struct MapView: View {
     @State private var viewModel = ViewModel()
     
+    @Environment(\.globalModelContext) private var swiftModelContainer
     @Environment(\.scenePhase) private var scenePhase // this handles what happens when the app is in the background
     
     @Environment(\.currentUser) private var currentUser

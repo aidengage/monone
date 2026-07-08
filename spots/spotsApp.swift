@@ -155,6 +155,7 @@ struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     @Environment(\.globalModelContext) private var swiftModelContainer
+    @Environment(\.tracker) private var tracker
     
     var body: some Scene {
         WindowGroup {
@@ -163,6 +164,12 @@ struct spotsApp: App {
                     GIDSignIn.sharedInstance.handle(url)
                 }
                 .modelContainer(swiftModelContainer)
+            
+                .task {
+                    await MainActor.run {
+                        tracker.seedDefaultTrackedItems(context: swiftModelContainer.mainContext)
+                    }
+                }
         }
     }
 }
