@@ -65,7 +65,7 @@ extension ItemData {
         return snapshots(from: range.start, to: range.end).reduce(0) { $0 + $1.count }
     }
     
-    private func fillDailyWells(from start: Date, to end: Date, calender: Calendar) -> [ChartPoint] {
+    private func fillDailyWells(from start: Date, to end: Date, calendar: Calendar) -> [ChartPoint] {
         var wells: [Date: Double] = [:]
         for snapshot in snapshots(from: start, to: end) {
             wells[snapshot.date, default: 0] += snapshot.count
@@ -73,18 +73,18 @@ extension ItemData {
         
         var result: [ChartPoint] = []
         
-        var current = calender.startOfDay(for: start)
-        let endOfDay = calender.startOfDay(for: end)
+        var current = calendar.startOfDay(for: start)
+        let endOfDay = calendar.startOfDay(for: end)
         
-        while current >= endOfDay {
+        while current <= endOfDay { // Corrected condition
             result.append(ChartPoint(date: current, count: wells[current] ?? 0))
-            current = calender.date(byAdding: .day, value: 1, to: current)!
+            current = calendar.date(byAdding: .day, value: 1, to: current)!
         }
         
         return result
     }
     
-    private func fillMonthlyWells(from start: Date, to end: Date, calender: Calendar) -> [ChartPoint] {
+    private func fillMonthlyWells(from start: Date, to end: Date, calendar: Calendar) -> [ChartPoint] {
         var wells: [Date: Double] = [:]
         for snapshot in snapshots(from: start, to: end) {
             wells[snapshot.date, default: 0] += snapshot.count
@@ -92,12 +92,12 @@ extension ItemData {
         
         var result: [ChartPoint] = []
         
-        var current = calender.dateInterval(of: .month, for: start)?.start ?? start
-        let endOfMonth = calender.dateInterval(of: .month, for: end)?.end ?? end
+        var current = calendar.dateInterval(of: .month, for: start)?.start ?? start
+        let endOfMonth = calendar.dateInterval(of: .month, for: end)?.end ?? end
         
-        while current <= endOfMonth {
+        while current <= endOfMonth { // Corrected condition
             result.append(ChartPoint(date: current, count: wells[current] ?? 0))
-            current = calender.date(byAdding: .month, value: 1, to: current)!
+            current = calendar.date(byAdding: .month, value: 1, to: current)!
         }
         
         return result
