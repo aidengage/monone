@@ -11,6 +11,8 @@ import SwiftData
 #Preview {
     
     @Previewable @Environment(\.tracker) var tracker
+    @Previewable @State var postVisible: Bool = false
+    
     let config = ModelConfiguration(isStoredInMemoryOnly: false)
     let container = try! ModelContainer(for: ItemData.self, configurations: config)
     
@@ -26,9 +28,14 @@ import SwiftData
         
     
     
+    return VStack(spacing: 20) {
+        Toggle("Show Post (Minimize Widget)", isOn: $postVisible)
+            .padding()
+        Spacer()
+        TrackerWidget(showPost: $postVisible)
+            .modelContainer(container)
+    }
     
-    return TrackerWidget()
-        .modelContainer(container)
 //        .task {
 //            await tracker.syncItems(context: container.mainContext)
 //        }
@@ -38,6 +45,86 @@ struct TrackerWidget: View {
     @Query(filter: #Predicate<ItemData> { $0.isPinned == true })
     private var pinnedItems: [ItemData]
     @State private var showFullTracker = false
+    @Binding var showPost: Bool
+    
+    var body: some View {
+        Group {
+            if showPost {
+                MinimizedTracker(showFullTracker: showFullTracker, showPost: showPost, pinnedItems: pinnedItems)
+                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            } else {
+                MaximizedTracker(showFullTracker: showFullTracker, showPost: showPost, pinnedItems: pinnedItems)
+                    .transition(.scale(scale: 1.0).combined(with: .opacity))
+            }
+        }
+//        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: showPost)
+//        .sheet(isPresented: $showFullTracker) {
+//            TrackerListView()
+//        }
+//        VStack(alignment: .leading, spacing: 8) {
+//            ForEach(pinnedItems.prefix(2)) { item in
+//                TrackerWidgetRow(item: item)
+//            }
+//        }
+//        .padding(12)
+//        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+//        .shadow(radius: 3)
+//        .onTapGesture {
+//            showFullTracker.toggle()
+//        }
+//        .sheet(isPresented: $showFullTracker) {
+//            TrackerListView()
+//        }
+    }
+    
+    // MARK: - Expanded Widget (Default)
+//    private var expandedWidget: any View {
+//        
+//    }
+        
+    // MARK: - Minimized Icon Widget (Active Post View)
+//    private var minimizedWidget: any View {
+//        
+//    }
+}
+
+struct MinimizedTracker: View {
+    @State var showFullTracker: Bool
+    @State var showPost: Bool
+    @State var pinnedItems: [ItemData]
+    
+    var body: some View {
+        
+        //        }
+        Button {
+            withAnimation {
+                // Tapping minimized icon dismisses the active post card / expands widget
+                showPost = false
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "leaf.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.green)
+                
+                if !pinnedItems.isEmpty {
+                    Text("\(pinnedItems.count)")
+                        .font(.caption.bold())
+                        .foregroundStyle(.primary)
+                }
+            }
+            .padding(10)
+            .background(.ultraThinMaterial, in: Circle())
+            .shadow(radius: 3)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct MaximizedTracker: View {
+    @State var showFullTracker: Bool
+    @State var showPost: Bool
+    @State var pinnedItems: [ItemData]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -50,9 +137,6 @@ struct TrackerWidget: View {
         .shadow(radius: 3)
         .onTapGesture {
             showFullTracker.toggle()
-        }
-        .sheet(isPresented: $showFullTracker) {
-            TrackerListView()
         }
     }
 }
