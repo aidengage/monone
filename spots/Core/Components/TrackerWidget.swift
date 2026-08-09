@@ -8,38 +8,38 @@
 import SwiftUI
 import SwiftData
 
-#Preview {
-    
-    @Previewable @Environment(\.tracker) var tracker
-    @Previewable @State var postVisible: Bool = false
-    
-    let config = ModelConfiguration(isStoredInMemoryOnly: false)
-    let container = try! ModelContainer(for: ItemData.self, configurations: config)
-    
-    let jointItem = ItemData(id: UUID().uuidString, name: "joint", icon: "leaf.circle.fill", colorHex: "red", /*lastSyncedAt = nil,*/ sortOrder: 0, incrementStep: 1.0, isPinned: true, trackingType: .daily)
-    let bowlItem = ItemData(id: UUID().uuidString, name: "bowl", icon: "heat.waves.circle.fill", colorHex: "purple", /*lastSyncedAt = nil,*/ sortOrder: 0, incrementStep: 1.0, isPinned: true, trackingType: .daily)
+//#Preview {
 //    
-    let items: [ItemData] = [jointItem, bowlItem]
-    
-    tracker.addItemsToContext(items: items, context: container.mainContext)
-//    tracker.syncItems(context: container)
-//    container.mainContext.insert(jointItem)
-//    container.mainContext.insert(bowlItem)
-        
-    
-    
-    return VStack(spacing: 20) {
-        Toggle("Show Post (Minimize Widget)", isOn: $postVisible)
-            .padding()
-        Spacer()
-        TrackerWidget(showPost: $postVisible)
-            .modelContainer(container)
-    }
+//    @Previewable @Environment(\.tracker) var tracker
+//    @Previewable @State var postVisible: Bool = false
+//    
+//    let config = ModelConfiguration(isStoredInMemoryOnly: false)
+//    let container = try! ModelContainer(for: ItemData.self, configurations: config)
+//    
+//    let jointItem = ItemData(id: UUID().uuidString, name: "joint", icon: "leaf.circle.fill", colorHex: "red", /*lastSyncedAt = nil,*/ sortOrder: 0, incrementStep: 1.0, isPinned: true, trackingType: .daily)
+//    let bowlItem = ItemData(id: UUID().uuidString, name: "bowl", icon: "heat.waves.circle.fill", colorHex: "purple", /*lastSyncedAt = nil,*/ sortOrder: 0, incrementStep: 1.0, isPinned: true, trackingType: .daily)
+////    
+//    let items: [ItemData] = [jointItem, bowlItem]
+//    
+//    tracker.addItemsToContext(items: items, context: container.mainContext)
+////    tracker.syncItems(context: container)
+////    container.mainContext.insert(jointItem)
+////    container.mainContext.insert(bowlItem)
+//        
+//    
+//    
+//    return VStack(spacing: 20) {
+//        Toggle("Show Post (Minimize Widget)", isOn: $postVisible)
+//            .padding()
+//        Spacer()
+//        TrackerWidget(showPost: $postVisible)
+//            .modelContainer(container)
+//    }
     
 //        .task {
 //            await tracker.syncItems(context: container.mainContext)
 //        }
-}
+//}
 
 struct TrackerWidget: View {
     @Query(filter: #Predicate<ItemData> { $0.isPinned == true })
@@ -57,35 +57,7 @@ struct TrackerWidget: View {
                     .transition(.scale(scale: 1.0).combined(with: .opacity))
             }
         }
-//        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: showPost)
-//        .sheet(isPresented: $showFullTracker) {
-//            TrackerListView()
-//        }
-//        VStack(alignment: .leading, spacing: 8) {
-//            ForEach(pinnedItems.prefix(2)) { item in
-//                TrackerWidgetRow(item: item)
-//            }
-//        }
-//        .padding(12)
-//        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-//        .shadow(radius: 3)
-//        .onTapGesture {
-//            showFullTracker.toggle()
-//        }
-//        .sheet(isPresented: $showFullTracker) {
-//            TrackerListView()
-//        }
     }
-    
-    // MARK: - Expanded Widget (Default)
-//    private var expandedWidget: any View {
-//        
-//    }
-        
-    // MARK: - Minimized Icon Widget (Active Post View)
-//    private var minimizedWidget: any View {
-//        
-//    }
 }
 
 struct MinimizedTracker: View {
@@ -95,9 +67,8 @@ struct MinimizedTracker: View {
     
     var body: some View {
         
-        //        }
         Button {
-            withAnimation {
+            withAnimation/*(.easeInOut(duration: 0.1))*/ {
                 // Tapping minimized icon dismisses the active post card / expands widget
                 showPost = false
             }
@@ -138,6 +109,9 @@ struct MaximizedTracker: View {
         .onTapGesture {
             showFullTracker.toggle()
         }
+        .sheet(isPresented: $showFullTracker) {
+            TrackerListView()
+        }
     }
 }
 
@@ -146,7 +120,7 @@ struct TrackerWidgetRow: View {
     @Environment(\.modelContext) private var context
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack/*(spacing: 8)*/ {
             Image(systemName: item.icon)
 //                .foregroundStyle(.background)
             
@@ -156,22 +130,26 @@ struct TrackerWidgetRow: View {
             Spacer()
                 .frame(width: 15)
             
-            Button {
-                item.decrement(context: context)
-            } label: {
-                Image(systemName: "minus.circle.fill")
-                    .foregroundStyle(.secondary)
-            }
-            
-            Text(item.displayCount.trackerDisplay)
-                .font(.headline)
-                .frame(minWidth: 28)
-            
-            Button {
-                item.increment(context: context)
-            } label: {
-                Image(systemName: "plus.circle.fill")
-                    .foregroundStyle(.secondary)
+            Group {
+                Button {
+                    item.decrement(context: context)
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                
+                Text(item.displayCount.trackerDisplay)
+                    .font(.headline)
+                    .frame(minWidth: 28)
+                
+                Button {
+                    item.increment(context: context)
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
             }
         }
     }
