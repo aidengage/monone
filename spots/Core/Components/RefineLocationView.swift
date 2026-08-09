@@ -10,7 +10,7 @@ import MapKit
 
 struct RefineLocationPickerView: View {
     private let mapWidth: CGFloat = .infinity
-    private let mapHeight: CGFloat = 200
+    @State private var mapHeight: CGFloat = 200
     private let cornerRadius: CGFloat = 10
     
     @Binding var lat: Double
@@ -57,10 +57,14 @@ struct RefineLocationPickerView: View {
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged { _ in
-                            if !isDragging { isDragging = true }
+                            if !isDragging {
+                                isDragging = true
+                                mapHeight = 300
+                            }
                         }
                         .onEnded { _ in
                             isDragging = false
+                            mapHeight = 200
                         }
                 )
                 
@@ -72,7 +76,6 @@ struct RefineLocationPickerView: View {
                     if oldPosition == nil {
                         oldPosition = position
                     }
-                    
                     self.lat = mapCameraUpdateContext.camera.centerCoordinate.latitude
                     self.lon = mapCameraUpdateContext.camera.centerCoordinate.longitude
                 }
