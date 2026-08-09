@@ -42,26 +42,7 @@ struct MapView: View {
                 .allowsHitTesting(viewModel.touchToggle)
                 .mapStyle(viewModel.currentMapStyle) // Apply the reactive style
                 .overlay(alignment: .bottomTrailing) {
-                    Button(action: {
-                        // Action to cycle through the map styles
-                        switch viewModel.style {
-                        case .standard:
-                            viewModel.style = .hybrid
-                        case .hybrid:
-                            viewModel.style = .standard
-                        case .satellite:
-                            viewModel.style = .standard
-                        case .experimental:
-                            viewModel.style = .standard
-                        }
-                    }) {
-                        Image(systemName: viewModel.currentMapIcon)
-                            .padding(5)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(10)
-                            .shadow(radius: 5)
-                            .tint(.black)
-                    }
+                    MapStyleButton(style: $viewModel.style)
                     .padding()
                 }
                 .onAppear {

@@ -9,8 +9,50 @@ import SwiftUI
 import Combine
 import FirebaseAuth
 import Observation
+import MapKit
 
 
+struct MapStyleButton: View {
+    @Binding var style: MapStyleSetting
+    
+    var currentMapIcon: String {
+        switch style {
+        case .standard:
+            return "map"
+        case .hybrid:
+            return "globe"
+        case .satellite:
+            return "antenna.radiowaves.left.and.right"
+        case .experimental:
+            return "bonjour"
+        }
+    }
+            
+    
+    var body: some View {
+        Button(action: {
+            // Action to cycle through the map styles
+            switch style {
+            case .standard:
+                style = .hybrid
+            case .hybrid:
+                style = .standard
+            case .satellite:
+                style = .standard
+            case .experimental:
+                style = .standard
+            }
+        }) {
+            Image(systemName: currentMapIcon)
+                .padding(5)
+                .background(.ultraThinMaterial)
+                .cornerRadius(10)
+                .shadow(radius: 5)
+                .tint(.black)
+        }
+        .padding()
+    }
+}
 
     struct AddButton: View {
         
