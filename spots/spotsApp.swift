@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import SwiftData
+import Foundation
 import FirebaseCore
 import FirebaseAuth
 import GoogleSignIn
@@ -24,7 +26,10 @@ import GoogleSignIn
 //    lazy var feedbackService: feedbackServiceProtocol = spots.FeedbackService(authService: authService, dbService: dbService, storageService: storageService, imageService: imageService)
 //}
 
+@MainActor
 private struct DependencyContainer {
+    let modelContainer: ModelContainer
+    
     let db: dbServiceProtocol
     let auth: authServiceProtocol
     let storage: storageServiceProtocol
@@ -37,8 +42,20 @@ private struct DependencyContainer {
     
     let currentUser: uidProtocol
     let buttonsViewModel: ButtonsViewModel
+    let tracker: trackerProtocol
     
     init() {
+        do {
+            // 2. FIXED: Explicitly register your SwiftData models inside a Schema
+            let schema = Schema([ItemData.self]) // Add any other @Model classes to this array
+            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+            
+            self.modelContainer = try ModelContainer(for: schema, configurations: config)
+        } catch {
+            fatalError("failed to initialize ModelContainer: \(error.localizedDescription)")
+        }
+        
+        
         let db = dbService()
         let auth = authService()
         let storage = storageService()
@@ -51,6 +68,7 @@ private struct DependencyContainer {
         
         let currentUser = UserID()
         let buttonsViewModel = ButtonsViewModel(currentUser: currentUser, dbService: db)
+        let tracker = TrackerSyncService(authService: auth, dbService: db)
         
         self.db = db
         self.auth = auth
@@ -64,11 +82,13 @@ private struct DependencyContainer {
         
         self.currentUser = currentUser
         self.buttonsViewModel = buttonsViewModel
+        self.tracker = tracker
     }
 }
 
 extension EnvironmentValues {
     private static let vault = DependencyContainer()
+    @Entry var globalModelContext: ModelContainer = vault.modelContainer
     
     @Entry var db: dbServiceProtocol = vault.db
     @Entry var auth: authServiceProtocol = vault.auth
@@ -82,6 +102,7 @@ extension EnvironmentValues {
     
     @Entry var currentUser: uidProtocol = vault.currentUser
     @Entry var buttonsViewModel: ButtonsViewModel = vault.buttonsViewModel
+    @Entry var tracker: trackerProtocol = vault.tracker
 }
 //
 //    @Entry var imageService: imageServiceProtocol
@@ -133,11 +154,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct spotsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-//    @State private var session = UserID()
-    
-//    let auth: authService = authService()
-//    let db: dbService = dbService()
-//    let storage: storageService = storageService()
+    @Environment(\.globalModelContext) private var swiftModelContainer
+    @Environment(\.tracker) private var tracker
     
     var body: some Scene {
         WindowGroup {
@@ -145,10 +163,13 @@ struct spotsApp: App {
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }
-//                .environment(session)
-//                .environment(\.auth, auth)
-//                .environment(\.db, db)
-//                .environment(\.storage, storage)
+                .modelContainer(swiftModelContainer)
+            
+                .task {
+                    await MainActor.run {
+                        tracker.seedDefaultTrackedItems(context: swiftModelContainer.mainContext)
+                    }
+                }
         }
     }
 }

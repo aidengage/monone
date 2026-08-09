@@ -11,9 +11,11 @@ import GoogleSignIn
 import GoogleSignInSwift
 
 protocol authServiceProtocol {
+//    var currentUserID: String? { get set }
+    
     func getAuth() -> Auth
     func getAuthStatus() -> Bool
-    func getCurrentUserID() async throws -> String
+    func getCurrentUserID() throws -> String
     func getCurrentUser() -> FirebaseAuth.User?
     func signInWithGoogle(presenting: UIViewController) async throws -> GIDSignInResult
 //    func signInWithApple()
@@ -27,8 +29,9 @@ enum authServiceError: Error {
 
 @Observable
 class authService: authServiceProtocol {
+    
     private let auth = Auth.auth()
-    var currentUserID: String? { return auth.currentUser?.uid }
+    /*internal */var currentUserID: String? { return auth.currentUser?.uid }
     
     func getAuth() -> Auth {
         return auth
@@ -48,7 +51,7 @@ class authService: authServiceProtocol {
         }
     }
     
-    func getCurrentUserID() async throws -> String {
+    func getCurrentUserID() /*async*/ throws -> String {
         let user = auth.currentUser
         guard let uid = user?.uid else {
             throw authServiceError.notAuthenticated

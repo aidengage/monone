@@ -22,11 +22,11 @@ extension MapView {
         //*what is this?
         var observersSetUp = false
 
-        /*@Published */var selectedPost: Post?
+        var selectedPost: Post?
         var selectedPostID: String?
         var postsToShow: [Post] = []
         
-        /*@Published*/ var style: MapStyleSetting = .standard {
+        var style: MapStyleSetting = .standard {
             didSet {
                 UserDefaults.standard.set(style.rawValue, forKey: .settingsMapStyleKey)
             }
@@ -40,7 +40,6 @@ extension MapView {
             
         }
         
-//        @Published var selectedMapStyleType: MapStyleSetting = .standard
         var currentMapStyle: MapStyle {
             switch style {
             case .standard:
@@ -53,20 +52,8 @@ extension MapView {
                 return .imagery(elevation: .realistic)
             }
         }
-        var currentMapIcon: String {
-            switch style {
-            case .standard:
-                return "map"
-            case .hybrid:
-                return "globe"
-            case .satellite:
-                return "antenna.radiowaves.left.and.right"
-            case .experimental:
-                return "bonjour"
-            }
-        }
         
-        /*@Published */var touchToggle: Bool = true
+        var touchToggle: Bool = true
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
@@ -78,14 +65,7 @@ extension MapView {
         
         var path: NavigationPath = NavigationPath()
         
-    //*why is camera position hardcoded in?
-//        @Published var cameraPosition: MapCameraPosition = .region(
-//            MKCoordinateRegion(
-//                center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
-//                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-//            )
-//        )
-        /*@Published */var cameraPosition: MapCameraPosition = .automatic
+        var cameraPosition: MapCameraPosition = .automatic
         private var oldCameraPosition: MapCameraPosition?
         var isViewingPost: Bool = false
         var lastKnownCamera: MapCamera?
