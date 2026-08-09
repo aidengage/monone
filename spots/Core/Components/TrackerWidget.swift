@@ -50,20 +50,21 @@ struct TrackerWidget: View {
     var body: some View {
         Group {
             if showPost {
-                MinimizedTracker(showFullTracker: showFullTracker, showPost: showPost, pinnedItems: pinnedItems)
+                MinimizedTracker(showFullTracker: $showFullTracker, showPost: $showPost, pinnedItems: pinnedItems)
                     .transition(.scale(scale: 0.8).combined(with: .opacity))
             } else {
-                MaximizedTracker(showFullTracker: showFullTracker, showPost: showPost, pinnedItems: pinnedItems)
+                MaximizedTracker(showFullTracker: $showFullTracker, showPost: $showPost, pinnedItems: pinnedItems)
                     .transition(.scale(scale: 1.0).combined(with: .opacity))
             }
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: showPost)
     }
 }
 
 struct MinimizedTracker: View {
-    @State var showFullTracker: Bool
-    @State var showPost: Bool
-    @State var pinnedItems: [ItemData]
+    @Binding var showFullTracker: Bool
+    @Binding var showPost: Bool
+    let pinnedItems: [ItemData]
     
     var body: some View {
         
@@ -93,9 +94,9 @@ struct MinimizedTracker: View {
 }
 
 struct MaximizedTracker: View {
-    @State var showFullTracker: Bool
-    @State var showPost: Bool
-    @State var pinnedItems: [ItemData]
+    @Binding var showFullTracker: Bool
+    @Binding var showPost: Bool
+    let pinnedItems: [ItemData]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -133,6 +134,8 @@ struct TrackerWidgetRow: View {
             Group {
                 Button {
                     item.decrement(context: context)
+                    item.lastSyncedAt = Date()
+                    try? item.modelContext?.save()
                 } label: {
                     Image(systemName: "minus.circle.fill")
                         .foregroundStyle(.secondary)
@@ -145,6 +148,8 @@ struct TrackerWidgetRow: View {
                 
                 Button {
                     item.increment(context: context)
+                    item.lastSyncedAt = Date()
+                    try? item.modelContext?.save()
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .foregroundStyle(.secondary)
