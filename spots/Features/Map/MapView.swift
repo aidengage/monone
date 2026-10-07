@@ -132,6 +132,7 @@ struct MapView: View {
                 }
             }
         }
+//        .toolbarBackground(Color.clear, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $viewModel.selectedPost, onDismiss: {
             buttonsViewModel.startPostListenerForMode()
