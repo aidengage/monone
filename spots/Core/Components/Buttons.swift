@@ -210,6 +210,7 @@ struct MapStyleButton: View {
                     Label("feedback", systemImage: "bubble.left")
                 }
                 .buttonStyle(.glassProminent)
+                .buttonBorderShape(.circle)
                 .tint(.orange)
                 .navigationDestination(isPresented: $showFeedback) {
                     FeedbackForm(/*path: $path*/)
@@ -229,6 +230,7 @@ struct MapStyleButton: View {
                     Label("settings", systemImage: "gear")
                 }
                 .buttonStyle(.glassProminent)
+                .buttonBorderShape(.circle)
                 .tint(.teal)
                 .navigationDestination(isPresented: $showSettings) {
                     SettingsView()
@@ -250,6 +252,7 @@ struct MapStyleButton: View {
                 Label("Filters", systemImage: "slider.horizontal.3")
             }
             .buttonStyle(.glassProminent)
+            .buttonBorderShape(.circle)
         }
 
         @ViewBuilder
