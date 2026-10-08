@@ -38,6 +38,6 @@
 		<string>MKDirectionsModeTrain</string>
 	</array>
 	<key>UIDesignRequiresCompatibility</key>
-	<true/>
+	<false/>
 </dict>
 </plist>
