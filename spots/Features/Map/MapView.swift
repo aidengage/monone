@@ -10,9 +10,29 @@ import MapKit
 import Combine
 import SwiftData
 
+enum MapFeedMode {
+    case home
+    case friends
+    case profile
+}
+
 struct MapView: View {
     @State private var viewModel = ViewModel()
-    
+    @Binding var mapCenterLat: Double
+    @Binding var mapCenterLong: Double
+    var feedMode: MapFeedMode
+
+    init(
+        feedMode: MapFeedMode = .home,
+        mapCenterLat: Binding<Double> = .constant(0),
+        mapCenterLong: Binding<Double> = .constant(0)
+    ) {
+        self.feedMode = feedMode
+        _mapCenterLat = mapCenterLat
+        _mapCenterLong = mapCenterLong
+        _viewModel = State(initialValue: ViewModel())
+    }
+
     @Environment(\.globalModelContext) private var swiftModelContainer
     @Environment(\.scenePhase) private var scenePhase // this handles what happens when the app is in the background
     
@@ -47,7 +67,10 @@ struct MapView: View {
                 }
                 .onAppear {
                     viewModel.style = settingMapStyle
-                    buttonsViewModel.startPostListenerForMode()
+                    if feedMode == .profile {
+                        buttonsViewModel.profileToggle = true
+                    }
+                    startPostListenerForFeedMode()
                     if !viewModel.observersSetUp {
                         viewModel.observeCoordinateUpdates()
                         viewModel.observeLocationAccessDenied()
@@ -56,19 +79,28 @@ struct MapView: View {
                     viewModel.deviceLocationService.requestLocationUpdates()
                     Task {
                         try await userService.loadBookmarks()
-                        //testing this out
                         try await userService.loadUserSocials()
+                        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
                     }
                 }
-                .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
-                .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
+                .onChange(of: buttonsViewModel.profileToggle) { _, _ in
+                    guard feedMode == .home else { return }
+                    buttonsViewModel.startPostListenerForMode()
+                }
+                .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in
+                    switch feedMode {
+                    case .home:
+                        buttonsViewModel.startPostListenerForMode()
+                    case .profile:
+                        startPostListenerForFeedMode()
+                        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
+                    case .friends:
+                        break
+                    }
+                }
                 .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
                 .onChange(of: dbService.posts) { _, newPosts in
-                    viewModel.postsToShow = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
-                        newPosts.filter { userService.getBookmarks().contains($0.id) }
-                    } else {
-                        newPosts
-                    }
+                    viewModel.postsToShow = postsToDisplay(from: newPosts)
                 }
                 .onChange(of: scenePhase) { oldPhase, newPhase in
                     switch newPhase {
@@ -92,14 +124,21 @@ struct MapView: View {
                     }
                 }
                 .onDisappear {
-                    // stops post listener
+                    if feedMode == .profile {
+                        buttonsViewModel.profileToggle = false
+                        buttonsViewModel.showOnlyBookmarked = false
+                    }
                     dbService.stopPostListener()
                     print("map disappeared, stopping post listener")
                 }
                 // when map camera changes, update center coords with new center
                 .onMapCameraChange { mapCameraUpdateContext in
-                    viewModel.update(centerLat: mapCameraUpdateContext.camera.centerCoordinate.latitude)
-                    viewModel.update(centerLong: mapCameraUpdateContext.camera.centerCoordinate.longitude)
+                    let lat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+                    let lon = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                    mapCenterLat = lat
+                    mapCenterLong = lon
+                    viewModel.update(centerLat: lat)
+                    viewModel.update(centerLong: lon)
 //                                print("\(viewModel.centerLat): \(viewModel.centerLong)")
                     if !viewModel.isViewingPost {
                         viewModel.lastKnownCamera = mapCameraUpdateContext.camera
@@ -115,14 +154,16 @@ struct MapView: View {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         if currentUser.uid != nil {
                             FeedbackButton()
-                            ActivityFilter(viewModel: buttonsViewModel)
+                            if feedMode == .home {
+                                ActivityFilter(viewModel: buttonsViewModel)
+                            }
                             SettingsButton()
                         }
                     }
                 }
-                .overlay(alignment: .bottomLeading) {
-                    AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
-                }
+                // .overlay(alignment: .bottomLeading) {
+                //     AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
+                // }
                 .overlay(alignment: .topLeading) {
                     VerticalDropdownToolbar(path: $viewModel.path)
                 }
@@ -135,7 +176,7 @@ struct MapView: View {
 //        .toolbarBackground(Color.clear, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $viewModel.selectedPost, onDismiss: {
-            buttonsViewModel.startPostListenerForMode()
+            startPostListenerForFeedMode()
             viewModel.exitPost()
             viewModel.touchToggle.toggle()
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -153,6 +194,39 @@ struct MapView: View {
                         buttonsViewModel.showAll.toggle()
                     }
                 }
+        }
+    }
+
+    private func startPostListenerForFeedMode() {
+        switch feedMode {
+        case .home:
+            buttonsViewModel.startPostListenerForMode()
+        case .friends:
+            buttonsViewModel.startFriendsFeedListener()
+        case .profile:
+            if buttonsViewModel.showOnlyBookmarked {
+                buttonsViewModel.startAllPostsListener()
+            } else {
+                buttonsViewModel.startProfileFeedListener()
+            }
+        }
+    }
+
+    private func postsToDisplay(from posts: [Post]) -> [Post] {
+        switch feedMode {
+        case .home:
+            if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
+                return posts.filter { userService.getBookmarks().contains($0.id) }
+            }
+            return posts
+        case .friends:
+            let following = userService.getFollowing()
+            return posts.filter { following.contains($0.userId) }
+        case .profile:
+            if buttonsViewModel.showOnlyBookmarked {
+                return posts.filter { userService.getBookmarks().contains($0.id) }
+            }
+            return posts.filter { $0.userId == currentUser.uid }
         }
     }
 }
