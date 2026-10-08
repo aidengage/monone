@@ -98,6 +98,7 @@ struct MapStyleButton: View {
                     AddPostView(centerLat: centerLat, centerLong: centerLong)
                         .presentationDetents([.fraction(0.75)])
                 }
+                
                 .navigationDestination(isPresented: $showLogin) {
                     LoginView()
                 }
