@@ -31,7 +31,7 @@ enum BottomTabModel: String, Identifiable, CaseIterable, Hashable, Sendable, Cus
     }
 }
 
-// bar at the bottom of the screen 
+// bar at the bottom of the screen
 struct FloatingBottomNav: View {
     let tabs: [BottomTabModel]
     @Binding var selectedTab: BottomTabModel
@@ -82,40 +82,57 @@ struct FloatingBottomNav: View {
 
 // main view which shows which tab is active and the right page + bottom bar
 struct NavBarView: View {
+    @Environment(\.auth) private var authService
+
     @State private var activeTab: BottomTabModel = .home
-    
+    @State private var showAddPost = false
+    @State private var showLogin = false
+    @State private var mapCenterLat: Double = 0
+    @State private var mapCenterLong: Double = 0
+
     var body: some View {
         VStack(spacing: 0) {
-            //TabView is used to show the different pages of the app
             TabView(selection: $activeTab) {
-                MapView()
+                MapView(mapCenterLat: $mapCenterLat, mapCenterLong: $mapCenterLong)
                     .tag(BottomTabModel.home)
                     .toolbar(.hidden, for: .tabBar)
 
                 TabPlaceholder(title: "Trending")
-                //need to replace 
                     .tag(BottomTabModel.trending)
                     .toolbar(.hidden, for: .tabBar)
 
-                TabPlaceholder(title: "Add")
-                //need to replace 
+                // Empty page; Add is handled in onChange(of: activeTab), same as the old + button sheet.
+                Color.clear
                     .tag(BottomTabModel.add)
                     .toolbar(.hidden, for: .tabBar)
 
                 TabPlaceholder(title: "Friends")
-                //need to replace 
                     .tag(BottomTabModel.friends)
                     .toolbar(.hidden, for: .tabBar)
 
                 TabPlaceholder(title: "Profile")
-                //need to replace   
                     .tag(BottomTabModel.profile)
                     .toolbar(.hidden, for: .tabBar)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .onChange(of: activeTab) { _, newTab in
+                guard newTab == .add else { return }
+                if authService.getAuthStatus() {
+                    showAddPost = true
+                } else {
+                    showLogin = true
+                }
+                activeTab = .home
+            }
 
-            //FloatingBottomNav is used to show the bottom navigation bar
             FloatingBottomNav(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
+        }
+        .sheet(isPresented: $showAddPost) {
+            AddPostView(centerLat: mapCenterLat, centerLong: mapCenterLong)
+                .presentationDetents([.fraction(0.75)])
+        }
+        .sheet(isPresented: $showLogin) {
+            LoginView()
         }
     }
 }

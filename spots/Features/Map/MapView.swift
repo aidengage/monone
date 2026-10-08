@@ -12,7 +12,18 @@ import SwiftData
 
 struct MapView: View {
     @State private var viewModel = ViewModel()
-    
+    @Binding var mapCenterLat: Double
+    @Binding var mapCenterLong: Double
+
+    init(
+        mapCenterLat: Binding<Double> = .constant(0),
+        mapCenterLong: Binding<Double> = .constant(0)
+    ) {
+        _mapCenterLat = mapCenterLat
+        _mapCenterLong = mapCenterLong
+        _viewModel = State(initialValue: ViewModel())
+    }
+
     @Environment(\.globalModelContext) private var swiftModelContainer
     @Environment(\.scenePhase) private var scenePhase // this handles what happens when the app is in the background
     
@@ -98,8 +109,12 @@ struct MapView: View {
                 }
                 // when map camera changes, update center coords with new center
                 .onMapCameraChange { mapCameraUpdateContext in
-                    viewModel.update(centerLat: mapCameraUpdateContext.camera.centerCoordinate.latitude)
-                    viewModel.update(centerLong: mapCameraUpdateContext.camera.centerCoordinate.longitude)
+                    let lat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+                    let lon = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                    mapCenterLat = lat
+                    mapCenterLong = lon
+                    viewModel.update(centerLat: lat)
+                    viewModel.update(centerLong: lon)
 //                                print("\(viewModel.centerLat): \(viewModel.centerLong)")
                     if !viewModel.isViewingPost {
                         viewModel.lastKnownCamera = mapCameraUpdateContext.camera
@@ -120,9 +135,9 @@ struct MapView: View {
                         }
                     }
                 }
-                .overlay(alignment: .bottomLeading) {
-                    AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
-                }
+                // .overlay(alignment: .bottomLeading) {
+                //     AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
+                // }
                 .overlay(alignment: .topLeading) {
                     VerticalDropdownToolbar(path: $viewModel.path)
                 }
