@@ -14,11 +14,18 @@ import Combine
 
 struct ContentView: View {
     var body: some View {
-        MapView()
+        // MapView()
+        // NavigationStack {
+        //     VStack {
+        //         // NavigationLink("Go to Map", destination: MapView()) 
+        //     }
+        //     .navigationTitle("Home")
+        //     .navigationBarTitleDisplayMode(.inline)
+        // }
+        NavBarView()
     }
 }
 
 #Preview {
     ContentView()
 }
-
