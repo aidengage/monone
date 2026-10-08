@@ -9,20 +9,21 @@ import SwiftUI
 import MapKit
 
 struct MapCurrentLocation: MapContent {
-    var hasValidLocation: Bool
-    var latitude: Double
-    var longitude: Double
+//    var hasValidLocation: Bool
+//    var latitude: Double
+//    var longitude: Double
+    @Environment(\.location) private var locationService
     
     var body: some MapContent {
-        if hasValidLocation { // shouldnt need this
-            Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)) {
-                Image(systemName: "mappin.circle.fill")
-                    .foregroundColor(.green)
-                    .font(.title2)
-                    .background(Color.white)
-                    .clipShape(Circle())
-            }
+//        if hasValidLocation { // shouldnt need this
+        Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: locationService.location?.coordinate.latitude ?? 0.0, longitude: locationService.location?.coordinate.longitude ?? 0.0)) {
+            Image(systemName: "mappin.circle.fill")
+                .foregroundColor(.green)
+                .font(.title2)
+                .background(Color.white)
+                .clipShape(Circle())
         }
+//        }
     }
 }
 

@@ -44,6 +44,8 @@ private struct DependencyContainer {
     let buttonsViewModel: ButtonsViewModel
     let tracker: trackerProtocol
     
+    let location: locationProtocol
+    
     init() {
         do {
             // 2. FIXED: Explicitly register your SwiftData models inside a Schema
@@ -70,6 +72,8 @@ private struct DependencyContainer {
         let buttonsViewModel = ButtonsViewModel(currentUser: currentUser, dbService: db)
         let tracker = TrackerSyncService(authService: auth, dbService: db)
         
+        let location = DeviceLocationService()
+        
         self.db = db
         self.auth = auth
         self.storage = storage
@@ -83,6 +87,8 @@ private struct DependencyContainer {
         self.currentUser = currentUser
         self.buttonsViewModel = buttonsViewModel
         self.tracker = tracker
+        
+        self.location = location
     }
 }
 
@@ -103,6 +109,8 @@ extension EnvironmentValues {
     @Entry var currentUser: uidProtocol = vault.currentUser
     @Entry var buttonsViewModel: ButtonsViewModel = vault.buttonsViewModel
     @Entry var tracker: trackerProtocol = vault.tracker
+    
+    @Entry var location: locationProtocol = vault.location
 }
 //
 //    @Entry var imageService: imageServiceProtocol

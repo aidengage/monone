@@ -17,7 +17,7 @@ extension MapView {
 // observable makes sure VieModel's stored properties can automatically publish changes so SwiftUI views can react
     @Observable
     class ViewModel {
-        var hasValidLocation = false
+//        var hasValidLocation = false
         var hasCenteredOnUser = false
         //*what is this?
         var observersSetUp = false
@@ -59,7 +59,8 @@ extension MapView {
         var centerLat: Double = 0
         var centerLong: Double = 0
         
-        var deviceLocationService = DeviceLocationService.shared
+//        var deviceLocationService = DeviceLocationService.shared
+//        @Environment(\.location) private var location
     //*what do we need this for? --> to store the user location perhaps
         var tokens: Set<AnyCancellable> = []
         
@@ -158,46 +159,46 @@ extension MapView {
         }
         
         //using publisher provided by deviceLocationService
-        func observeCoordinateUpdates(){
-            deviceLocationService.coordinatesPublisher
-                .receive(on: DispatchQueue.main)
-                .sink{ completion in
-                    if case .failure(let error) = completion {
-                        print(error)
-                    }
-                } receiveValue: { coordinates in
-                    // Update coordinates and mark as valid
-                    self.coordinates = (coordinates.latitude, coordinates.longitude)
-                    self.hasValidLocation = true
-                    
-                    // Center map on user's location the first time we get it
-                    if !self.hasCenteredOnUser {
-                        self.cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: coordinates,
-                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                            )
-                        )
-                        self.hasCenteredOnUser = true
-                    }
-                    
-                }
-                .store(in: &tokens)
-        }
+//        func observeCoordinateUpdates(){
+//            location.requestLocationUpdates()
+//                .receive(on: DispatchQueue.main)
+//                .sink{ completion in
+//                    if case .failure(let error) = completion {
+//                        print(error)
+//                    }
+//                } receiveValue: { coordinates in
+//                    // Update coordinates and mark as valid
+//                    self.coordinates = (coordinates.latitude, coordinates.longitude)
+//                    self.hasValidLocation = true
+//                    
+//                    // Center map on user's location the first time we get it
+//                    if !self.hasCenteredOnUser {
+//                        self.cameraPosition = .region(
+//                            MKCoordinateRegion(
+//                                center: coordinates,
+//                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+//                            )
+//                        )
+//                        self.hasCenteredOnUser = true
+//                    }
+//                    
+//                }
+//                .store(in: &tokens)
+//        }
         
-        func observeLocationAccessDenied(){
-            deviceLocationService.deniedLocationAccessPublisher
-                .receive(on: DispatchQueue.main)
-                .sink{
-                    print("location denied")
-                }
-                .store(in: &tokens)
-        }
+//        func observeLocationAccessDenied(){
+//            deviceLocationService.deniedLocationAccessPublisher
+//                .receive(on: DispatchQueue.main)
+//                .sink{
+//                    print("location denied")
+//                }
+//                .store(in: &tokens)
+//        }
         
         //**lowkey why do we even need this function?
-        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-            print("locations = \(locValue.latitude) \(locValue.longitude)")
-        }
+//        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+//            guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+//            print("locations = \(locValue.latitude) \(locValue.longitude)")
+//        }
     }
 }

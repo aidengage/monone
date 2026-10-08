@@ -24,8 +24,8 @@ extension AddPostView {
     }
     
     @Observable class ViewModel {
-        var centerLat: Double = 0
-        var centerLong: Double = 0
+        var centerLat: Double = 0.0
+        var centerLong: Double = 0.0
         var title: String = ""
         var comment: String = ""
         var address: String = ""
@@ -48,7 +48,6 @@ extension AddPostView {
             self.centerLong = newLon
         }
         
-        
     }
     
     // all for reverse geocoding to get the nearest address to the coordinates
@@ -70,10 +69,11 @@ extension AddPostView {
     }
     
     struct ReverseGeocoding {
+        @Environment(\.location) private var locationService
         // gets address from coordinates
         func nearestAddress(location: CLLocation) async throws -> Place? {
 //            print("geo coding.......")
-            if let request = MKReverseGeocodingRequest(location: location) {
+            if let request = MKReverseGeocodingRequest(location: locationService.location ?? location) {
                 let mapItems = try await request.mapItems
                 return mapItems.first.map(Place.init)
             }

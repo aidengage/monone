@@ -95,7 +95,7 @@ struct MapStyleButton: View {
                 
                 // navigation logic for login and addpost, sending center coords with the navigation
                 .sheet(isPresented: $showAddPost) {
-                    AddPostView(centerLat: centerLat, centerLong: centerLong)
+                    AddPostView(/*centerLat: centerLat, centerLong: centerLong*/)
                         .presentationDetents([.fraction(0.75)])
                 }
                 

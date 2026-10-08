@@ -23,6 +23,8 @@ struct MapView: View {
     @Environment(\.db) private var dbService
     @Environment(\.user) private var userService
     
+    @Environment(\.location) private var locationService
+    
 //    @Environment(\.modelContext) private var modelContext
     
     @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
@@ -31,7 +33,7 @@ struct MapView: View {
         NavigationStack(path: $viewModel.path) {
             GeometryReader { proxy in
                 Map(position: $viewModel.cameraPosition, selection: $viewModel.selectedPost) {
-                    MapCurrentLocation(hasValidLocation: viewModel.hasValidLocation, latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)
+                    MapCurrentLocation()
                     
                     PostFilter(profileToggle: buttonsViewModel.profileToggle, showOnlyBookmarked: buttonsViewModel.showOnlyBookmarked, postsToShow: $viewModel.postsToShow)
                 }
@@ -49,11 +51,11 @@ struct MapView: View {
                     viewModel.style = settingMapStyle
                     buttonsViewModel.startPostListenerForMode()
                     if !viewModel.observersSetUp {
-                        viewModel.observeCoordinateUpdates()
-                        viewModel.observeLocationAccessDenied()
+                        locationService.requestLocationUpdates()
+//                        locationService.isAccessDenied
                         viewModel.observersSetUp = true
                     }
-                    viewModel.deviceLocationService.requestLocationUpdates()
+                    locationService.requestLocationUpdates()
                     Task {
                         try await userService.loadBookmarks()
                         //testing this out

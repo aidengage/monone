@@ -23,6 +23,8 @@ struct AddPostView: View {
     @Environment(\.currentUser) private var currentUser
     @Environment(\.post) private var postService
     
+    @Environment(\.location) private var location
+    
     @FocusState private var focusedField: KeyboardField?
     
     
@@ -34,13 +36,13 @@ struct AddPostView: View {
 //        }
 //    }()
 
-    init(centerLat: Double, centerLong: Double) {
-        // state variables received from contentview
-        // center x and y for post location
-        viewModel.centerLat = centerLat
-        viewModel.centerLong = centerLong
-        
-    }
+//    init(centerLat: Double, centerLong: Double) {
+//        // state variables received from contentview
+//        // center x and y for post location
+//        viewModel.centerLat = location.location?.coordinate.latitude ?? 0.0
+//        viewModel.centerLong = location.location?.coordinate.longitude ?? 0.0
+//        
+//    }
     
     var body: some View {
         NavigationStack {
@@ -52,15 +54,15 @@ struct AddPostView: View {
                         .focused($focusedField, equals: .title)
                         .textContentType(.name)
                         .submitLabel(.next)
-                    TextField("Address", text: $viewModel.address)
-                        .focused($focusedField, equals: .address)
-                        .textContentType(.fullStreetAddress)
-                        .submitLabel(.next)
+//                    TextField("Address", text: $viewModel.address)
+//                        .focused($focusedField, equals: .address)
+//                        .textContentType(.fullStreetAddress)
+//                        .submitLabel(.next)
                 }
                 
-                Section(header: Text("Refine your location!")) {
-                    RefineLocationPickerView(lat: $viewModel.centerLat, lon: $viewModel.centerLong)
-                }
+//                Section(header: Text("Refine your location!")) {
+//                    RefineLocationPickerView(lat: $viewModel.centerLat, lon: $viewModel.centerLong)
+//                }
                 
                 Section(header: Text("Write your comment!")) {
                     TextField("what did you think??", text: $viewModel.comment, axis: .vertical)
@@ -101,12 +103,23 @@ struct AddPostView: View {
                 
                 // autofilled coordinates based on where the pin is
                 Section(header: Text("Coordinates")) {
-                    HStack {
-                        TextField("Latitude", value: $viewModel.centerLat, format: .number)
-                            .keyboardType(.decimalPad)
-                        TextField("Longitude", value: $viewModel.centerLong, format: .number)
-                            .keyboardType(.decimalPad)
-                    }
+//                    Text("\(location.location?.coordinate.latitude ?? 0.0), \(location.location?.coordinate.longitude ?? 0.0)")
+//                    VStack {
+                        HStack {
+                            if let coordinate = location.location?.coordinate {
+                                Text("\(coordinate.latitude)")
+                                    .keyboardType(.decimalPad)
+                                Text("\(coordinate.longitude)")
+                            }
+                        }
+//                        
+//                        HStack {
+//                            TextField("Latitude", value: $viewModel.centerLat, format: .number)
+//                                .keyboardType(.decimalPad)
+//                            TextField("Longitude", value: $viewModel.centerLong, format: .number)
+//                                .keyboardType(.decimalPad)
+//                        }
+//                    }
                 }
                 
                 Button(action: {
