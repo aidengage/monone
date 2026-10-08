@@ -114,9 +114,17 @@ struct NavBarView: View {
                 .tag(BottomTabModel.friends)
                 .toolbar(.hidden, for: .tabBar)
 
-                TabPlaceholder(title: "Profile")
-                    .tag(BottomTabModel.profile)
-                    .toolbar(.hidden, for: .tabBar)
+                MapView(
+                    feedMode: .profile,
+                    mapCenterLat: $mapCenterLat,
+                    mapCenterLong: $mapCenterLong
+                )
+                .tag(BottomTabModel.profile)
+                .toolbar(.hidden, for: .tabBar)
+
+                // TabPlaceholder(title: "Profile")
+                //     .tag(BottomTabModel.profile)
+                //     .toolbar(.hidden, for: .tabBar)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .onChange(of: activeTab) { _, newTab in
@@ -127,6 +135,7 @@ struct NavBarView: View {
                     showLogin = true
                 }
                 activeTab = .home
+
             }
 
             FloatingBottomNav(tabs: BottomTabModel.allCases, selectedTab: $activeTab)

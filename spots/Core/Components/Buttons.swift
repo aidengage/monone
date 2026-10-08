@@ -317,6 +317,11 @@ struct MapStyleButton: View {
             print("friends feed post listener (client-side following filter)")
         }
 
+        func startProfileFeedListener() {
+            dbService.startUserPostListener(userId: currentUser.uid ?? "")
+            print("profile feed post listener")
+        }
+
         func toggleActivityFilter(_ activity: ActivityType) {
             switch activity {
             case .smoke:

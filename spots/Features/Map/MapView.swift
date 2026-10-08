@@ -13,6 +13,7 @@ import SwiftData
 enum MapFeedMode {
     case home
     case friends
+    case profile
 }
 
 struct MapView: View {
@@ -188,6 +189,8 @@ struct MapView: View {
             buttonsViewModel.startPostListenerForMode()
         case .friends:
             buttonsViewModel.startFriendsFeedListener()
+        case .profile:
+            buttonsViewModel.startProfileFeedListener()
         }
     }
 
@@ -201,7 +204,10 @@ struct MapView: View {
         case .friends:
             let following = userService.getFollowing()
             return posts.filter { following.contains($0.userId) }
+        case .profile:
+            return posts.filter { $0.userId == currentUser.uid }
         }
+        
     }
 }
 
