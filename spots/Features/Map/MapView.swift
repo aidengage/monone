@@ -10,15 +10,23 @@ import MapKit
 import Combine
 import SwiftData
 
+enum MapFeedMode {
+    case home
+    case friends
+}
+
 struct MapView: View {
     @State private var viewModel = ViewModel()
     @Binding var mapCenterLat: Double
     @Binding var mapCenterLong: Double
+    var feedMode: MapFeedMode
 
     init(
+        feedMode: MapFeedMode = .home,
         mapCenterLat: Binding<Double> = .constant(0),
         mapCenterLong: Binding<Double> = .constant(0)
     ) {
+        self.feedMode = feedMode
         _mapCenterLat = mapCenterLat
         _mapCenterLong = mapCenterLong
         _viewModel = State(initialValue: ViewModel())
@@ -58,7 +66,7 @@ struct MapView: View {
                 }
                 .onAppear {
                     viewModel.style = settingMapStyle
-                    buttonsViewModel.startPostListenerForMode()
+                    startPostListenerForFeedMode()
                     if !viewModel.observersSetUp {
                         viewModel.observeCoordinateUpdates()
                         viewModel.observeLocationAccessDenied()
@@ -67,19 +75,21 @@ struct MapView: View {
                     viewModel.deviceLocationService.requestLocationUpdates()
                     Task {
                         try await userService.loadBookmarks()
-                        //testing this out
                         try await userService.loadUserSocials()
+                        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
                     }
                 }
-                .onChange(of: buttonsViewModel.profileToggle) { _, _ in buttonsViewModel.startPostListenerForMode() }
-                .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in buttonsViewModel.startPostListenerForMode() }
+                .onChange(of: buttonsViewModel.profileToggle) { _, _ in
+                    guard feedMode == .home else { return }
+                    buttonsViewModel.startPostListenerForMode()
+                }
+                .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in
+                    guard feedMode == .home else { return }
+                    buttonsViewModel.startPostListenerForMode()
+                }
                 .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
                 .onChange(of: dbService.posts) { _, newPosts in
-                    viewModel.postsToShow = if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
-                        newPosts.filter { userService.getBookmarks().contains($0.id) }
-                    } else {
-                        newPosts
-                    }
+                    viewModel.postsToShow = postsToDisplay(from: newPosts)
                 }
                 .onChange(of: scenePhase) { oldPhase, newPhase in
                     switch newPhase {
@@ -130,7 +140,9 @@ struct MapView: View {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         if currentUser.uid != nil {
                             FeedbackButton()
-                            ActivityFilter(viewModel: buttonsViewModel)
+                            if feedMode == .home {
+                                ActivityFilter(viewModel: buttonsViewModel)
+                            }
                             SettingsButton()
                         }
                     }
@@ -149,7 +161,7 @@ struct MapView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $viewModel.selectedPost, onDismiss: {
-            buttonsViewModel.startPostListenerForMode()
+            startPostListenerForFeedMode()
             viewModel.exitPost()
             viewModel.touchToggle.toggle()
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -167,6 +179,28 @@ struct MapView: View {
                         buttonsViewModel.showAll.toggle()
                     }
                 }
+        }
+    }
+
+    private func startPostListenerForFeedMode() {
+        switch feedMode {
+        case .home:
+            buttonsViewModel.startPostListenerForMode()
+        case .friends:
+            buttonsViewModel.startFriendsFeedListener()
+        }
+    }
+
+    private func postsToDisplay(from posts: [Post]) -> [Post] {
+        switch feedMode {
+        case .home:
+            if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
+                return posts.filter { userService.getBookmarks().contains($0.id) }
+            }
+            return posts
+        case .friends:
+            let following = userService.getFollowing()
+            return posts.filter { following.contains($0.userId) }
         }
     }
 }

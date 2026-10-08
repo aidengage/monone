@@ -311,6 +311,12 @@ struct MapStyleButton: View {
             }
         }
 
+        /// All posts from Firestore; filter to `userService.getFollowing()` in MapView (same pattern as bookmarks).
+        func startFriendsFeedListener() {
+            dbService.startPostListener()
+            print("friends feed post listener (client-side following filter)")
+        }
+
         func toggleActivityFilter(_ activity: ActivityType) {
             switch activity {
             case .smoke:

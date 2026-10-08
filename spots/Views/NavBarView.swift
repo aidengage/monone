@@ -106,9 +106,13 @@ struct NavBarView: View {
                     .tag(BottomTabModel.add)
                     .toolbar(.hidden, for: .tabBar)
 
-                TabPlaceholder(title: "Friends")
-                    .tag(BottomTabModel.friends)
-                    .toolbar(.hidden, for: .tabBar)
+                MapView(
+                    feedMode: .friends,
+                    mapCenterLat: $mapCenterLat,
+                    mapCenterLong: $mapCenterLong
+                )
+                .tag(BottomTabModel.friends)
+                .toolbar(.hidden, for: .tabBar)
 
                 TabPlaceholder(title: "Profile")
                     .tag(BottomTabModel.profile)
