@@ -67,6 +67,9 @@ struct MapView: View {
                 }
                 .onAppear {
                     viewModel.style = settingMapStyle
+                    if feedMode == .profile {
+                        buttonsViewModel.profileToggle = true
+                    }
                     startPostListenerForFeedMode()
                     if !viewModel.observersSetUp {
                         viewModel.observeCoordinateUpdates()
@@ -85,8 +88,15 @@ struct MapView: View {
                     buttonsViewModel.startPostListenerForMode()
                 }
                 .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in
-                    guard feedMode == .home else { return }
-                    buttonsViewModel.startPostListenerForMode()
+                    switch feedMode {
+                    case .home:
+                        buttonsViewModel.startPostListenerForMode()
+                    case .profile:
+                        startPostListenerForFeedMode()
+                        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
+                    case .friends:
+                        break
+                    }
                 }
                 .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
                 .onChange(of: dbService.posts) { _, newPosts in
@@ -114,7 +124,10 @@ struct MapView: View {
                     }
                 }
                 .onDisappear {
-                    // stops post listener
+                    if feedMode == .profile {
+                        buttonsViewModel.profileToggle = false
+                        buttonsViewModel.showOnlyBookmarked = false
+                    }
                     dbService.stopPostListener()
                     print("map disappeared, stopping post listener")
                 }
@@ -190,7 +203,11 @@ struct MapView: View {
         case .friends:
             buttonsViewModel.startFriendsFeedListener()
         case .profile:
-            buttonsViewModel.startProfileFeedListener()
+            if buttonsViewModel.showOnlyBookmarked {
+                buttonsViewModel.startAllPostsListener()
+            } else {
+                buttonsViewModel.startProfileFeedListener()
+            }
         }
     }
 
@@ -205,9 +222,11 @@ struct MapView: View {
             let following = userService.getFollowing()
             return posts.filter { following.contains($0.userId) }
         case .profile:
+            if buttonsViewModel.showOnlyBookmarked {
+                return posts.filter { userService.getBookmarks().contains($0.id) }
+            }
             return posts.filter { $0.userId == currentUser.uid }
         }
-        
     }
 }
 
