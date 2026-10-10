@@ -67,10 +67,7 @@ struct MapView: View {
                 }
                 .onAppear {
                     viewModel.style = settingMapStyle
-                    if feedMode == .profile {
-                        buttonsViewModel.profileToggle = true
-                    }
-                    startPostListenerForFeedMode()
+                    applyFeedMode(feedMode)
                     if !viewModel.observersSetUp {
                         viewModel.observeCoordinateUpdates()
                         viewModel.observeLocationAccessDenied()
@@ -82,6 +79,13 @@ struct MapView: View {
                         try await userService.loadUserSocials()
                         viewModel.postsToShow = postsToDisplay(from: dbService.posts)
                     }
+                }
+                .onChange(of: feedMode) { oldMode, newMode in
+                    if oldMode == .profile {
+                        buttonsViewModel.profileToggle = false
+                        buttonsViewModel.showOnlyBookmarked = false
+                    }
+                    applyFeedMode(newMode)
                 }
                 .onChange(of: buttonsViewModel.profileToggle) { _, _ in
                     guard feedMode == .home else { return }
@@ -124,12 +128,7 @@ struct MapView: View {
                     }
                 }
                 .onDisappear {
-                    if feedMode == .profile {
-                        buttonsViewModel.profileToggle = false
-                        buttonsViewModel.showOnlyBookmarked = false
-                    }
                     dbService.stopPostListener()
-                    print("map disappeared, stopping post listener")
                 }
                 // when map camera changes, update center coords with new center
                 .onMapCameraChange { mapCameraUpdateContext in
@@ -165,7 +164,9 @@ struct MapView: View {
                 //     AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
                 // }
                 .overlay(alignment: .topLeading) {
-                    VerticalDropdownToolbar(path: $viewModel.path)
+                    if feedMode == .profile {
+                        VerticalDropdownToolbar(path: $viewModel.path)
+                    }
                 }
                 .overlay(alignment: .topTrailing) {
                     TrackerWidget(showPost: $viewModel.isViewingPost)
@@ -194,6 +195,14 @@ struct MapView: View {
                     }
                 }
         }
+    }
+
+    private func applyFeedMode(_ mode: MapFeedMode) {
+        if mode == .profile {
+            buttonsViewModel.profileToggle = true
+        }
+        startPostListenerForFeedMode()
+        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
     }
 
     private func startPostListenerForFeedMode() {

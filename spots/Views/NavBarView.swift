@@ -1,6 +1,5 @@
 import SwiftUI
 
-//define the different tabs in the bottom navigation bar
 enum BottomTabModel: String, Identifiable, CaseIterable, Hashable, Sendable, CustomStringConvertible {
     case home
     case trending
@@ -29,9 +28,17 @@ enum BottomTabModel: String, Identifiable, CaseIterable, Hashable, Sendable, Cus
         case .profile: return ""
         }
     }
+
+    var mapFeedMode: MapFeedMode? {
+        switch self {
+        case .home: return .home
+        case .friends: return .friends
+        case .profile: return .profile
+        case .trending, .add: return nil
+        }
+    }
 }
 
-// bar at the bottom of the screen
 struct FloatingBottomNav: View {
     let tabs: [BottomTabModel]
     @Binding var selectedTab: BottomTabModel
@@ -80,7 +87,6 @@ struct FloatingBottomNav: View {
     }
 }
 
-// main view which shows which tab is active and the right page + bottom bar
 struct NavBarView: View {
     @Environment(\.auth) private var authService
 
@@ -92,53 +98,32 @@ struct NavBarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            TabView(selection: $activeTab) {
-                MapView(mapCenterLat: $mapCenterLat, mapCenterLong: $mapCenterLong)
-                    .tag(BottomTabModel.home)
-                    .toolbar(.hidden, for: .tabBar)
-
-                TabPlaceholder(title: "Trending")
-                    .tag(BottomTabModel.trending)
-                    .toolbar(.hidden, for: .tabBar)
-
-                // Empty page; Add is handled in onChange(of: activeTab), same as the old + button sheet.
-                Color.clear
-                    .tag(BottomTabModel.add)
-                    .toolbar(.hidden, for: .tabBar)
-
-                MapView(
-                    feedMode: .friends,
-                    mapCenterLat: $mapCenterLat,
-                    mapCenterLong: $mapCenterLong
-                )
-                .tag(BottomTabModel.friends)
-                .toolbar(.hidden, for: .tabBar)
-
-                MapView(
-                    feedMode: .profile,
-                    mapCenterLat: $mapCenterLat,
-                    mapCenterLong: $mapCenterLong
-                )
-                .tag(BottomTabModel.profile)
-                .toolbar(.hidden, for: .tabBar)
-
-                // TabPlaceholder(title: "Profile")
-                //     .tag(BottomTabModel.profile)
-                //     .toolbar(.hidden, for: .tabBar)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .onChange(of: activeTab) { _, newTab in
-                guard newTab == .add else { return }
-                if authService.getAuthStatus() {
-                    showAddPost = true
+            Group {
+                //for home, friends, profile 
+                if let feedMode = activeTab.mapFeedMode {
+                    MapView(
+                        feedMode: feedMode,
+                        mapCenterLat: $mapCenterLat,
+                        mapCenterLong: $mapCenterLong
+                    )
+                } else if activeTab == .trending {
+                    TabPlaceholder(title: "Trending")
                 } else {
-                    showLogin = true
+                    Color.clear
                 }
-                activeTab = .home
-
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             FloatingBottomNav(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
+        }
+        .onChange(of: activeTab) { _, newTab in
+            guard newTab == .add else { return }
+            if authService.getAuthStatus() {
+                showAddPost = true
+            } else {
+                showLogin = true
+            }
+            activeTab = .home
         }
         .sheet(isPresented: $showAddPost) {
             AddPostView(centerLat: mapCenterLat, centerLong: mapCenterLong)
