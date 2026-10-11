@@ -51,6 +51,25 @@ enum ImageFormat {
     }
 }
 
+struct SelectedPhotoPreview: View {
+    @Binding var data: [Data]
+    
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack {
+                ForEach(data, id: \.self) { imageData in
+                    if let image = UIImage(data: imageData) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame( maxHeight: 150)
+                    }
+                }
+            }
+        }
+    }
+}
+
 // photo selector view, maybe move this to add post view??
 struct PhotoSelector: View {
     @Binding var data: [Data]
@@ -62,21 +81,7 @@ struct PhotoSelector: View {
 
     var body: some View {
         PhotosPicker(selection: $selectedItem, maxSelectionCount: maxPhotos, matching: .images, preferredItemEncoding: .automatic) {
-            HStack {
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(data, id: \.self) { imageData in
-                            if let image = UIImage(data: imageData) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame( maxHeight: 150)
-                            }
-                        }
-                        Label("", systemImage: "photo.on.rectangle.angled")
-                    }
-                }
-            }
+            Label("Library", systemImage: "photo.on.rectangle.angled")
         }
         .onChange (of: selectedItem) {_, newValue in
             for item in selectedItem {
@@ -119,20 +124,6 @@ struct PhotoSelector: View {
         print("image format is: \(format)")
         return format
     }
-    
-//    private func isHEIF(data: Data) -> Bool {
-//        // HEIC files start with ftyp box, with brand "heic", "heix", "mif1", or "msf1"
-//        guard data.count >= 12 else { return false }
-//        let ftypMarker = data[4...7]
-//        let brand = data[8...11]
-//        return ftypMarker == Data([0x66, 0x74, 0x79, 0x70]) && // "ftyp"
-//            (brand == Data([0x68, 0x65, 0x69, 0x63]) || // "heic"
-//             brand == Data([0x68, 0x65, 0x69, 0x78]) || // "heix"
-//             brand == Data([0x68, 0x65, 0x76, 0x63]) || // "hevc" — HEIF specific
-//             brand == Data([0x68, 0x65, 0x76, 0x78]) || // "hevx" — HEIF specific
-//             brand == Data([0x6D, 0x69, 0x66, 0x31]) || // "mif1"
-//             brand == Data([0x6D, 0x73, 0x66, 0x31]))   // "msf1"
-//    }
 }
 
 struct ProfilePhotoSelectorView: View {

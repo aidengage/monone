@@ -88,15 +88,21 @@ struct AddPostView: View {
                 }
                 // custom photo picker logic in AddPostView and FirebaseManager
                 //            Section(header: Text("Image Upload")) {
-                PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images, maxPhotos: 6)
-                Button(action: {
-                    showCamera.toggle()
-                    print("show camera bool: \(showCamera)")
-//                    print("camera auth: \(PRMPermissions.cameraStatus())")
-//                    StudioViewController()
-                }) {
-                    Label("open camera", systemImage: "camera.fill")
+                VStack () {
+                    HStack() {
+                        PhotoSelector(data: $viewModel.imageData, imageUUIDs: $viewModel.imageUUIDs, images: $viewModel.images, maxPhotos: 6)
+                        Button(action: {
+                            showCamera.toggle()
+                            print("show camera bool: \(showCamera)")
+                            //                    print("camera auth: \(PRMPermissions.cameraStatus())")
+                            //                    StudioViewController()
+                        }) {
+                            Label("open camera", systemImage: "camera.fill")
+                        }
+                    }
+                    SelectedPhotoPreview(data: $viewModel.imageData)
                 }
+                
                 .buttonStyle(.glassProminent)
                 .fullScreenCover(isPresented: $showCamera) {
                     CameraHost()
