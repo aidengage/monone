@@ -8,17 +8,13 @@
 // many things happen in this file beware
 
 import SwiftUI
-import MapKit
-import FirebaseAuth
-import Combine
 
 struct ContentView: View {
     var body: some View {
-        MapView()
+        NavBarView()
     }
 }
 
 #Preview {
     ContentView()
 }
-

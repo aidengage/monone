@@ -17,9 +17,9 @@ struct VerticalDropdownToolbar: View {
         NavigationStack(path: $path) {
             VStack {
                 if viewModel.showAll {
-                    ProfileButton(viewModel: viewModel)
-                        .buttonStyle(.glassProminent)
-                        .buttonBorderShape(.circle)
+                    // ProfileButton(viewModel: viewModel)
+                    //     .buttonStyle(.glassProminent)
+                    //     .buttonBorderShape(.circle)
                     
                     if viewModel.profileToggle {
                         BookmarkButton(viewModel: viewModel)
