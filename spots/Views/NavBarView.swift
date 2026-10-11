@@ -97,7 +97,7 @@ struct NavBarView: View {
     @State private var mapCenterLong: Double = 0
 
     var body: some View {
-        VStack(spacing: 0) {
+        ZStack(alignment: .bottom) {
             Group {
                 //for home, friends, profile 
                 if let feedMode = activeTab.mapFeedMode {
