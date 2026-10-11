@@ -13,6 +13,8 @@ import Foundation
 import PhotosUI
 import FirebaseStorage
 
+import PrismCore
+
 struct AddPostView: View {
     @State private var viewModel = ViewModel()
     
@@ -23,6 +25,8 @@ struct AddPostView: View {
     @Environment(\.currentUser) private var currentUser
     @Environment(\.post) private var postService
     
+    @Environment(\.scenePhase) private var scenePhase
+//    @Environment(\.globalModelContext) private var swiftModelContainer
     @Environment(\.location) private var location
     
     @FocusState private var focusedField: KeyboardField?
@@ -88,13 +92,21 @@ struct AddPostView: View {
                 Button(action: {
                     showCamera.toggle()
                     print("show camera bool: \(showCamera)")
+//                    print("camera auth: \(PRMPermissions.cameraStatus())")
+//                    StudioViewController()
                 }) {
                     Label("open camera", systemImage: "camera.fill")
                 }
                 .buttonStyle(.glassProminent)
-                .sheet(isPresented: $showCamera) {
-                    MijickCameraView(selectedImages: $viewModel.images)
+                .fullScreenCover(isPresented: $showCamera) {
+                    CameraHost()
+                        .ignoresSafeArea()
                 }
+//                .sheet(isPresented: $showCamera) {
+//                    MijickCameraView(selectedImages: $viewModel.images, showCam: showCamera)
+//                    PrismCameraView()
+//                }
+//                .navigationDestination(isPresented: $showCamera, destination: StudioViewController())
                 //                    .fullScreenCover(isPresented: $showCamera) {
                 //                .sheet(isPresented: $showCamera) {
                 //                    CameraView(cameraManager: cameraManager, photoLimit: 6, enablePhoto: true, enableVideo: false, selectedImages: $viewModel.images)
@@ -144,7 +156,17 @@ struct AddPostView: View {
             }
             .onAppear {
                 addTapGestureToDismissKeyboard()
+                print("show camera: \(showCamera)")
             }
+//            .onChange(of: scenePhase) { oldPhase, newPhase in
+//                if newPhase == .active && oldPhase == .background {
+//                    showCamera = false
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                        showCamera = true
+//                    }
+//                }
+//            }
+            
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Post")
             // task to use coords and receive its address if there is one

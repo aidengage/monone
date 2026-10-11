@@ -36,7 +36,7 @@ struct SignupView: View {
     
     @State private var showCamera: Bool = false
     
-    @StateObject private var cameraManager = CameraManager()
+//    @StateObject private var cameraManager = CameraManager()
     
 //    let ImageService: ImageServiceProtocol
 //    let dbService: dbServiceProtocol
@@ -81,10 +81,10 @@ struct SignupView: View {
                     .buttonStyle(.glassProminent)
                     
 //                    .fullScreenCover(isPresented: $showCamera) {
-                    .sheet(isPresented: $showCamera) {
-//                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
-                        MijickCameraView(selectedImages: $selectedImage) // this camera is broken but working on it
-                    }
+//                    .sheet(isPresented: $showCamera) {
+////                        CameraView(cameraManager: cameraManager, photoLimit: 1, enablePhoto: true, enableVideo: false, selectedImages: $selectedImage)
+//                        MijickCameraView(selectedImages: $selectedImage) // this camera is broken but working on it
+//                    }
                 }
                 
                 Button(action: {

@@ -7,9 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E717799F3077AC900081570F /* PrismCore in Frameworks */ = {isa = PBXBuildFile; productRef = E717799E3077AC900081570F /* PrismCore */; };
+		E71779A13077AC900081570F /* PrismUI in Frameworks */ = {isa = PBXBuildFile; productRef = E71779A03077AC900081570F /* PrismUI */; };
+		E71779AA307A16FD0081570F /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E71779A9307A16FD0081570F /* SnapKit */; };
 		E73973DB2F44413A00CBA71E /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = E73973DA2F44413A00CBA71E /* Kingfisher */; };
 		E74B18512F4858700025CD27 /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = E74B18502F4858700025CD27 /* Mantis */; };
-		E76675402FDCDAF8002C789D /* MijickCamera in Frameworks */ = {isa = PBXBuildFile; productRef = E766753F2FDCDAF8002C789D /* MijickCamera */; };
 		E78614C72F04BF83004A7A6A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = E78614C62F04BF83004A7A6A /* FirebaseDatabase */; };
 		E78614C92F04BF83004A7A6A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E78614C82F04BF83004A7A6A /* FirebaseFirestore */; };
 		E78614CB2F04BF83004A7A6A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = E78614CA2F04BF83004A7A6A /* FirebaseStorage */; };
@@ -71,13 +73,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E76675402FDCDAF8002C789D /* MijickCamera in Frameworks */,
 				E78614C72F04BF83004A7A6A /* FirebaseDatabase in Frameworks */,
 				E78614C92F04BF83004A7A6A /* FirebaseFirestore in Frameworks */,
+				E717799F3077AC900081570F /* PrismCore in Frameworks */,
+				E71779A13077AC900081570F /* PrismUI in Frameworks */,
 				E78614CB2F04BF83004A7A6A /* FirebaseStorage in Frameworks */,
 				E7AB0CB12FD8F01200DBF193 /* GoogleSignInSwift in Frameworks */,
 				F81ADD382F0CA6160038FC23 /* FirebaseAuth in Frameworks */,
 				E73973DB2F44413A00CBA71E /* Kingfisher in Frameworks */,
+				E71779AA307A16FD0081570F /* SnapKit in Frameworks */,
 				E74B18512F4858700025CD27 /* Mantis in Frameworks */,
 				E7AB0CAF2FD8F01200DBF193 /* GoogleSignIn in Frameworks */,
 			);
@@ -163,7 +167,9 @@
 				E74B18502F4858700025CD27 /* Mantis */,
 				E7AB0CAE2FD8F01200DBF193 /* GoogleSignIn */,
 				E7AB0CB02FD8F01200DBF193 /* GoogleSignInSwift */,
-				E766753F2FDCDAF8002C789D /* MijickCamera */,
+				E717799E3077AC900081570F /* PrismCore */,
+				E71779A03077AC900081570F /* PrismUI */,
+				E71779A9307A16FD0081570F /* SnapKit */,
 			);
 			productName = spots;
 			productReference = E7D9E09C2EF88B150000CF01 /* spots.app */;
@@ -202,7 +208,8 @@
 				E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				E74B184F2F4858700025CD27 /* XCRemoteSwiftPackageReference "Mantis" */,
 				E7AB0CAD2FD8F01200DBF193 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-				E766753E2FDCDAF8002C789D /* XCRemoteSwiftPackageReference "Camera" */,
+				E717799D3077AC900081570F /* XCRemoteSwiftPackageReference "Prism" */,
+				E71779A8307A16FD0081570F /* XCRemoteSwiftPackageReference "snapkit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E7D9E09D2EF88B150000CF01 /* Products */;
@@ -436,7 +443,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "lemme use your camera";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "gimme your location";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To record audio for Live Photos and videos.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "save photos to library";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save captured photos and videos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -474,7 +481,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "lemme use your camera";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "gimme your location";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "To record audio for Live Photos and videos.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "save photos to library";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To save captured photos and videos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -531,6 +538,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		E717799D3077AC900081570F /* XCRemoteSwiftPackageReference "Prism" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Luminoid/Prism";
+			requirement = {
+				kind = revision;
+				revision = eba3dc9e6d42451748dff17491fa59f8181a8fb2;
+			};
+		};
+		E71779A8307A16FD0081570F /* XCRemoteSwiftPackageReference "snapkit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/snapkit/snapkit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.0;
+			};
+		};
 		E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -545,14 +568,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.7.5;
-			};
-		};
-		E766753E2FDCDAF8002C789D /* XCRemoteSwiftPackageReference "Camera" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Mijick/Camera";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.3;
 			};
 		};
 		E78614C52F04BF83004A7A6A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
@@ -574,6 +589,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E717799E3077AC900081570F /* PrismCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E717799D3077AC900081570F /* XCRemoteSwiftPackageReference "Prism" */;
+			productName = PrismCore;
+		};
+		E71779A03077AC900081570F /* PrismUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E717799D3077AC900081570F /* XCRemoteSwiftPackageReference "Prism" */;
+			productName = PrismUI;
+		};
+		E71779A9307A16FD0081570F /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E71779A8307A16FD0081570F /* XCRemoteSwiftPackageReference "snapkit" */;
+			productName = SnapKit;
+		};
 		E73973DA2F44413A00CBA71E /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E73973D92F44413A00CBA71E /* XCRemoteSwiftPackageReference "Kingfisher" */;
@@ -583,11 +613,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E74B184F2F4858700025CD27 /* XCRemoteSwiftPackageReference "Mantis" */;
 			productName = Mantis;
-		};
-		E766753F2FDCDAF8002C789D /* MijickCamera */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E766753E2FDCDAF8002C789D /* XCRemoteSwiftPackageReference "Camera" */;
-			productName = MijickCamera;
 		};
 		E78614C62F04BF83004A7A6A /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;

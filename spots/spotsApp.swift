@@ -11,6 +11,8 @@ import Foundation
 import FirebaseCore
 import FirebaseAuth
 import GoogleSignIn
+import PrismCore
+import UIKit
 
 
 //final class DependencyContainer {
@@ -153,9 +155,32 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
         FirebaseApp.configure()
+        PRMLog.minimumLevel = .debug
         return true
     }
 }
+
+//final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+//    var window: UIWindow?
+//
+//    func scene(
+//        _ scene: UIScene,
+//        willConnectTo session: UISceneSession,
+//        options connectionOptions: UIScene.ConnectionOptions
+//    ) {
+//        guard let windowScene = scene as? UIWindowScene else { return }
+//        let window = UIWindow(windowScene: windowScene)
+////        let root = RootCatalogViewController()
+////        let nav = UINavigationController(rootViewController: root)
+//        nav.navigationBar.prefersLargeTitles = true
+//        // The whole app is dark (`UIUserInterfaceStyle` in Info.plist): a camera UI over a
+//        // live preview.
+//        window.rootViewController = nav
+//        window.makeKeyAndVisible()
+//        self.window = window
+//    }
+//}
+
 
 // the main view of our app, where we call contentview to start everything
 @main
