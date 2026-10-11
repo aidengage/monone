@@ -108,16 +108,7 @@ struct AddPostView: View {
                     CameraHost()
                         .ignoresSafeArea()
                 }
-//                .sheet(isPresented: $showCamera) {
-//                    MijickCameraView(selectedImages: $viewModel.images, showCam: showCamera)
-//                    PrismCameraView()
-//                }
-//                .navigationDestination(isPresented: $showCamera, destination: StudioViewController())
-                //                    .fullScreenCover(isPresented: $showCamera) {
-                //                .sheet(isPresented: $showCamera) {
-                //                    CameraView(cameraManager: cameraManager, photoLimit: 6, enablePhoto: true, enableVideo: false, selectedImages: $viewModel.images)
-                //                }
-                //            }
+
                 
                 // autofilled coordinates based on where the pin is
                 Section(header: Text("Coordinates")) {
@@ -164,14 +155,11 @@ struct AddPostView: View {
                 addTapGestureToDismissKeyboard()
                 print("show camera: \(showCamera)")
             }
-//            .onChange(of: scenePhase) { oldPhase, newPhase in
-//                if newPhase == .active && oldPhase == .background {
-//                    showCamera = false
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                        showCamera = true
-//                    }
-//                }
-//            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .background {
+                    showCamera = false
+                }
+            }
             
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Post")

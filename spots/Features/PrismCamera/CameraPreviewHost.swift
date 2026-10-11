@@ -18,9 +18,6 @@ struct CameraHost: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ vc: StudioViewController, context: Context) {}
-
-    
-    
 }
 
 // MARK: - CameraPreviewHostDelegate
