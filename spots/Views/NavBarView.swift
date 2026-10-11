@@ -126,7 +126,7 @@ struct NavBarView: View {
             activeTab = .home
         }
         .sheet(isPresented: $showAddPost) {
-            AddPostView(centerLat: mapCenterLat, centerLong: mapCenterLong)
+            AddPostView()
                 .presentationDetents([.fraction(0.75)])
         }
         .sheet(isPresented: $showLogin) {
