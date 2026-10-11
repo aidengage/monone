@@ -107,7 +107,16 @@ struct AddPostView: View {
                 .fullScreenCover(isPresented: $showCamera) {
                     CameraHost()
                         .ignoresSafeArea()
+                    
+                        .overlay {
+                            if scenePhase != .active {
+                                Rectangle()
+                                    .fill(.ultraThinMaterial)
+                                    .ignoresSafeArea()
+                            }
+                        }
                 }
+                
 
                 
                 // autofilled coordinates based on where the pin is
