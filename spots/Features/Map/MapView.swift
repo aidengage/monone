@@ -38,7 +38,7 @@ struct MapView: View {
     
     @Environment(\.currentUser) private var currentUser
     @Environment(\.buttonsViewModel) private var buttonsViewModel
-    @Environment(\.tracker) private var tracker
+//    @Environment(\.tracker) private var tracker
     
     @Environment(\.db) private var dbService
     @Environment(\.user) private var userService
@@ -118,13 +118,13 @@ struct MapView: View {
                         print("app in background")
                         let backgroundContext = ModelContext(swiftModelContainer)
                         
-                        Task {
-                            async let itemSync: () = tracker.syncItems(context: backgroundContext)
-                            async let snapshotSync: () = tracker.syncSnapshots(context: backgroundContext)
-                            
-                            await itemSync
-                            await snapshotSync
-                        }
+//                        Task {
+//                            async let itemSync: () = tracker.syncItems(context: backgroundContext)
+//                            async let snapshotSync: () = tracker.syncSnapshots(context: backgroundContext)
+//                            
+//                            await itemSync
+//                            await snapshotSync
+//                        }
                     @unknown default:
                         print("unexpected future lifecycle reached")
                     }
@@ -170,10 +170,10 @@ struct MapView: View {
                         VerticalDropdownToolbar(path: $viewModel.path)
                     }
                 }
-                .overlay(alignment: .topTrailing) {
-                    TrackerWidget(showPost: $viewModel.isViewingPost)
-                        .padding()
-                }
+//                .overlay(alignment: .topTrailing) {
+//                    TrackerWidget(showPost: $viewModel.isViewingPost)
+//                        .padding()
+//                }
             }
         }
 //        .toolbarBackground(Color.clear, for: .navigationBar)
