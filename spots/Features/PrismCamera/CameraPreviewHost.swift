@@ -8,8 +8,20 @@
 @preconcurrency import AVFoundation
 import PrismCore
 import PrismUI
+import SwiftUI
 import UIKit // optional
 import os // optional
+
+struct CameraHost: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> StudioViewController {
+        StudioViewController()
+    }
+
+    func updateUIViewController(_ vc: StudioViewController, context: Context) {}
+
+    
+    
+}
 
 // MARK: - CameraPreviewHostDelegate
 
