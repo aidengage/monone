@@ -13,8 +13,12 @@ import UIKit // optional
 import os // optional
 
 struct CameraHost: UIViewControllerRepresentable {
+    var onCapture: @MainActor ([Data]) -> Void = { _ in }
+    
     func makeUIViewController(context: Context) -> StudioViewController {
-        StudioViewController()
+        let vc = StudioViewController()
+        vc.onCapture = onCapture
+        return vc
     }
 
     func updateUIViewController(_ vc: StudioViewController, context: Context) {}

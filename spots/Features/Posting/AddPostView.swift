@@ -105,7 +105,9 @@ struct AddPostView: View {
                 
                 .buttonStyle(.glassProminent)
                 .fullScreenCover(isPresented: $showCamera) {
-                    CameraHost()
+                    CameraHost { newPhotos in
+                        viewModel.append(newPhotos)
+                    }
                         .ignoresSafeArea()
                     
                         .overlay {
@@ -125,9 +127,11 @@ struct AddPostView: View {
 //                    VStack {
                         HStack {
                             if let coordinate = location.location?.coordinate {
+                                Spacer()
                                 Text("\(coordinate.latitude)")
                                     .keyboardType(.decimalPad)
                                 Text("\(coordinate.longitude)")
+                                Spacer()
                             }
                         }
 //                        
@@ -141,14 +145,24 @@ struct AddPostView: View {
                 }
                 
                 Button(action: {
-                    if viewModel.title.isEmpty || viewModel.address.isEmpty || /*viewModel.comment.isEmpty ||*/ /*rating == 0.0 ||*/ viewModel.centerLat == 0.0 || viewModel.centerLong == 0.0 || viewModel.imageData == [] {
+                    if viewModel.title.isEmpty || /*viewModel.address.isEmpty ||*/ /*viewModel.comment.isEmpty ||*/ /*rating == 0.0 ||*/ /*viewModel.centerLat == 0.0 || viewModel.centerLong == 0.0 ||*/ viewModel.imageData == [] {
                         print("add every value to post")
                     } else {
                         // add post
                         // uses the global shared firebasemanager object in the firebasemanager class
-                        Task {
-                            try await postService.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: viewModel.centerLat, long: viewModel.centerLong), selectedActivity: viewModel.selectedActivity.displayActivity)
+                        _ = Task {
+//                            print(\()
+                            do {
+                                try await postService.addPost(images: viewModel.images, imagesUUIDs: viewModel.imageUUIDs, name: viewModel.title, address: viewModel.address, rating: viewModel.rating, ratingCount: viewModel.ratingCount, comment: viewModel.comment, coords: (lat: location.location?.coordinate.latitude , long: location.location?.coordinate.longitude) as! (lat: Double, long: Double), selectedActivity: viewModel.selectedActivity.displayActivity)
+                            } catch {
+                                print("error uploading post: \(error)")
+                            }
                         }
+//                        do {
+//                            try await task.getResult()
+//                        } catch {
+//                            print("upload task error: /*\(error)*/")
+//                        }
                         
                         dismiss()
                     }

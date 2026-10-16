@@ -147,6 +147,8 @@ final class StudioViewController: UIViewController {
     ]
 
     // MARK: - Properties
+    
+    var onCapture: (@MainActor ([Data]) -> Void)? /* = { _ in }*/
 
     /// Camera, pipeline and preview, with the boot and appear / disappear lifecycle. The 2 Hz
     /// state poll keeps the telemetry following auto exposure, which drifts without a setter.

@@ -195,8 +195,11 @@ extension StudioViewController {
                 // The capture queue calls this; hop to the main actor for the haptic.
                 Task { @MainActor [weak self] in self?.shutterFlashTick() }
             })
-            try await Self.save(photo: photo.data, crop: crop)
-            self?.toaster.show("Saved to Photos")
+//            try await Self.save(photo: photo.data, crop: crop)
+//            self?.toaster.show("Saved to Photos")
+            let output = await Self.processed(photo.data, crop: crop)
+            self?.onCapture?([output])
+            
         }
     }
 
@@ -416,7 +419,13 @@ extension StudioViewController {
         if let crop {
             output = await cropped(data, to: crop)
         }
-        try await PhotoLibrarySaver.save(.photo(output))
+//        try await PhotoLibrarySaver.save(.photo(output))
+        
+    }
+    
+    private nonisolated static func processed(_ data: Data, crop: AspectCrop?) async -> Data {
+        guard let crop else { return data }
+        return await cropped(data, to: crop)
     }
 
     /// Crops a still to the preview's aspect ratio and re-encodes it in the drawer's codec,

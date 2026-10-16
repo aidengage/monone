@@ -48,6 +48,14 @@ extension AddPostView {
             self.centerLong = newLon
         }
         
+        func append(_ photos: [Data]) {
+            for data in photos where imageData.count < 6 {
+                imageData.append(data)
+                imageUUIDs.append(UUID().uuidString)
+                images.append(UIImage(data: data) ?? UIImage())
+            }
+        }
+        
     }
     
     // all for reverse geocoding to get the nearest address to the coordinates
