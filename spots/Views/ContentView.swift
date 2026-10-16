@@ -8,21 +8,13 @@
 // many things happen in this file beware
 
 import SwiftUI
-import MapKit
-import FirebaseAuth
-import Combine
 
 struct ContentView: View {
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            ZStack {
-                MapView()
-            }
-        }
+        NavBarView()
     }
 }
 
 #Preview {
     ContentView()
 }
-

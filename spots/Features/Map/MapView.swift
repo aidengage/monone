@@ -8,133 +8,240 @@
 import SwiftUI
 import MapKit
 import Combine
+import SwiftData
+
+enum MapFeedMode {
+    case home
+    case friends
+    case profile
+}
 
 struct MapView: View {
     @State private var viewModel = ViewModel()
+    @Binding var mapCenterLat: Double
+    @Binding var mapCenterLong: Double
+    var feedMode: MapFeedMode
+
+    init(
+        feedMode: MapFeedMode = .home,
+        mapCenterLat: Binding<Double> = .constant(0),
+        mapCenterLong: Binding<Double> = .constant(0)
+    ) {
+        self.feedMode = feedMode
+        _mapCenterLat = mapCenterLat
+        _mapCenterLong = mapCenterLong
+        _viewModel = State(initialValue: ViewModel())
+    }
+
+    @Environment(\.globalModelContext) private var swiftModelContainer
+    @Environment(\.scenePhase) private var scenePhase // this handles what happens when the app is in the background
+    
+    @Environment(\.currentUser) private var currentUser
+    @Environment(\.buttonsViewModel) private var buttonsViewModel
+//    @Environment(\.tracker) private var tracker
+    
+    @Environment(\.db) private var dbService
+    @Environment(\.user) private var userService
+    
+    @Environment(\.location) private var locationService
+    
+//    @Environment(\.modelContext) private var modelContext
+    
+    @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
     
     var body: some View {
         NavigationStack(path: $viewModel.path) {
-            ZStack(alignment: .bottomLeading) {
-                ZStack {
-                
+            GeometryReader { proxy in
+                Map(position: $viewModel.cameraPosition, selection: $viewModel.selectedPost) {
+                    MapCurrentLocation()
                     
-                    Map(position: $viewModel.cameraPosition) {
-                        
-                        //for curr location, display a marker (only when we have valid coordinates)
-                        if viewModel.hasValidLocation {
-                            Annotation("Current Location", coordinate: CLLocationCoordinate2D(latitude: viewModel.coordinates.lat, longitude: viewModel.coordinates.lon)) {
-                                Image(systemName: "mappin.circle.fill")
-                                    .foregroundColor(.green)
-                                    .font(.title2)
-                                    .background(Color.white)
-                                    .clipShape(Circle())
-                            }
-                        }
-                        // looping through posts array and displaying them all on map with a clickable marker
-                        ForEach(Firebase.shared.posts.filter { $0.latitude != 0.0 && $0.longitude != 0.0 }) { post in
-                            Annotation(post.name, coordinate: CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)) {
-                                Image(systemName: "mappin.circle.fill")
-                                    .foregroundColor(.red)
-                                    .font(.title2)
-                                    .background(Color.white)
-                                    .clipShape(Circle())
-                                    .onTapGesture {
-                                        // once user taps, state of selectedPost changes
-//                                        viewModel.selectedPost = post
-                                        viewModel.selectedPost = post
-//                                        viewModel.startPostListenerById(postId: post.id)
-                                    }
-                            }
-                        }
-                    }
-                    // loads posts when the map appears
-                    .onAppear {
-                        // starts post listener
-                        print("map appeared, starting post listener")
-                        print("profile toggle: \(viewModel.profileToggle)")
-//                        Firebase.shared.startPostListener()
-                        
-                        if !viewModel.profileToggle {
-                            Firebase.shared.startPostListener()
-                        } else {
-                            Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
-                        }
-                        
-                        
-                        // Set up location observers only once
-                        if !viewModel.observersSetUp {
-                            viewModel.observeCoordinateUpdates()
-                            viewModel.observeLocationAccessDenied()
-                            viewModel.observersSetUp = true
-                        }
-                        // Request location updates every time view appears (in case app was backgrounded)
-                        viewModel.deviceLocationService.requestLocationUpdates()
-                    }
-                    .onDisappear {
-                        // stops post listener
-                        Firebase.shared.stopPostListener()
-                        print("map disappeared, stopping post listener")
-                    }
-                    // when map camera changes, update center coords with new center
-                    .onMapCameraChange { mapCameraUpdateContext in
-                        viewModel.update(centerLat: mapCameraUpdateContext.camera.centerCoordinate.latitude)
-                        viewModel.update(centerLong: mapCameraUpdateContext.camera.centerCoordinate.longitude)
-                        print("\(viewModel.centerLat): \(viewModel.centerLong)")
-                    }
-                    
-                    // visual indicator of the center of the screen
-                    Image(systemName: "mappin")
-                        .offset(y: -15)
-                        .font(.system(size: 33))
+                    PostFilter(profileToggle: buttonsViewModel.profileToggle, showOnlyBookmarked: buttonsViewModel.showOnlyBookmarked, postsToShow: $viewModel.postsToShow)
                 }
-                AddButton(path: $viewModel.path, centerLat: $viewModel.centerLat, centerLong: $viewModel.centerLong)
+                .task { // idk if this does anything
+                    buttonsViewModel.bind(currentUser: currentUser, dbService: dbService)
+                    await currentUser.storeId()
+                }
+                .allowsHitTesting(viewModel.touchToggle)
+                .mapStyle(viewModel.currentMapStyle) // Apply the reactive style
+                .overlay(alignment: .bottomTrailing) {
+                    MapStyleButton(style: $viewModel.style)
+                    .padding()
+                }
+                .onAppear {
+                    viewModel.style = settingMapStyle
+                    applyFeedMode(feedMode)
+                    if !viewModel.observersSetUp {
+                        locationService.requestLocationUpdates()
+//                        locationService.isAccessDenied
+                        viewModel.observersSetUp = true
+                    }
+                    locationService.requestLocationUpdates()
+                    Task {
+                        try await userService.loadBookmarks()
+                        try await userService.loadUserSocials()
+                        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
+                    }
+                }
+                .onChange(of: feedMode) { oldMode, newMode in
+                    if oldMode == .profile {
+                        buttonsViewModel.profileToggle = false
+                        buttonsViewModel.showOnlyBookmarked = false
+                    }
+                    applyFeedMode(newMode)
+                }
+                .onChange(of: buttonsViewModel.profileToggle) { _, _ in
+                    guard feedMode == .home else { return }
+                    buttonsViewModel.startPostListenerForMode()
+                }
+                .onChange(of: buttonsViewModel.showOnlyBookmarked) { _, _ in
+                    switch feedMode {
+                    case .home:
+                        buttonsViewModel.startPostListenerForMode()
+                    case .profile:
+                        startPostListenerForFeedMode()
+                        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
+                    case .friends:
+                        break
+                    }
+                }
+                .onChange(of: settingMapStyle) { _, newStyle in viewModel.style = newStyle }
+                .onChange(of: dbService.posts) { _, newPosts in
+                    viewModel.postsToShow = postsToDisplay(from: newPosts)
+                }
+                .onChange(of: scenePhase) { oldPhase, newPhase in
+                    switch newPhase {
+                    case .active:
+                        print("app active !")
+                    case .inactive:
+                        print("app inactive")
+                    case .background:
+                        print("app in background")
+                        let backgroundContext = ModelContext(swiftModelContainer)
+                        
+//                        Task {
+//                            async let itemSync: () = tracker.syncItems(context: backgroundContext)
+//                            async let snapshotSync: () = tracker.syncSnapshots(context: backgroundContext)
+//                            
+//                            await itemSync
+//                            await snapshotSync
+//                        }
+                    @unknown default:
+                        print("unexpected future lifecycle reached")
+                    }
+                }
+                .onDisappear {
+                    dbService.stopPostListener()
+                }
+                // when map camera changes, update center coords with new center
+                .onMapCameraChange { mapCameraUpdateContext in
+                    let lat = mapCameraUpdateContext.camera.centerCoordinate.latitude
+                    let lon = mapCameraUpdateContext.camera.centerCoordinate.longitude
+                    mapCenterLat = lat
+                    mapCenterLong = lon
+                    viewModel.update(centerLat: lat)
+                    viewModel.update(centerLong: lon)
+//                                print("\(viewModel.centerLat): \(viewModel.centerLong)")
+                    if !viewModel.isViewingPost {
+                        viewModel.lastKnownCamera = mapCameraUpdateContext.camera
+                    }
+                    //later used by Add Button to create a post at the center of the screen
+                }
+                .safeAreaInset(edge: .bottom) { // remove this later with custom sheet
+                    if !viewModel.touchToggle {
+                        Color.clear.frame(height: proxy.size.height * 0.70)
+                    }
+                }
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        if currentUser.uid != nil {
+                            FeedbackButton()
+                            if feedMode == .home {
+                                ActivityFilter(viewModel: buttonsViewModel)
+                            }
+                            SettingsButton()
+                        }
+                    }
+                }
+                // .overlay(alignment: .bottomLeading) {
+                //     AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
+                // }
+                .overlay(alignment: .topLeading) {
+                    if feedMode == .profile {
+                        VerticalDropdownToolbar(path: $viewModel.path)
+                    }
+                }
+//                .overlay(alignment: .topTrailing) {
+//                    TrackerWidget(showPost: $viewModel.isViewingPost)
+//                        .padding()
+//                }
+            }
         }
+//        .toolbarBackground(Color.clear, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            // creates a toolbar to logout of account
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil {
-                    Button(action: {
-                        Firebase.shared.logout()
-                    }) {
-                        Label("Logout", systemImage: "arrow.right.square")
-                    }
-                    .buttonStyle(.glassProminent)
-                } else {
-                    //change button visibility to false
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil {
-                    ProfileButton(profileToggle: $viewModel.profileToggle)
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if Firebase.shared.getCurrentUser() != nil {
-                    FeedbackButton(path: $viewModel.path)
-                }
-            }
-        }
-   
-        }
         .sheet(item: $viewModel.selectedPost, onDismiss: {
-            // camera zoom back out needs to be implemented
-//            print("post detail view dismissed")
-            if !viewModel.profileToggle {
-                Firebase.shared.startPostListener()
-//                print("  trying to start post listener")
-            } else {
-                Firebase.shared.startUserPostListener(userId: Firebase.shared.getCurrentUserID())
-//                print("  trying to start user post listener")
+            startPostListenerForFeedMode()
+            viewModel.exitPost()
+            viewModel.touchToggle.toggle()
+            withAnimation(.easeInOut(duration: 0.2)) {
+                buttonsViewModel.showAll.toggle()
             }
         }) { post in
-            PostDetailView(post: post /*viewModel.selectedPost!*/ /*, ratings: Firebase.shared.ratings*/)
+            PostDetailView(post: post)
                 .presentationDetents([.fraction(0.75)])
+//                .presentationBackground(.clear)
+//                .presentationBackgroundInteraction(.enabled)
                 .task {
+                    viewModel.touchToggle.toggle()
                     withAnimation(.easeInOut(duration: 0.7)) {
-                        viewModel.cameraZoomOnPost(post: post /*viewModel.selectedPost!*/)
+                        viewModel.cameraZoomOnPost(post: post)
+                        buttonsViewModel.showAll.toggle()
                     }
                 }
         }
     }
+
+    private func applyFeedMode(_ mode: MapFeedMode) {
+        if mode == .profile {
+            buttonsViewModel.profileToggle = true
+        }
+        startPostListenerForFeedMode()
+        viewModel.postsToShow = postsToDisplay(from: dbService.posts)
+    }
+
+    private func startPostListenerForFeedMode() {
+        switch feedMode {
+        case .home:
+            buttonsViewModel.startPostListenerForMode()
+        case .friends:
+            buttonsViewModel.startFriendsFeedListener()
+        case .profile:
+            if buttonsViewModel.showOnlyBookmarked {
+                buttonsViewModel.startAllPostsListener()
+            } else {
+                buttonsViewModel.startProfileFeedListener()
+            }
+        }
+    }
+
+    private func postsToDisplay(from posts: [Post]) -> [Post] {
+        switch feedMode {
+        case .home:
+            if buttonsViewModel.profileToggle && buttonsViewModel.showOnlyBookmarked {
+                return posts.filter { userService.getBookmarks().contains($0.id) }
+            }
+            return posts
+        case .friends:
+            let following = userService.getFollowing()
+            return posts.filter { following.contains($0.userId) }
+        case .profile:
+            if buttonsViewModel.showOnlyBookmarked {
+                return posts.filter { userService.getBookmarks().contains($0.id) }
+            }
+            return posts.filter { $0.userId == currentUser.uid }
+        }
+    }
+}
+
+#Preview {
+    MapView()
 }
