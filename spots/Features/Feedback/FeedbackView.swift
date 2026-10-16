@@ -9,11 +9,11 @@ import SwiftUI
 
 struct FeedbackView: View {
     @Environment(\.dismiss) var dismiss
-//    @Binding var path: NavigationPath
+    @Binding var path: NavigationPath
     let feedback: [Feedback]
     
     var body: some View {
-        NavigationStack(/*path: $path*/) {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(spacing: 10) {
                     ForEach(feedback) { feedback in
@@ -31,26 +31,10 @@ struct FeedbackView: View {
 //            Text("FeedbackView")
         }
         .navigationTitle("Feedback posts!!11!!!")
-        .scrollDismissesKeyboard(.interactively)
-        .onAppear() {
-            addTapGestureToDismissKeyboard()
-        }
-    }
-    
-    func addTapGestureToDismissKeyboard() {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-            let window = windowScene.windows.first else {
-            return
-        }
-        
-        let tapGesture = UITapGestureRecognizer(target: UIApplication.shared, action: #selector( UIApplication.dismissKeyboard ))
-        tapGesture.cancelsTouchesInView = false  
-        window.addGestureRecognizer(tapGesture)
     }
 }
 
 struct FeedbackCardPreview: View {
-    @Environment(\.feedback) private var feedbackService
     let type: FeedbackType
     let status: FeedbackStatus
     let feedbackId: String
@@ -65,7 +49,7 @@ struct FeedbackCardPreview: View {
                 Text(status.rawValue)
                 Button(action: {
                     Task {
-                        await feedbackService.deleteFeedbackBatch(feedbackId: feedbackId)
+                        await Firebase.shared.deleteFeedbackBatch(feedbackId: feedbackId)
                     }
                     
                 }) {
@@ -85,9 +69,8 @@ struct FeedbackInfoView: View {
 }
 
 struct FeedbackViewButton: View {
-    @Environment(\.db) private var dbService
     
-//    @Binding var path: NavigationPath
+    @Binding var path: NavigationPath
     @State var showFeedbackList: Bool = false
     
     var body: some View {
@@ -110,7 +93,7 @@ struct FeedbackViewButton: View {
 //            FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
 //        }
         .sheet(isPresented: $showFeedbackList) {
-            FeedbackView(/*path: $path,*/ feedback: dbService.getFeedbacks())
+            FeedbackView(path: $path, feedback: Firebase.shared.feedbacks)
         }
     }
 }
