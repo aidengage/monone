@@ -39,31 +39,6 @@ enum BottomTabModel: String, Identifiable, CaseIterable, Hashable, Sendable, Cus
     }
 }
 
-struct NavBar: View {
-    let tabs: [BottomTabModel]
-    @Binding var selectedTab: BottomTabModel
-    
-    var body: some View {
-        TabView(selection: $selectedTab) {
-            ForEach(tabs) { tab in
-                Color.clear
-                    .tag(tab)
-                    .tabItem { Label(tab.description, systemImage: tab.iconName) }
-                    .task {
-                        selectedTab = tab
-//                        print("\(selectedTab.rawValue)")
-//                        print("\(tab.rawValue)")
-                    }
-            }
-        }
-//        .toolbarBackground(.hidden, for: .tabBar)
-    }
-}
-
-//#Preview {
-//    NavBar(tabs: BottomTabModel.allCases, selectedTab: /*$currentTab*/ .constant(BottomTabModel.home))
-//}
-
 struct FloatingBottomNav: View {
     let tabs: [BottomTabModel]
     @Binding var selectedTab: BottomTabModel
@@ -72,44 +47,43 @@ struct FloatingBottomNav: View {
     @Namespace private var namespace
 
     var body: some View {
-//        HStack(spacing: spacing) {
-        TabView(selection: $selectedTab) {
+        HStack(spacing: spacing) {
             ForEach(tabs) { tab in
                 Button {
                     selectedTab = tab
                 } label: {
-//                    HStack(spacing: 4) {
+                    HStack(spacing: 4) {
                         Image(systemName: tab.iconName)
                             .imageScale(.large)
-//                        if selectedTab == tab {
-//                            Text(tab.description)
-//                                .font(.caption)
-//                                .fontWeight(.semibold)
-//                                .lineLimit(1)
-//                        }
-//                    }
-//                    .padding(.horizontal, 5)
-//                    .padding(.vertical, 8)
-//                    .background {
-//                        if selectedTab == tab {
-//                            Capsule()
-//                                .fill(Color.accentColor.opacity(0.15))
-//                                .matchedGeometryEffect(id: "selectionPill", in: namespace)
-//                        }
-//                    }
+                        if selectedTab == tab {
+                            Text(tab.description)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .lineLimit(1)
+                        }
+                    }
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 8)
+                    .background {
+                        if selectedTab == tab {
+                            Capsule()
+                                .fill(Color.accentColor.opacity(0.15))
+                                .matchedGeometryEffect(id: "selectionPill", in: namespace)
+                        }
+                    }
                 }
-//                .buttonStyle(.plain)
+                .buttonStyle(.plain)
                 .foregroundStyle(selectedTab == tab ? Color.accentColor : .secondary)
             }
         }
-//        .padding(6)
-//        .background {
-//            Capsule()
-//                .fill(.thinMaterial)
-//                .shadow(color: .black.opacity(0.9), radius: 8, x: 0, y: 4)
-//        }
-//        .animation(.bouncy.speed(1), value: selectedTab)
-//        .ignoresSafeArea(.keyboard)
+        .padding(6)
+        .background {
+            Capsule()
+                .fill(.thinMaterial)
+                .shadow(color: .black.opacity(0.9), radius: 8, x: 0, y: 4)
+        }
+        .animation(.bouncy.speed(1), value: selectedTab)
+        .ignoresSafeArea(.keyboard)
     }
 }
 
@@ -125,8 +99,7 @@ struct NavBarView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
-                
-                //for home, friends, profile
+                //for home, friends, profile 
                 if let feedMode = activeTab.mapFeedMode {
                     MapView(
                         feedMode: feedMode,
@@ -138,17 +111,10 @@ struct NavBarView: View {
                 } else {
                     Color.clear
                 }
-//                NavBar(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
-//                    .frame(height: 49)
-//                    .ignoresSafeArea(.container, edges: .bottom)
             }
-//            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-//            FloatingBottomNav(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
-        NavBar(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
-            .frame(height: 40)
-            .ignoresSafeArea(.container, edges: .bottom)
-            
+            FloatingBottomNav(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
         }
         .onChange(of: activeTab) { _, newTab in
             guard newTab == .add else { return }
@@ -166,7 +132,6 @@ struct NavBarView: View {
         .sheet(isPresented: $showLogin) {
             LoginView()
         }
-//        NavBar(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
     }
 }
 
