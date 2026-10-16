@@ -32,6 +32,14 @@ extension MapView {
             }
         }
         
+//        @ObservationIgnored
+//        lazy var mapView: MKMapView = {
+//            let m = MKMapView()
+//            m.delegate = self
+//            // ...region, annotations setup
+//            return m
+//        }()
+        
         init() {
             if let saved = UserDefaults.standard.string(forKey: .settingsMapStyleKey),
                 let style = MapStyleSetting(rawValue: saved) {
@@ -66,13 +74,13 @@ extension MapView {
         
         var path: NavigationPath = NavigationPath()
         
-        var cameraPosition: MapCameraPosition = .automatic
-        private var oldCameraPosition: MapCameraPosition?
+//        var cameraPosition: MapCameraPosition = .automatic
+//        private var oldCameraPosition: MapCameraPosition?
         var isViewingPost: Bool = false
         var lastKnownCamera: MapCamera?
         
-        private var rotationTimer: AnyCancellable?
-        var rotation: Bool = false
+//        private var rotationTimer: AnyCancellable?
+//        var rotation: Bool = false
         private var currentHeading: Double = 0
         
         func update(centerLat: Double) {
@@ -83,80 +91,80 @@ extension MapView {
             self.centerLong = centerLong
         }
         
-        func cameraZoomOnPost(post: Post) {
-            if !isViewingPost {
-                if let last = lastKnownCamera {
-                    oldCameraPosition = .camera(last)
-                } else {
-                    oldCameraPosition = cameraPosition
-                }
-//                print("saved cam pos: \(cameraPosition)")
-            }
-            isViewingPost = true
-            let targetLocation = CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)
-            stopRotation()
-            let camera = MapCamera(
-                centerCoordinate: targetLocation, distance: 600, heading: 0, pitch: 65
-            )
-//            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
-//            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
-    //        cameraPosition = .region(region)
-            
-            // hardcoded offset camera zoom that barely works
-//            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0035, longitude: post.longitude)
-//            let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
-//            cameraPosition = .region(offsetRegion)
-            withAnimation(.easeInOut(duration: 0.6)) {
-                cameraPosition = .camera(camera)
-//                cameraPosition = .region(MKCoordinateRegion(center: camera.centerCoordinate, span: zoomLevel))
-            }
-    //        return postView
-            DispatchQueue.main.asyncAfter(deadline: .now()) {
-                self.startRotation(around: targetLocation)
-            }
-        }
+//        func cameraZoomOnPost(post: Post) {
+//            if !isViewingPost {
+//                if let last = lastKnownCamera {
+//                    oldCameraPosition = .camera(last)
+//                } else {
+//                    oldCameraPosition = cameraPosition
+//                }
+////                print("saved cam pos: \(cameraPosition)")
+//            }
+//            isViewingPost = true
+//            let targetLocation = CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)
+//            stopRotation()
+//            let camera = MapCamera(
+//                centerCoordinate: targetLocation, distance: 600, heading: 0, pitch: 65
+//            )
+////            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+////            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
+//    //        cameraPosition = .region(region)
+//            
+//            // hardcoded offset camera zoom that barely works
+////            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0035, longitude: post.longitude)
+////            let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
+////            cameraPosition = .region(offsetRegion)
+//            withAnimation(.easeInOut(duration: 0.6)) {
+//                cameraPosition = .camera(camera)
+////                cameraPosition = .region(MKCoordinateRegion(center: camera.centerCoordinate, span: zoomLevel))
+//            }
+//    //        return postView
+//            DispatchQueue.main.asyncAfter(deadline: .now()) {
+//                self.startRotation(around: targetLocation)
+//            }
+//        }
         
-        private func startRotation(around coordinate: CLLocationCoordinate2D) {
-            rotation = true
-            currentHeading = 0
-
-            rotationTimer = Timer.publish(every: 0.03, on: .main, in: .common)
-                .autoconnect()
-                .sink { [weak self] _ in
-                    guard let self else { return }
-
-                    self.currentHeading = (self.currentHeading + 0.3)
-                        .truncatingRemainder(dividingBy: 360)
-
-                    let camera = MapCamera(
-                        centerCoordinate: coordinate,
-                        distance: 600,
-                        heading: self.currentHeading,
-                        pitch: 65
-                    )
-                    // No animation wrapper here — the timer tick IS the animation
-                    self.cameraPosition = .camera(camera)
-                }
-        }
+//        private func startRotation(around coordinate: CLLocationCoordinate2D) {
+//            rotation = true
+//            currentHeading = 0
+//
+//            rotationTimer = Timer.publish(every: 0.03, on: .main, in: .common)
+//                .autoconnect()
+//                .sink { [weak self] _ in
+//                    guard let self else { return }
+//
+//                    self.currentHeading = (self.currentHeading + 0.3)
+//                        .truncatingRemainder(dividingBy: 360)
+//
+//                    let camera = MapCamera(
+//                        centerCoordinate: coordinate,
+//                        distance: 600,
+//                        heading: self.currentHeading,
+//                        pitch: 65
+//                    )
+//                    // No animation wrapper here — the timer tick IS the animation
+//                    self.cameraPosition = .camera(camera)
+//                }
+//        }
         
-        func exitPost() {
-            stopRotation()
-            isViewingPost = false
-            guard let savedCamera = oldCameraPosition else { return }
-            oldCameraPosition = nil
-            withAnimation(.easeInOut(duration: 0.6)) {
-                cameraPosition = savedCamera
-//                print("new/old camera position: \(cameraPosition)")
-            }
-                
-        }
+//        func exitPost() {
+//            stopRotation()
+//            isViewingPost = false
+//            guard let savedCamera = oldCameraPosition else { return }
+//            oldCameraPosition = nil
+//            withAnimation(.easeInOut(duration: 0.6)) {
+//                cameraPosition = savedCamera
+////                print("new/old camera position: \(cameraPosition)")
+//            }
+//                
+//        }
 
         
-        func stopRotation() {
-            rotation = false
-            rotationTimer?.cancel()
-            rotationTimer = nil
-        }
+//        func stopRotation() {
+//            rotation = false
+//            rotationTimer?.cancel()
+//            rotationTimer = nil
+//        }
         
         //using publisher provided by deviceLocationService
 //        func observeCoordinateUpdates(){

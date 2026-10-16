@@ -39,6 +39,28 @@ enum BottomTabModel: String, Identifiable, CaseIterable, Hashable, Sendable, Cus
     }
 }
 
+//struct ClearTabBackground: UIViewControllerRepresentable {
+//    final class HelperVC: UIViewController {
+//        override func didMove(toParent parent: UIViewController?) {
+//            super.didMove(toParent: parent)
+//            var currParent = parent
+//            while true {
+//                guard let parent = currParent else { break }
+//                if parent.tabBarController?.viewControllers?.contains(parent) == true {
+//                    currParent?.view.backgroundColor = .clear
+//                    parent.tabBarController?.view.backgroundColor = .clear
+//                    break
+//                }
+//                currParent = currParent?.parent
+//            }
+//        }
+//    }
+//
+//    func makeUIViewController(context: Context) -> HelperVC { HelperVC() }
+//    func updateUIViewController(_ uiViewController: HelperVC, context: Context) {}
+//}
+
+
 struct NavBar: View {
     let tabs: [BottomTabModel]
     @Binding var selectedTab: BottomTabModel
@@ -46,17 +68,26 @@ struct NavBar: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             ForEach(tabs) { tab in
-                Color.clear
+                page(for: tab)
+//                    .background(ClearTabBackground())
                     .tag(tab)
-                    .tabItem { Label(tab.description, systemImage: tab.iconName) }
-                    .task {
-                        selectedTab = tab
-//                        print("\(selectedTab.rawValue)")
-//                        print("\(tab.rawValue)")
-                    }
+                    .tabItem { Label(tab.description, systemImage: tab.iconName)}
             }
         }
-//        .toolbarBackground(.hidden, for: .tabBar)
+    }
+    
+    @ViewBuilder
+    private func page(for tab: BottomTabModel) -> some View {
+        switch tab {
+        case .home, .friends, .profile:
+            Color.clear.allowsHitTesting(false)
+            
+        case .trending:
+            TabPlaceholder(title: "Trending")
+            
+        case .add:
+            Color.clear.allowsHitTesting(false)
+        }
     }
 }
 
