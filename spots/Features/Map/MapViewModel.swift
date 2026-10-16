@@ -14,32 +14,66 @@ import FirebaseFirestore
 
 
 extension MapView {
-    @Observable class ViewModel {
-        var hasValidLocation = false
+// observable makes sure VieModel's stored properties can automatically publish changes so SwiftUI views can react
+    @Observable
+    class ViewModel {
+//        var hasValidLocation = false
         var hasCenteredOnUser = false
+        //*what is this?
         var observersSetUp = false
-        
-//        var listenedToPosts: [Post] = []
-//        var post: Post = Post()
-        
+
         var selectedPost: Post?
-        var profileToggle: Bool = false
+        var selectedPostID: String?
+        var postsToShow: [Post] = []
+        
+        var style: MapStyleSetting = .standard {
+            didSet {
+                UserDefaults.standard.set(style.rawValue, forKey: .settingsMapStyleKey)
+            }
+        }
+        
+        init() {
+            if let saved = UserDefaults.standard.string(forKey: .settingsMapStyleKey),
+                let style = MapStyleSetting(rawValue: saved) {
+                    self.style = style
+                }
+            
+        }
+        
+        var currentMapStyle: MapStyle {
+            switch style {
+            case .standard:
+                return .standard(elevation: .automatic, pointsOfInterest: .all)
+            case .hybrid:
+                return .hybrid(elevation: .realistic, pointsOfInterest: .excludingAll)
+            case .satellite:
+                return .imagery(elevation: .realistic)
+            case .experimental:
+                return .imagery(elevation: .realistic)
+            }
+        }
+        
+        var touchToggle: Bool = true
         
         var coordinates: (lat: Double, lon: Double) = (0,0)
         var centerLat: Double = 0
         var centerLong: Double = 0
         
-        var deviceLocationService = DeviceLocationService.shared
+//        var deviceLocationService = DeviceLocationService.shared
+//        @Environment(\.location) private var location
+    //*what do we need this for? --> to store the user location perhaps
         var tokens: Set<AnyCancellable> = []
         
         var path: NavigationPath = NavigationPath()
         
-        var cameraPosition: MapCameraPosition = .region(
-            MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: 38.25, longitude: -85.75),
-                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-            )
-        )
+        var cameraPosition: MapCameraPosition = .automatic
+        private var oldCameraPosition: MapCameraPosition?
+        var isViewingPost: Bool = false
+        var lastKnownCamera: MapCamera?
+        
+        private var rotationTimer: AnyCancellable?
+        var rotation: Bool = false
+        private var currentHeading: Double = 0
         
         func update(centerLat: Double) {
             self.centerLat = centerLat
@@ -50,58 +84,121 @@ extension MapView {
         }
         
         func cameraZoomOnPost(post: Post) {
+            if !isViewingPost {
+                if let last = lastKnownCamera {
+                    oldCameraPosition = .camera(last)
+                } else {
+                    oldCameraPosition = cameraPosition
+                }
+//                print("saved cam pos: \(cameraPosition)")
+            }
+            isViewingPost = true
             let targetLocation = CLLocationCoordinate2D(latitude: post.latitude, longitude: post.longitude)
-            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
-            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
+            stopRotation()
+            let camera = MapCamera(
+                centerCoordinate: targetLocation, distance: 600, heading: 0, pitch: 65
+            )
+//            let zoomLevel = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+//            let region = MKCoordinateRegion(center: targetLocation, span: zoomLevel)
     //        cameraPosition = .region(region)
             
             // hardcoded offset camera zoom that barely works
-            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.005, longitude: post.longitude)
-            let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
-            cameraPosition = .region(offsetRegion)
+//            let offsetCenter = CLLocationCoordinate2D(latitude: post.latitude - 0.0035, longitude: post.longitude)
+//            let offsetRegion = MKCoordinateRegion(center: offsetCenter, span: zoomLevel)
+//            cameraPosition = .region(offsetRegion)
+            withAnimation(.easeInOut(duration: 0.6)) {
+                cameraPosition = .camera(camera)
+//                cameraPosition = .region(MKCoordinateRegion(center: camera.centerCoordinate, span: zoomLevel))
+            }
     //        return postView
+            DispatchQueue.main.asyncAfter(deadline: .now()) {
+                self.startRotation(around: targetLocation)
+            }
+        }
+        
+        private func startRotation(around coordinate: CLLocationCoordinate2D) {
+            rotation = true
+            currentHeading = 0
+
+            rotationTimer = Timer.publish(every: 0.03, on: .main, in: .common)
+                .autoconnect()
+                .sink { [weak self] _ in
+                    guard let self else { return }
+
+                    self.currentHeading = (self.currentHeading + 0.3)
+                        .truncatingRemainder(dividingBy: 360)
+
+                    let camera = MapCamera(
+                        centerCoordinate: coordinate,
+                        distance: 600,
+                        heading: self.currentHeading,
+                        pitch: 65
+                    )
+                    // No animation wrapper here — the timer tick IS the animation
+                    self.cameraPosition = .camera(camera)
+                }
+        }
+        
+        func exitPost() {
+            stopRotation()
+            isViewingPost = false
+            guard let savedCamera = oldCameraPosition else { return }
+            oldCameraPosition = nil
+            withAnimation(.easeInOut(duration: 0.6)) {
+                cameraPosition = savedCamera
+//                print("new/old camera position: \(cameraPosition)")
+            }
+                
+        }
+
+        
+        func stopRotation() {
+            rotation = false
+            rotationTimer?.cancel()
+            rotationTimer = nil
         }
         
         //using publisher provided by deviceLocationService
-        func observeCoordinateUpdates(){
-            deviceLocationService.coordinatesPublisher
-                .receive(on: DispatchQueue.main)
-                .sink{ completion in
-                    if case .failure(let error) = completion {
-                        print(error)
-                    }
-                } receiveValue: { coordinates in
-                    // Update coordinates and mark as valid
-                    self.coordinates = (coordinates.latitude, coordinates.longitude)
-                    self.hasValidLocation = true
-                    
-                    // Center map on user's location the first time we get it
-                    if !self.hasCenteredOnUser {
-                        self.cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: coordinates,
-                                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-                            )
-                        )
-                        self.hasCenteredOnUser = true
-                    }
-                    
-                }
-                .store(in: &tokens)
-        }
+//        func observeCoordinateUpdates(){
+//            location.requestLocationUpdates()
+//                .receive(on: DispatchQueue.main)
+//                .sink{ completion in
+//                    if case .failure(let error) = completion {
+//                        print(error)
+//                    }
+//                } receiveValue: { coordinates in
+//                    // Update coordinates and mark as valid
+//                    self.coordinates = (coordinates.latitude, coordinates.longitude)
+//                    self.hasValidLocation = true
+//                    
+//                    // Center map on user's location the first time we get it
+//                    if !self.hasCenteredOnUser {
+//                        self.cameraPosition = .region(
+//                            MKCoordinateRegion(
+//                                center: coordinates,
+//                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+//                            )
+//                        )
+//                        self.hasCenteredOnUser = true
+//                    }
+//                    
+//                }
+//                .store(in: &tokens)
+//        }
         
-        func observeLocationAccessDenied(){
-            deviceLocationService.deniedLocationAccessPublisher
-                .receive(on: DispatchQueue.main)
-                .sink{
-                    print("location denied")
-                }
-                .store(in: &tokens)
-        }
+//        func observeLocationAccessDenied(){
+//            deviceLocationService.deniedLocationAccessPublisher
+//                .receive(on: DispatchQueue.main)
+//                .sink{
+//                    print("location denied")
+//                }
+//                .store(in: &tokens)
+//        }
         
-        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-            print("locations = \(locValue.latitude) \(locValue.longitude)")
-        }
+        //**lowkey why do we even need this function?
+//        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+//            guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+//            print("locations = \(locValue.latitude) \(locValue.longitude)")
+//        }
     }
 }

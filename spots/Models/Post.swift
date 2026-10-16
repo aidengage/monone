@@ -1,0 +1,399 @@
+//
+//  PostMan.swift
+//  spots
+//
+//  Created by Aiden Gage on 1/4/26.
+//
+
+import SwiftUI
+import MapKit
+import FirebaseCore
+import FirebaseFirestore
+import FirebaseStorage
+
+// post manager service/class file to represent a post obejct
+// need to change image to something like an array of [images] to link them to posts
+// still need to rework database for users/posts
+
+// codable user obejct to send to firebase database
+struct Post: Codable, Identifiable, Hashable {
+    let id: String
+    let userId: String
+    let images: [String]
+    let name: String
+    let address: String
+    let ratingCount: Int
+    let latitude: Double
+    let longitude: Double
+    let avgRating: Decimal
+    let selectedActivity: String
+//    let createdAt: Date?
+//    let updatedAt: Date?
+    
+    init(id: String, userId: String, images: [String], name: String, address: String, ratingCount: Int, latitude: Double, longitude: Double, avgRating: Decimal, selectedActivity: String) {
+        self.id = id
+        self.userId = userId
+        self.images = images
+        self.name = name
+        self.address = address
+        self.ratingCount = ratingCount
+        self.latitude = latitude
+        self.longitude = longitude
+        self.avgRating = avgRating
+        self.selectedActivity = selectedActivity
+    }
+    
+    init() {
+        self.id = "Post ID loading..."
+        self.userId = "User ID loading..."
+        self.images = []
+        self.name = "Name loading..."
+        self.address = "Address loading..."
+        self.ratingCount = 0
+        self.latitude = 0
+        self.longitude = 0
+        self.avgRating = 0
+        self.selectedActivity = "Activity loading..."
+    }
+    
+    
+}
+
+enum ActivityType: String, CaseIterable, Identifiable, Codable {
+    case smoke
+    case date
+    case photography
+    case trainStation
+    case unknown
+    
+    var id: Self { self }
+    
+    var color: Color {
+        switch self {
+            case .smoke: return .red
+            case .date: return .purple
+            case .photography: return .orange
+            case .trainStation: return .blue
+            case .unknown: return .black
+        }
+    }
+    
+    var icon: String {
+        switch self {
+            case .smoke: return "vent.heat.waves.upward"
+            case .date: return "20.calendar"
+            case .photography: return "camera.shutter.button.fill"
+            case .trainStation: return "train.side.front.car"
+            case .unknown: return "questionmark.circle.dashed"
+        }
+    }
+    
+    var displayActivity: String {
+        switch self {
+            case .smoke: return "Smoke"
+            case .date: return "Date"
+            case .photography: return "Photography"
+            case .trainStation: return "Train Station"
+            case .unknown: return "Unknown"
+        }
+    }
+    
+    static func from(_ string: String) -> ActivityType {
+        // Try exact raw value match first
+        if let exact = ActivityType(rawValue: string) {
+            return exact
+        }
+        
+        // Try case-insensitive match
+        let lowercased = string.lowercased()
+        switch lowercased {
+        case "smoke": return .smoke
+        case "date": return .date
+        case "photography": return .photography
+        case "train station": return .trainStation
+        default:
+            // dont know if i should keep this if it matters, spams the debug log when uncommented
+            // fix later?
+//                print("Warning: Unknown activity type '\(lowercased)'")
+            return .unknown
+        }
+    }
+}
+
+
+//extension Firebase {
+
+//    func addPost(images: [UIImage], imagesUUIDs: [String], name: String, address: String, rating: Decimal, ratingCount: Int, comment: String, coords: (lat: Double, long: Double), selectedActivity: String) async {
+//        let postId = UUID().uuidString
+//        var imageURLs: [String] = []
+//        
+//        let newPost = Post(id: postId, userId: getCurrentUserID(), images: imageURLs, name: name, address: address, ratingCount: ratingCount, latitude: coords.lat, longitude: coords.long, avgRating: rating, selectedActivity: selectedActivity)
+//        
+//        let newRating = Rating(id: UUID().uuidString, userId: getCurrentUserID(), postId: postId, rating: rating, comment: comment)
+//        
+//        do {
+//            // adding post to posts collection
+//            let postRef = getStore().collection("posts").document(postId)
+//            try postRef.setData(from: newPost) { error in
+//                if let error = error {
+//                    print(error)
+//                } else {
+//                    postRef.updateData(["createdAt": FieldValue.serverTimestamp()])
+//                    print("doc added")
+//                }
+//            }
+//            
+//            // basically checks if the user actively rated the spot on creation or not
+//            if newRating.comment != "" {
+//                // adding rating to ratings collection
+//                let ratingRef = getStore().collection("ratings").document(newRating.id)
+//                
+//                try ratingRef.setData(from: newRating) { error in
+//                    
+//                    if let error = error {
+//                        print("error adding rating: \(error)")
+//                    } else {
+//                        ratingRef.updateData(["createdAt": FieldValue.serverTimestamp()])
+//                        postRef.updateData(["ratingCount": FieldValue.increment(Int64(1))])
+//                        print("rating added??")
+//                    }
+//                }
+//            }
+//            
+//            for (index, image) in images.enumerated() {
+//                let path = "posts/\(Firebase.shared.getCurrentUserID())/\(postId)/user_photo_\(index)"
+//                let url = try await smartFormat(image: image, path: path)
+//                imageURLs.append(url)
+//            }
+//            
+//            try await getStore().collection("posts").document(postId).updateData(["images": imageURLs])
+//            
+//        } catch {
+//            print("creating doc: \(error.localizedDescription)")
+//        }
+//    }
+//    
+//    
+//    // db manipulation functions
+//    // already tested
+//    func postUpdateActivity(postId: String, newActivity: ActivityType) async {
+//        let postRef = getStore().collection("posts").document(postId)
+//        do {
+//            try await postRef.updateData(["selectedActivity": newActivity.displayActivity])
+//            await docUpdatedAt(docRef: postRef)
+//        } catch {
+//            print("error updating activity")
+//            print(error.localizedDescription)
+//        }
+//    }
+//    
+//    // need to test
+//    func postUpdateName(postId: String, newName: String) async {
+//        let postRef = getStore().collection("posts").document(postId)
+//        do {
+//            try await postRef.updateData(["name": newName])
+//            await docUpdatedAt(docRef: postRef)
+//        } catch {
+//            print("error updating name")
+//            print(error.localizedDescription)
+//        }
+//    }
+//    
+//    // need to test
+//    func postUpdateAddress(postId: String, newAddress: String) async {
+//        let postRef = getStore().collection("posts").document(postId)
+//        do {
+//            try await postRef.updateData(["address": newAddress])
+//            await docUpdatedAt(docRef: postRef)
+//        } catch {
+//            print("error updating address")
+//            print(error.localizedDescription)
+//        }
+//    }
+//    
+//    // need to test
+//    func postUpdateLocation(postId: String, newLocation: GeoPoint) async {
+//        let postRef = getStore().collection("posts").document(postId)
+//        do {
+//            try await postRef.updateData(["latitude": newLocation.latitude])
+//            try await postRef.updateData(["longitude": newLocation.longitude])
+//            await docUpdatedAt(docRef: postRef)
+//        } catch {
+//            print("error updating location")
+//            print(error.localizedDescription)
+//        }
+//    }
+//    
+//    
+//    // delete post data funcitons
+//    func deletePostBatch(postId: String) async {
+//        await deleteRatingsOfPost(postId: postId)
+//        await deletePostImages(postId: postId)
+//        await deletePost(postId: postId)
+//    }
+//    
+//    func deletePost(postId: String) async {
+//        // should be able to make this delete multiple by changing to an array of post ids and adding each to a batch
+//        do {
+//            let batch = getStore().batch()
+//            batch.deleteDocument(getStore().collection("posts").document(postId))
+//            try await batch.commit()
+//        } catch {
+//            print(" deleting post: \(error.localizedDescription)")
+//        }
+//    }
+//    
+//    func deleteImagesByUUID(postId: String) async {
+//        do {
+//            let imageUUIDs: [String] = try await getStore().collection("posts").document(postId).getDocument()["images"] as? [String] ?? []
+//            
+//            for uuid in imageUUIDs {
+//                let imageRef = storage.storage.reference().child(uuid)
+//                try await imageRef.delete()
+//            }
+//        } catch {
+//            print(" deleting images: \(error.localizedDescription)")
+//        }
+//        
+//    }
+//    
+//    func deletePostImages(postId: String) async {
+//        do {
+//            let imgUrls: [String] = try await getStore().collection("posts").document(postId).getDocument()["images"] as? [String] ?? []
+//            for url in imgUrls {
+//                try await storage.storage.reference(forURL: url).delete()
+//            }
+//        } catch {
+//            print(" error deleting images: \(error.localizedDescription)")
+//        }
+//    }
+//    
+//    
+//    // post listeners
+//    func startPostListenerById(postId: String) {
+//        Firebase.shared.stopPostListener()
+//
+//        Firebase.shared.postListener = Firebase.shared.getStore().collection("posts").document(postId).addSnapshotListener { [weak self] (snapshot, error) in
+//            guard let self = self else { return }
+//
+//            if let error = error {
+//                print("Error getting post: \(error.localizedDescription)")
+//                return
+//            }
+//
+//            guard let document = snapshot else {
+//                print("No post found")
+//                return
+//            }
+//
+//            do {
+//                self.post = try document.data(as: Post.self)
+//            } catch {
+//                print("error decoding post (\(postId)): \(error.localizedDescription)")
+//                print("because it was deleted")
+//            }
+//        }
+////        print("starting single post listener")
+//    }
+//    
+//    func startUserPostListener(userId: String) {
+//        stopPostListener()
+//        
+//        postListener = getStore().collection("posts").whereField("userId", isEqualTo: userId).addSnapshotListener { [weak self] (snapshot, error) in
+//            guard let self = self else { return }
+//            
+//            if let error = error {
+//                print("Error getting posts: \(error)")
+//                return
+//            }
+//                
+//            guard let documents = snapshot?.documents else {
+//                print("no user posts found")
+//                self.posts = []
+//                return
+//            }
+//                
+//            self.posts = documents.compactMap { document in
+//                do {
+//                    let post = try document.data(as: Post.self)
+//                    return post
+//                } catch {
+//                    print("error finding user (\(userId) documents: \(error)")
+//                    return nil
+//                }
+//            }
+//        }
+////        print("starting user post listener")
+//    }
+//
+//    
+//    func startPostListener() {
+//        stopPostListener()
+//        
+//        postListener = getStore().collection("posts").addSnapshotListener { [weak self] (snapshot, error) in
+//            guard let self = self else { return }
+//            
+//            if let error = error {
+//                print("Error getting posts: \(error)")
+//                return
+//            }
+//            
+//            guard let documents = snapshot?.documents else {
+//                print("No posts found")
+//                self.posts = []
+//                return
+//            }
+//            
+////            print("inside postlistener: \(documents.count)")
+//            
+//            self.posts = documents.compactMap { document in
+//                do {
+//                    let post = try document.data(as: Post.self)
+//                    return post
+//                } catch {
+//                    print("Error decoding document \(document.documentID): \(error)")
+//                    return nil
+//                }
+//            }
+//        }
+////        print("starting post listener")
+////        print("post class listerner count: \(self.posts.count)")
+//    }
+//    
+//    func startPostActivityListener(activity: ActivityType) {
+//        stopPostListener()
+////        print("activity: \(activity)")
+////        print("display activity: \(activity.displayActivity)")
+//        postListener = getStore().collection("posts")
+//            .whereField("selectedActivity", isEqualTo: activity.displayActivity)
+//            .addSnapshotListener { [weak self] (snapshot, error) in
+//            guard let self = self else { return }
+//            
+//            if let error = error {
+//                print("Error getting posts: \(error)")
+//                return
+//            }
+//            
+//            guard let documents = snapshot?.documents else {
+//                print("No posts found")
+//                self.posts = []
+//                return
+//            }
+//                
+//            self.posts = documents.compactMap { document in
+//                do {
+//                    let post = try document.data(as: Post.self)
+//                    return post
+//                } catch {
+//                    print("Error decoding document \(document.documentID): \(error)")
+//                    return nil
+//                }
+//            }
+//        }
+//    }
+//    
+//    func stopPostListener() {
+//        postListener?.remove()
+//        postListener = nil
+//    }
+//}
