@@ -141,6 +141,7 @@ extension MapView {
         
         func exitPost() {
             stopRotation()
+            selectedPost = nil
             isViewingPost = false
             guard let savedCamera = oldCameraPosition else { return }
             oldCameraPosition = nil

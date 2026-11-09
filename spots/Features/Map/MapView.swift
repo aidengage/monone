@@ -170,6 +170,26 @@ struct MapView: View {
                         VerticalDropdownToolbar(path: $viewModel.path)
                     }
                 }
+                .overlay {
+                    if let selectedPost = viewModel.selectedPost {
+                        PostOverlayCards(post: selectedPost,
+                                        isPresented: Binding(
+                                            get: { viewModel.isViewingPost },
+                                            set: { newValue in
+                                                if !newValue {
+                                                    viewModel.exitPost()
+                                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                                        buttonsViewModel.showAll.toggle()
+                                                    }
+                                                }
+                                            }
+                                        ),
+                                        mapHeight: proxy.size.height,
+                                        mapWidth: proxy.size.width
+                                        )
+                        .transition(.opacity.combined(with: .scale))
+                    }
+                }
 //                .overlay(alignment: .topTrailing) {
 //                    TrackerWidget(showPost: $viewModel.isViewingPost)
 //                        .padding()
@@ -178,26 +198,26 @@ struct MapView: View {
         }
 //        .toolbarBackground(Color.clear, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $viewModel.selectedPost, onDismiss: {
-            startPostListenerForFeedMode()
-            viewModel.exitPost()
-            viewModel.touchToggle.toggle()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                buttonsViewModel.showAll.toggle()
-            }
-        }) { post in
-            PostDetailView(post: post)
-                .presentationDetents([.fraction(0.75)])
-//                .presentationBackground(.clear)
-//                .presentationBackgroundInteraction(.enabled)
-                .task {
-                    viewModel.touchToggle.toggle()
-                    withAnimation(.easeInOut(duration: 0.7)) {
-                        viewModel.cameraZoomOnPost(post: post)
-                        buttonsViewModel.showAll.toggle()
-                    }
-                }
-        }
+//        .sheet(item: $viewModel.selectedPost, onDismiss: {
+//            startPostListenerForFeedMode()
+//            viewModel.exitPost()
+//            viewModel.touchToggle.toggle()
+//            withAnimation(.easeInOut(duration: 0.2)) {
+//                buttonsViewModel.showAll.toggle()
+//            }
+//        }) { post in
+//            PostDetailView(post: post)
+//                .presentationDetents([.fraction(0.75)])
+////                .presentationBackground(.clear)
+////                .presentationBackgroundInteraction(.enabled)
+//                .task {
+//                    viewModel.touchToggle.toggle()
+//                    withAnimation(.easeInOut(duration: 0.7)) {
+//                        viewModel.cameraZoomOnPost(post: post)
+//                        buttonsViewModel.showAll.toggle()
+//                    }
+//                }
+//        }
     }
 
     private func applyFeedMode(_ mode: MapFeedMode) {
