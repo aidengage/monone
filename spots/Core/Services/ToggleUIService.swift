@@ -18,4 +18,8 @@ class ToggleUI {
     func currState() -> Bool {
         return isVisible
     }
+    
+    func toggle() {
+        isVisible.toggle()
+    }
 }

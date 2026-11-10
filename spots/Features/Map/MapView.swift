@@ -169,6 +169,7 @@ struct MapView: View {
                 // .overlay(alignment: .bottomLeading) {
                 //     AddButton(path: $viewModel.path, centerLat: $viewModel.coordinates.lat, centerLong: $viewModel.coordinates.lon)
                 // }
+                
                 .overlay(alignment: .topLeading) {
                     if feedMode == .profile {
                         VerticalDropdownToolbar(path: $viewModel.path)
@@ -182,9 +183,9 @@ struct MapView: View {
                                             set: { newValue in
                                                 if !newValue {
                                                     viewModel.exitPost()
-                                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                                        buttonsViewModel.showAll.toggle()
-                                                    }
+//                                                    withAnimation(.easeInOut(duration: 0.2)) {
+//                                                        buttonsViewModel.showAll.toggle()
+//                                                    }
                                                 }
                                             }
                                         ),
