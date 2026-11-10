@@ -48,6 +48,8 @@ private struct DependencyContainer {
     
     let location: locationProtocol
     
+    let visibleUI: ToggleUI
+    
     init() {
         do {
             // 2. FIXED: Explicitly register your SwiftData models inside a Schema
@@ -76,6 +78,10 @@ private struct DependencyContainer {
         
         let location = DeviceLocationService()
         
+        let visibleUI = ToggleUI()
+        
+        
+        
         self.db = db
         self.auth = auth
         self.storage = storage
@@ -91,6 +97,8 @@ private struct DependencyContainer {
         self.tracker = tracker
         
         self.location = location
+        
+        self.visibleUI = visibleUI
     }
 }
 
@@ -113,16 +121,9 @@ extension EnvironmentValues {
     @Entry var tracker: trackerProtocol = vault.tracker
     
     @Entry var location: locationProtocol = vault.location
-}
-//
-//    @Entry var imageService: imageServiceProtocol
-//    @Entry var userService: userServiceProtocol
     
-//    var dbService: dbServiceProtocol {
-//        get { self[dbServiceProtocol.self] }
-//        set { self[dbServiceProtocol.self] = newValue }
-//    }
-//}
+    @Entry var visible: ToggleUI = vault.visibleUI
+}
 
 protocol uidProtocol {
     var uid: String? { get set }
@@ -159,27 +160,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 }
-
-//final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-//    var window: UIWindow?
-//
-//    func scene(
-//        _ scene: UIScene,
-//        willConnectTo session: UISceneSession,
-//        options connectionOptions: UIScene.ConnectionOptions
-//    ) {
-//        guard let windowScene = scene as? UIWindowScene else { return }
-//        let window = UIWindow(windowScene: windowScene)
-////        let root = RootCatalogViewController()
-////        let nav = UINavigationController(rootViewController: root)
-//        nav.navigationBar.prefersLargeTitles = true
-//        // The whole app is dark (`UIUserInterfaceStyle` in Info.plist): a camera UI over a
-//        // live preview.
-//        window.rootViewController = nav
-//        window.makeKeyAndVisible()
-//        self.window = window
-//    }
-//}
 
 
 // the main view of our app, where we call contentview to start everything

@@ -45,6 +45,8 @@ struct MapView: View {
     
     @Environment(\.location) private var locationService
     
+    @Environment(\.visible) private var visible
+    
 //    @Environment(\.modelContext) private var modelContext
     
     @AppStorage(.settingsMapStyleKey) private var settingMapStyle: MapStyleSetting = .standard
@@ -152,13 +154,15 @@ struct MapView: View {
                     }
                 }
                 .toolbar {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        if currentUser.uid != nil {
-                            FeedbackButton()
-                            if feedMode == .home {
-                                ActivityFilter(viewModel: buttonsViewModel)
+                    if visible.currState() {
+                        ToolbarItemGroup(placement: .topBarTrailing) {
+                            if currentUser.uid != nil {
+                                FeedbackButton()
+                                if feedMode == .home {
+                                    ActivityFilter(viewModel: buttonsViewModel)
+                                }
+                                SettingsButton()
                             }
-                            SettingsButton()
                         }
                     }
                 }

@@ -6,48 +6,8 @@
 //
 
 import SwiftUI
+import Kingfisher
 
-//struct PostView: View {
-//    @Environment(\.dismiss) private var dismiss
-//    
-//    //    @Environment(\.currentUser) private var currentUser
-//    //
-//    //    @Environment(\.db) private var dbService
-//    //    @Environment(\.auth) private var authService
-//    //    @Environment(\.storage) private var storageService
-//    //    @Environment(\.post) private var postService
-//    //    @Environment(\.rating) private var ratingService
-//    //    @Environment(\.user) private var userService
-//    
-//    let post: Post
-//    @State private var isPresented = true
-//    
-//    var body: some View {
-//        NavigationStack {
-//            VStack(spacing: 0) {
-//                // Top photo section using your PhotoCardTop component
-//                TopSheetView(post: post, isPresented: $isPresented)
-//                //                    .frame(height: UIScreen.main.bounds.height * 0.4)
-//                    .containerRelativeFrame(.vertical) { length, axis in
-//                        length * 0.4
-//                    }
-//                
-//                // Bottom info section reusing your existing InfoCardBottom components
-//                BottomSheetView(post: post/*, isPresented: $isPresented*/)
-//                    .navigationTitle(post.name)
-//                    .navigationBarTitleDisplayMode(.inline)
-//                    .toolbar {
-//                        ToolbarItem(placement: .topBarTrailing) {
-//                            Button(action: { dismiss() }) {
-//                                Image(systemName: "xmark")
-//                                    .foregroundColor(.primary)
-//                            }
-//                        }
-//                    }
-//            }
-//        }
-//    }
-//}
 
 struct TopSheetView: View {
     let post: Post
@@ -115,6 +75,7 @@ struct BottomSheetView: View {
 // New file: Features/PostViewing/PostFloatingCards.swift
 
 struct PostOverlayCards: View {
+    @Environment(\.visible) private var visible
     let post: Post
     @Binding var isPresented: Bool
     let mapHeight: CGFloat
@@ -159,6 +120,14 @@ struct PostOverlayCards: View {
                     .shadow(radius: 45)
                     .position(infoCardsPosition)
             }
+            .onAppear {
+                visible.update(newState: false)
+//                print(visible.currState())
+            }
+            .onDisappear {
+                visible.update(newState: true)
+//                print(visible.currState())
+            }
         }
     }
 
@@ -195,3 +164,56 @@ struct PostOverlayCards: View {
         }
     }
 }
+
+struct PhotoCardTop: View {
+    let urls: [String]  // Array of image URLs
+
+    var body: some View {
+        GeometryReader { geometry in
+            TabView(selection: .constant(0)) {  // Use @State if you want to track the selected tab
+                ForEach(urls.indices, id: \.self) { index in
+                    KFImage.url(URL(string: urls[index]))
+                        .resizable()
+                        .scaledToFill()
+//                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+        .edgesIgnoringSafeArea(.all)
+    }
+}
+
+struct InfoCardBottom: View {
+    let icon: String          // Icon name (SF Symbols)
+    let title: String         // Title of the info card
+    let content: String       // Content to display
+    let iconColor: Color      // Color for the icon
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(iconColor)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+
+                Text(content)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+//                    .textSelectionEnabled()  // Allow text selection for copying
+            }
+
+            Spacer()
+        }
+        .padding(12)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+    }
+}
+

@@ -89,6 +89,7 @@ struct FloatingBottomNav: View {
 
 struct NavBarView: View {
     @Environment(\.auth) private var authService
+    @Environment(\.visible) private var visible
 
     @State private var activeTab: BottomTabModel = .home
     @State private var showAddPost = false
@@ -99,7 +100,7 @@ struct NavBarView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
-                //for home, friends, profile 
+                //for home, friends, profile
                 if let feedMode = activeTab.mapFeedMode {
                     MapView(
                         feedMode: feedMode,
@@ -113,9 +114,13 @@ struct NavBarView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            FloatingBottomNav(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
+            
+            if visible.currState() {
+                FloatingBottomNav(tabs: BottomTabModel.allCases, selectedTab: $activeTab)
+            }
+            
         }
+    
         .onChange(of: activeTab) { _, newTab in
             guard newTab == .add else { return }
             if authService.getAuthStatus() {
