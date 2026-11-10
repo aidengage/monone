@@ -64,6 +64,21 @@ struct BottomSheetView: View {
             }
             .padding()
         }
+        .onAppear {
+            // also start single post listener?
+            dbService.startPostListenerById(postId: post.id)
+            dbService.startRatingListener(postId: post.id)
+//            addTapGestureToDismissKeyboard()
+//            bookmarkedPostIds = userService.getBookmarks()
+//            followingUserIds = userService.getFollowing()
+        }
+//        .task(id: post.userId) {
+//            owner = await userService.fetchUsername(userId: post.userId) ?? "Unknown user"
+//        }
+        .onDisappear {
+            dbService.stopRatingListener()
+        }
+        .scrollDismissesKeyboard(.interactively)
     }
 }
 
