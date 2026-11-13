@@ -93,9 +93,13 @@ struct PostOverlayCards: View {
     @Environment(\.visible) private var visible
     let post: Post
     @Binding var isPresented: Bool
+    // Animation state
+    @State private var photoCardOffset: CGFloat = -400
+    @State private var infoCardOffset: CGFloat = 400
+
     let mapHeight: CGFloat
     let mapWidth: CGFloat
-
+    
     // Calculate positions based on map size
     private var photoCardPosition: CGPoint {
         CGPoint(x: mapWidth / 2,
@@ -125,7 +129,9 @@ struct PostOverlayCards: View {
                     .background(Color(.systemBackground))
                     .cornerRadius(45)
                     .shadow(radius: 45)
-                    .position(photoCardPosition)
+                    .position(x: mapWidth / 2, y: photoCardPosition.y)
+                    .offset(y: photoCardOffset)
+                    .animation(.spring(dampingFraction: 0.6), value: photoCardOffset)
 
                 // Info cards - positioned below center
                 BottomSheetView(post: post)
@@ -133,10 +139,15 @@ struct PostOverlayCards: View {
                     .background(Color(.systemBackground))
                     .cornerRadius(45)
                     .shadow(radius: 45)
-                    .position(infoCardsPosition)
+                    .position(x: mapWidth / 2, y: infoCardsPosition.y)
+                    .offset(y: infoCardOffset)
+                    .animation(.spring(dampingFraction: 0.6), value: infoCardOffset)
             }
             .onAppear {
                 visible.update(newState: false)
+                // Trigger animations when the view appears
+                photoCardOffset = 0
+                infoCardOffset = 0
 //                print(visible.currState())
             }
             .onDisappear {
